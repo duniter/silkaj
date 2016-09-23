@@ -3,9 +3,11 @@
 CLI Duniter client written with Python 3.
 
 ## Dependencies
+Install python packages needed for Silkaj works:
 ```bash
-sudo pip3 install requirements.txt
+sudo pip3 install -r requirements.txt
 ```
+Use `pip` command if `pip3` is not present.
 
 ## Usage
 - Get help usage with `-h`, `--help` or `--usage` options, then run:
