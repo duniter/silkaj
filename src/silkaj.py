@@ -41,7 +41,7 @@ def usage():
     \n - diffi: list proof-of-work difficulty to generate next block \
     \n - network: display current network with many information \
     \n - issuers n: display last n issuers (`0` for all blockchain) \
-    \n  - last issuers are displayed under n <= 30. To force display last ones, use `--last` option \
+    \n  - last issuers are displayed under n ≤ 30. To force display last ones, use `--last` option \
     \ncustom endpoint with options `-p` or `--peer` and <domain>:<port>")
     exit()
 

@@ -74,7 +74,7 @@ def best_node(ep, main):
             except: pass
     s.close()
     print("exit") # debug
-    if main: exit()
+#    if main: exit()
 # Sometimes, the programm display nothing. It's due to this exit()
 # Found a solution to display an error message when main node address is wrong
     
