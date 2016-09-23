@@ -8,6 +8,7 @@ Install python packages needed for Silkaj works:
 sudo pip3 install -r requirements.txt
 ```
 Use `pip` command if `pip3` is not present.
+Upgrade `pip` adding `--upgrade pip` to previous command.
 
 ## Usage
 - Get help usage with `-h`, `--help` or `--usage` options, then run:
