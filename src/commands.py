@@ -65,12 +65,13 @@ def network_info(ep, columns):
                 if len(endpoints[i]["uid"]) > 10:
                     endpoints[i]["uid"] = endpoints[i]["uid"][:9] + "…"
         current_blk = get_current_block(endpoints[i])
-        endpoints[i]["gen_time"] = convert_time(current_blk["time"], "hour")
-        if columns > 171: endpoints[i]["mediantime"] = convert_time(current_blk["medianTime"], "hour")
-        if columns > 185: endpoints[i]["difftime"] = convert_time(current_blk["time"] - current_blk["medianTime"], "hour")
-        endpoints[i]["block"] = current_blk["number"]
-        endpoints[i]["hash"] = current_blk["hash"][:10] + "…"
-        endpoints[i]["version"] = request(endpoints[i], "node/summary")["duniter"]["version"]
+        if current_blk is not None:
+            endpoints[i]["gen_time"] = convert_time(current_blk["time"], "hour")
+            if columns > 171: endpoints[i]["mediantime"] = convert_time(current_blk["medianTime"], "hour")
+            if columns > 185: endpoints[i]["difftime"] = convert_time(current_blk["time"] - current_blk["medianTime"], "hour")
+            endpoints[i]["block"] = current_blk["number"]
+            endpoints[i]["hash"] = current_blk["hash"][:10] + "…"
+            endpoints[i]["version"] = request(endpoints[i], "node/summary")["duniter"]["version"]
         if endpoints[i].get("domain") is not None and len(endpoints[i]["domain"]) > 20:
             endpoints[i]["domain"] = "…" + endpoints[i]["domain"][-20:]
         if endpoints[i].get("ip6") is not None:

@@ -57,7 +57,9 @@ def check_ip(address):
     except: return (0)
 
 def request(ep, path):
-    url = "http://" + ep[best_node(ep, 0)] + ":" + ep["port"] + "/" + path
+    address = best_node(ep, 0)
+    if address is None: return (address)
+    url = "http://" + ep[address] + ":" + ep["port"] + "/" + path
     request = urllib.request.Request(url)
     response = urllib.request.urlopen(request)
     encoding = response.info().get_content_charset('utf8')
@@ -73,10 +75,8 @@ def best_node(ep, main):
                 return (address)
             except: pass
     s.close()
-    print("exit") # debug
-#    if main: exit()
-# Sometimes, the programm display nothing. It's due to this exit()
-# Found a solution to display an error message when main node address is wrong
+    if main: print("Wrong node gived as argument"); exit()
+    return (None)
     
 def check_port(port):
     try:

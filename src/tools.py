@@ -12,10 +12,13 @@ def convert_time(timestamp, kind):
 
 def get_uid_from_pubkey(ep, pubkey):
     i, results = 0, request(ep, "wot/lookup/" + pubkey)["results"]
+    if results == None: return(None)
     while (i < len(results)):
         if results[i]["uids"][0]["uid"] != pubkey:
             return (results[i]["uids"][0]["uid"])
         i+=1
 
 def get_current_block(ep):
-    return (request(ep, "blockchain/current"))
+    current_blk = request(ep, "blockchain/current")
+    if current_blk is None: return (None)
+    else: return (current_blk)
