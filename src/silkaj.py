@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import os
-
 from commandlines import Command
 
 from commands import *
@@ -24,10 +22,7 @@ def manage_cmd(ep, c):
     elif c.subcmd == "diffi":
         difficulties(ep)
     elif c.subcmd == "network":
-        rows, columns = os.popen('stty size', 'r').read().split()
-#        print(rows, columns) # debug
-        if int(columns) >= 146: network_info(ep, int(columns))
-        else: print("Current wide screen need to be larger than 146. Current wide:", columns)
+        network_info(ep)
     elif c.subcmd == "issuers" and c.subsubcmd and int(c.subsubcmd) >= 0:
         list_issuers(ep, int(c.subsubcmd), c.contains_switches('last'))
     else: usage()

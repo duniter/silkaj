@@ -47,7 +47,13 @@ def difficulties(ep):
     "\n### Difficulty to generate next block", diffi["block"], "for", len(diffi["levels"]), "nodes:")
     print(tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl"))
 
-def network_info(ep, columns):
+def network_info(ep):
+    rows, columns = os.popen('stty size', 'r').read().split()
+#    print(rows, columns) # debug
+    wide = int(columns)
+    if wide < 146:
+        print("Wide screen need to be larger than 146. Current wide:", wide)
+        exit()
     endpoints = discover_peers(ep)
     ### Todo : renommer endpoints en info ###
     diffi = request(ep, "blockchain/difficulties")
@@ -70,15 +76,15 @@ def network_info(ep, columns):
         current_blk = get_current_block(endpoints[i])
         if current_blk is not None:
             endpoints[i]["gen_time"] = convert_time(current_blk["time"], "hour")
-            if columns > 171: endpoints[i]["mediantime"] = convert_time(current_blk["medianTime"], "hour")
-            if columns > 185: endpoints[i]["difftime"] = convert_time(current_blk["time"] - current_blk["medianTime"], "hour")
+            if wide > 171: endpoints[i]["mediantime"] = convert_time(current_blk["medianTime"], "hour")
+            if wide > 185: endpoints[i]["difftime"] = convert_time(current_blk["time"] - current_blk["medianTime"], "hour")
             endpoints[i]["block"] = current_blk["number"]
             endpoints[i]["hash"] = current_blk["hash"][:10] + "…"
             endpoints[i]["version"] = request(endpoints[i], "node/summary")["duniter"]["version"]
         if endpoints[i].get("domain") is not None and len(endpoints[i]["domain"]) > 20:
             endpoints[i]["domain"] = "…" + endpoints[i]["domain"][-20:]
         if endpoints[i].get("ip6") is not None:
-            if columns < 156: endpoints[i].pop("ip6")
+            if wide < 156: endpoints[i].pop("ip6")
             else: endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
         i+=1
     os.system("clear")
