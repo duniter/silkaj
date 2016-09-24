@@ -92,9 +92,9 @@ def network_info(ep):
             else: endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
         i+=1
     os.system("clear")
-    print("###", len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members, "non-members\n")
+    print("###", len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members,
+    "non-members at", datetime.datetime.now().strftime("%H:%M:%S"))
     ### Todo: keep same columns order: issue on tabulate bitbucket ###
-    ## Todo: too much data which could not be displayed on small wide screens: wide terminal could be gather to only display more important data #
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl"))
 
 def list_issuers(ep, nbr, last):
