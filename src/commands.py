@@ -59,6 +59,10 @@ def network_info(ep):
     diffi = request(ep, "blockchain/difficulties")
     i, members = 0, 0
     while (i < len(endpoints)):
+        print("{0:.0f}%".format(i/len(endpoints) * 100, 1), end = " ")
+        best_ep = best_node(endpoints[i], 0)
+        print(best_ep if best_ep is None else endpoints[i][best_ep], end = " ")
+        print(endpoints[i]["port"])
         try:
             endpoints[i]["uid"] = get_uid_from_pubkey(ep, endpoints[i]["pubkey"])
             endpoints[i]["member"] = "yes"; members+=1
@@ -98,6 +102,7 @@ def list_issuers(ep, nbr, last):
     if nbr == 0: nbr = current_nbr
     blk_nbr, list_issuers = current_nbr, list()
     while (blk_nbr + nbr > current_nbr):
+        print("{0:.0f}%: block n°{1}".format((current_nbr - blk_nbr) / nbr * 100, blk_nbr))
         issuer, issuer["block"] = dict(), blk_nbr
         issuer["pubkey"] = request(ep, "blockchain/block/" + str(blk_nbr))["issuer"]
         blk_nbr-=1
