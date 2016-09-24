@@ -46,7 +46,6 @@ def usage():
     exit()
 
 if __name__ == '__main__':
-    os.system("clear")
     ep, c = cli()
     check_port(ep["port"])
     best_node(ep, 1)

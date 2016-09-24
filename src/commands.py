@@ -1,4 +1,5 @@
 import datetime
+import os
 from tabulate import tabulate
 from operator import itemgetter
 
@@ -12,6 +13,7 @@ def currency_info(ep):
             info_data[info_type[i]] = request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
             i +=1
     current = get_current_block(ep)
+    os.system("clear")
     print("Connected to node:", ep[best_node(ep, 1)], ep["port"],
     "\nCurrent block number:", current["number"],
     "\nCurrency name:", current["currency"],
@@ -40,8 +42,9 @@ def difficulties(ep):
     match += "*`"
     diffi = request(ep, "blockchain/difficulties")
     sorted_diffi = sorted(diffi["levels"], key=itemgetter("level"))
-    print("Minimal Proof-of-Work:", current["powMin"], "to match", match)
-    print("\n### Difficulty to generate next block", diffi["block"], "for", len(diffi["levels"]), "nodes:")
+    os.system("clear")
+    print("Minimal Proof-of-Work:", current["powMin"], "to match", match,
+    "\n### Difficulty to generate next block", diffi["block"], "for", len(diffi["levels"]), "nodes:")
     print(tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl"))
 
 def network_info(ep, columns):
@@ -78,6 +81,7 @@ def network_info(ep, columns):
             if columns < 156: endpoints[i].pop("ip6")
             else: endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
         i+=1
+    os.system("clear")
     print("###", len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members, "non-members\n")
     ### Todo: keep same columns order: issue on tabulate bitbucket ###
     ## Todo: too much data which could not be displayed on small wide screens: wide terminal could be gather to only display more important data #
@@ -99,6 +103,7 @@ def list_issuers(ep, nbr, last):
                 issuer2["pubkey"]  == issuer["pubkey"]:
                 issuer2["uid"] = uid
                 issuer2.pop("pubkey")
+    os.system("clear")
     print("### Issuers for last", nbr, "blocks from block n°", current_nbr - nbr, "to block n°", current_nbr)
     if last or nbr <= 30:
         print(tabulate(list_issuers, headers="keys", tablefmt="orgtbl"))
