@@ -41,11 +41,13 @@ def difficulties(ep):
             match += end; powmin = 0
     match += "*`"
     diffi = request(ep, "blockchain/difficulties")
-    sorted_diffi = sorted(diffi["levels"], key=itemgetter("level"))
+    issuers, sorted_diffi = 0, sorted(diffi["levels"], key=itemgetter("level"))
+    for d in diffi["levels"]:
+        if d["level"] == current["powMin"]: issuers += 1
     os.system("clear")
-    print("Minimal Proof-of-Work:", current["powMin"], "to match", match,
-    "\n### Difficulty to generate next block", diffi["block"], "for", len(diffi["levels"]), "nodes:")
-    print(tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl"))
+    print("Minimal Proof-of-Work: {0} to match {1}\n### Difficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
+    .format(current["powMin"], match, diffi["block"], issuers, len(diffi["levels"]),
+    tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl")))
 
 def network_info(ep):
     rows, columns = os.popen('stty size', 'r').read().split()
