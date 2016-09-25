@@ -18,14 +18,14 @@ Upgrade `pip` adding `--upgrade pip` to previous command.
 ## Usage
 - Get help usage with `-h`, `--help` or `--usage` options, then run:
 ```bash
-./src/silkaj.py <sub-command>
+./silkaj <sub-command>
 ```
 
 - Will automatically request `duniter.org 8999` node.
 
 - Specify a custom node with `--peer` or `-p` option:
 ```bash
-./src/silkaj.py <sub-command> --peer <address>:<port>
+./silkaj <sub-command> --peer <address>:<port>
 ```
 
 ## Features
@@ -42,7 +42,7 @@ Upgrade `pip` adding `--upgrade pip` to previous command.
 
 ## Example
 ```bash
-./src/silkaj.py network
+./silkaj network
 
 ### 20 peers ups, with 15 members and 5 non-members
 
