@@ -7,7 +7,9 @@ import urllib.request
 def discover_peers(ep):
     peers = request(ep, "network/peers")["peers"]
     endpoints = parse_endpoints(peers)
-    # Todo: discover network some nodes are missing
+    for ep in endpoints:
+        if best_node(ep, 0) is None: endpoints.remove(ep)
+    # Todo: discover network, some nodes are missing
     ### Todo: search for other nodes asking on other nodes because nodes are missing comperated to Sakia ###
     return (endpoints)
 
@@ -72,9 +74,9 @@ def best_node(ep, main):
         if address in ep:
             try:
                 s.connect((ep[address], port))
+                s.close()
                 return (address)
             except: pass
-    s.close()
     if main: print("Wrong node gived as argument"); exit()
     return (None)
     
