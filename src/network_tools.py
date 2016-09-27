@@ -4,14 +4,34 @@ import json
 import socket
 import urllib.request
 
-def discover_peers(ep):
-    peers = request(ep, "network/peers")["peers"]
-    endpoints = parse_endpoints(peers)
-    for ep in endpoints:
+def discover_peers(ep, discover):
+    """
+    From first node, discover his known nodes.
+    Remove from know nodes if nodes are down.
+    If discover option: scan all network to know all nodes.
+        display percentage discovering.
+    """
+    endpoints = parse_endpoints(request(ep, "network/peers")["peers"])
+    if discover: print("Discovering network")
+    for i, ep in enumerate(endpoints):
+        if discover: print("{0:.0f}%".format(i/len(endpoints) * 100)) #, ep) # debug
         if best_node(ep, 0) is None: endpoints.remove(ep)
-    # Todo: discover network, some nodes are missing
-    ### Todo: search for other nodes asking on other nodes because nodes are missing comperated to Sakia ###
+        elif discover: endpoints = recursive_discovering(endpoints, ep)
     return (endpoints)
+
+def recursive_discovering(endpoints, ep):
+    """
+    Discover recursively new nodes.
+    If new node found add it and try to found new node from his known nodes.
+    """
+    news = parse_endpoints(request(ep, "network/peers")["peers"])
+    for new in news:
+#        print("-", new) # debug
+        if best_node(new, 0) is not None and new not in endpoints:
+            endpoints.append(new)
+            recursive_discovering(endpoints, new)
+    return (endpoints)
+    # Check why network discovering stayed stuck when checking some node without domain name: it happen sometimes
 
 def parse_endpoints(rep):
     """

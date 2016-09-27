@@ -49,17 +49,18 @@ def difficulties(ep):
     .format(current["powMin"], match, diffi["block"], issuers, len(diffi["levels"]),
     tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl")))
 
-def network_info(ep):
+def network_info(ep, discover):
     rows, columns = os.popen('stty size', 'r').read().split()
 #    print(rows, columns) # debug
     wide = int(columns)
     if wide < 146:
         print("Wide screen need to be larger than 146. Current wide:", wide)
         exit()
-    endpoints = discover_peers(ep)
+    endpoints = discover_peers(ep, discover)
     ### Todo : renommer endpoints en info ###
     diffi = request(ep, "blockchain/difficulties")
     i, members = 0, 0
+    print("Getting informations about nodes:")
     while (i < len(endpoints)):
         print("{0:.0f}%".format(i/len(endpoints) * 100, 1), end = " ")
         best_ep = best_node(endpoints[i], 0)

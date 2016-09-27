@@ -22,7 +22,7 @@ def manage_cmd(ep, c):
     elif c.subcmd == "diffi":
         difficulties(ep)
     elif c.subcmd == "network":
-        network_info(ep)
+        network_info(ep, c.contains_switches("discover"))
     elif c.subcmd == "issuers" and c.subsubcmd and int(c.subsubcmd) >= 0:
         list_issuers(ep, int(c.subsubcmd), c.contains_switches('last'))
     else: usage()
@@ -35,6 +35,7 @@ def usage():
     \n - info: display information about currency \
     \n - diffi: list proof-of-work difficulty to generate next block \
     \n - network: display current network with many information \
+    \n  - `--discover` option to discover all network (could take a while) \
     \n - issuers n: display last n issuers (`0` for all blockchain) \
     \n  - last issuers are displayed under n ≤ 30. To force display last ones, use `--last` option \
     \ncustom endpoint with options `-p` or `--peer` and <domain>:<port>")
