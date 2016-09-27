@@ -1,4 +1,5 @@
 import datetime
+import time
 import os
 from tabulate import tabulate
 from operator import itemgetter
@@ -110,6 +111,8 @@ def list_issuers(ep, nbr, last):
         issuer["pubkey"] = request(ep, "blockchain/block/" + str(blk_nbr))["issuer"]
         blk_nbr-=1
         list_issuers.append(issuer)
+        # For now, to avoid 503 error:
+        time.sleep(0.1)
     for issuer in list_issuers:
         uid = get_uid_from_pubkey(ep, issuer["pubkey"])
         for issuer2 in list_issuers:
