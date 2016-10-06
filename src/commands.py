@@ -118,11 +118,10 @@ def list_issuers(ep, nbr, last):
                 issuer2["uid"] = uid
                 issuer2.pop("pubkey")
     os.system("clear")
-    print("### Issuers for last", nbr, "blocks from block n°", current_nbr - nbr, "to block n°", current_nbr)
+    print("### Issuers for last {0} blocks from block n°{1} to block n°{2}".format(nbr, current_nbr - nbr, current_nbr), end = " ")
     if last or nbr <= 30:
         print(tabulate(list_issuers, headers="keys", tablefmt="orgtbl"))
     else:
-    ## todo: requêttes possiblement bloquées par l’anti-spam DDOS des nœuds, faudrait passer en P2P: récupérer 200 blocs par nœuds.
         i, list_issued = 0, list()
         while i < len(list_issuers):
             j, found = 0, 0
@@ -143,4 +142,5 @@ def list_issuers(ep, nbr, last):
             list_issued[i]["percent"] = list_issued[i]["blocks"] / nbr * 100
             i+=1
         sorted_list = sorted(list_issued, key=itemgetter("blocks"), reverse=True)
-        print(tabulate(sorted_list, headers="keys", tablefmt="orgtbl", floatfmt=".1f"))
+        print("from {0} issuers\n{1}".format(len(list_issued),
+        tabulate(sorted_list, headers="keys", tablefmt="orgtbl", floatfmt=".1f")))
