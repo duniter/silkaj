@@ -120,7 +120,7 @@ def list_issuers(ep, nbr, last):
     os.system("clear")
     print("### Issuers for last {0} blocks from block n°{1} to block n°{2}".format(nbr, current_nbr - nbr, current_nbr), end = " ")
     if last or nbr <= 30:
-        print(tabulate(list_issuers, headers="keys", tablefmt="orgtbl"))
+        print("\n{0}".format(tabulate(list_issuers, headers="keys", tablefmt="orgtbl")))
     else:
         i, list_issued = 0, list()
         while i < len(list_issuers):
