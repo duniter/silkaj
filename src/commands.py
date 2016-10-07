@@ -102,14 +102,14 @@ def network_info(ep, discover):
 
 def list_issuers(ep, nbr, last):
     current_nbr = get_current_block(ep)["number"]
-    if nbr == 0: nbr = current_nbr
-    blk_nbr, list_issuers = current_nbr, list()
-    while (blk_nbr + nbr > current_nbr):
-        print("{0:.0f}%: block n°{1}".format((current_nbr - blk_nbr) / nbr * 100, blk_nbr))
-        issuer, issuer["block"] = dict(), blk_nbr
-        issuer["pubkey"] = request(ep, "blockchain/block/" + str(blk_nbr))["issuer"]
-        blk_nbr-=1
+    url = "blockchain/blocks/" + str(nbr) + "/" + str(current_nbr - nbr + 1)
+    blocks, list_issuers, j = request(ep, url), list(), 0
+    while j < len(blocks):
+        issuer = dict()
+        issuer["pubkey"] = blocks[j]["issuer"]
+        if last or nbr <= 30: issuer["block"] = blocks[j]["number"]
         list_issuers.append(issuer)
+        j+=1
     for issuer in list_issuers:
         uid = get_uid_from_pubkey(ep, issuer["pubkey"])
         for issuer2 in list_issuers:
@@ -118,9 +118,10 @@ def list_issuers(ep, nbr, last):
                 issuer2["uid"] = uid
                 issuer2.pop("pubkey")
     os.system("clear")
-    print("### Issuers for last {0} blocks from block n°{1} to block n°{2}".format(nbr, current_nbr - nbr, current_nbr), end = " ")
+    print("### Issuers for last {0} blocks from block n°{1} to block n°{2}".format(nbr, current_nbr - nbr + 1, current_nbr), end = " ")
     if last or nbr <= 30:
-        print("\n{0}".format(tabulate(list_issuers, headers="keys", tablefmt="orgtbl")))
+        sorted_list = sorted(list_issuers, key=itemgetter("block"), reverse=True)
+        print("\n{0}".format(tabulate(sorted_list, headers="keys", tablefmt="orgtbl")))
     else:
         i, list_issued = 0, list()
         while i < len(list_issuers):
