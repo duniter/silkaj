@@ -107,7 +107,11 @@ def list_issuers(ep, nbr, last):
     while j < len(blocks):
         issuer = dict()
         issuer["pubkey"] = blocks[j]["issuer"]
-        if last or nbr <= 30: issuer["block"] = blocks[j]["number"]
+        if last or nbr <= 30:
+            issuer["block"] = blocks[j]["number"]
+            issuer["gentime"] = convert_time(blocks[j]["time"], "hour")
+            issuer["mediantime"] = convert_time(blocks[j]["medianTime"], "hour")
+            issuer["hash"] = blocks[j]["hash"][:8]
         list_issuers.append(issuer)
         j+=1
     for issuer in list_issuers:
