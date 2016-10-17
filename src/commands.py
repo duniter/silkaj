@@ -31,16 +31,20 @@ def currency_info(ep):
     "\n- UD created:", len(info_data["ud"]),
     "\n- transactions:", len(info_data["tx"]))
 
-def difficulties(ep):
-    current = get_current_block(ep)
-    powmin, match = int(current["powMin"]), "`"
-    while powmin > 0:
-        if powmin >= 16: match += "0"; powmin -= 16
+def match_pattern(pow):
+    match = "`"
+    while pow > 0:
+        if pow >= 16: match += "0"; pow -= 16
         else:
-            end = "[0-" + hex(15 - powmin)[2:].upper() + "]"
-            match += end; powmin = 0
+            end = "[0-" + hex(15 - pow)[2:].upper() + "]"
+            match += end; pow = 0
     match += "*`"
+    return (match)
+
+def difficulties(ep):
     diffi = request(ep, "blockchain/difficulties")
+    current = get_current_block(ep)
+    match = match_pattern(int(current["powMin"]))
     issuers, sorted_diffi = 0, sorted(diffi["levels"], key=itemgetter("level"))
     for d in diffi["levels"]:
         if d["level"] / 2 < current["powMin"]: issuers += 1
