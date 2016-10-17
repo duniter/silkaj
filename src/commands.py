@@ -48,6 +48,7 @@ def difficulties(ep):
     issuers, sorted_diffi = 0, sorted(diffi["levels"], key=itemgetter("level"))
     for d in diffi["levels"]:
         if d["level"] / 2 < current["powMin"]: issuers += 1
+        d["match"] = match_pattern(int(d["level"]))[1:][:-1][:20]
     os.system("clear")
     print("Minimal Proof-of-Work: {0} to match {1}\n### Difficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
     .format(current["powMin"], match, diffi["block"], issuers, len(diffi["levels"]),
