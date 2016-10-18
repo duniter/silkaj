@@ -30,7 +30,7 @@ Upgrade `pip` adding `--upgrade pip` to previous command.
 
 ## Features
 - Currency information
-- Proof-of-Work difficulties
+- Proof-of-Work difficulties: Σ diffi, Π diffi, match
 - network information tab:
  - endpoints, ip6, ip4, domain name and port. Handle nodes sharing same pubkey.
  - pubkey, uid, if member.
@@ -38,7 +38,7 @@ Upgrade `pip` adding `--upgrade pip` to previous command.
  - generated block and median times.
  - nodes versions.
  - current block n°, hash and time.
-- Issuers last ones or all
+- Issuers last ones or all: hash, gentime, mediantime
 
 ## Example
 ```bash
