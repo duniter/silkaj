@@ -38,8 +38,7 @@ def match_pattern(pow):
         else:
             end = "[0-" + hex(15 - pow)[2:].upper() + "]"
             match += end; pow = 0
-    match += "*"
-    return (match)
+    return (match + '*')
 
 def difficulties(ep):
     diffi = request(ep, "blockchain/difficulties")
@@ -48,7 +47,8 @@ def difficulties(ep):
     issuers, sorted_diffi = 0, sorted(diffi["levels"], key=itemgetter("level"))
     for d in diffi["levels"]:
         if d["level"] / 2 < current["powMin"]: issuers += 1
-        d["match"] = match_pattern(int(d["level"]))[:20]
+        d["match"] = match_pattern(d["level"])[:20]
+        d["Σ diffi"] = d.pop("level")
     os.system("clear")
     print("Minimal Proof-of-Work: {0} to match `{1}`\n### Difficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
     .format(current["powMin"], match, diffi["block"], issuers, len(diffi["levels"]),
