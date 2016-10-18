@@ -32,13 +32,13 @@ def currency_info(ep):
     "\n- transactions:", len(info_data["tx"]))
 
 def match_pattern(pow):
-    match = "`"
+    match = ''
     while pow > 0:
         if pow >= 16: match += "0"; pow -= 16
         else:
             end = "[0-" + hex(15 - pow)[2:].upper() + "]"
             match += end; pow = 0
-    match += "*`"
+    match += "*"
     return (match)
 
 def difficulties(ep):
@@ -48,9 +48,9 @@ def difficulties(ep):
     issuers, sorted_diffi = 0, sorted(diffi["levels"], key=itemgetter("level"))
     for d in diffi["levels"]:
         if d["level"] / 2 < current["powMin"]: issuers += 1
-        d["match"] = match_pattern(int(d["level"]))[1:][:-1][:20]
+        d["match"] = match_pattern(int(d["level"]))[:20]
     os.system("clear")
-    print("Minimal Proof-of-Work: {0} to match {1}\n### Difficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
+    print("Minimal Proof-of-Work: {0} to match `{1}`\n### Difficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
     .format(current["powMin"], match, diffi["block"], issuers, len(diffi["levels"]),
     tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl")))
 
