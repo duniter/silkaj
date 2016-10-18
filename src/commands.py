@@ -31,27 +31,30 @@ def currency_info(ep):
     "\n- UD created:", len(info_data["ud"]),
     "\n- transactions:", len(info_data["tx"]))
 
-def match_pattern(pow):
-    match = ''
+def match_pattern(pow, match = '', π = 1):
     while pow > 0:
-        if pow >= 16: match += "0"; pow -= 16
+        if pow >= 16: match += "0"; pow -= 16; π *= 16
         else:
-            end = "[0-" + hex(15 - pow)[2:].upper() + "]"
-            match += end; pow = 0
-    return (match + '*')
+            match += "[0-" + hex(15 - pow)[2:].upper() + "]"
+            π *= pow; pow = 0
+    return (match + '*', π)
+
+def power(nbr, pow = 0):
+    while nbr >= 10: nbr /= 10; pow += 1
+    return ("{0:.1f} × 10^{1}".format(nbr, pow))
 
 def difficulties(ep):
     diffi = request(ep, "blockchain/difficulties")
     current = get_current_block(ep)
-    match = match_pattern(int(current["powMin"]))
     issuers, sorted_diffi = 0, sorted(diffi["levels"], key=itemgetter("level"))
     for d in diffi["levels"]:
         if d["level"] / 2 < current["powMin"]: issuers += 1
-        d["match"] = match_pattern(d["level"])[:20]
+        d["match"] = match_pattern(d["level"])[0][:20]
+        d["Π diffi"] = power(match_pattern(d["level"])[1])
         d["Σ diffi"] = d.pop("level")
     os.system("clear")
     print("Minimal Proof-of-Work: {0} to match `{1}`\n### Difficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
-    .format(current["powMin"], match, diffi["block"], issuers, len(diffi["levels"]),
+    .format(current["powMin"], match_pattern(int(current["powMin"]))[0], diffi["block"], issuers, len(diffi["levels"]),
     tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl")))
 
 def network_info(ep, discover):
