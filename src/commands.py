@@ -112,6 +112,7 @@ def list_issuers(ep, nbr, last):
     current_nbr = get_current_block(ep)["number"]
     url = "blockchain/blocks/" + str(nbr) + "/" + str(current_nbr - nbr + 1)
     blocks, list_issuers, j = request(ep, url), list(), 0
+    issuers_dict = dict()
     while j < len(blocks):
         issuer = dict()
         issuer["pubkey"] = blocks[j]["issuer"]
@@ -120,9 +121,11 @@ def list_issuers(ep, nbr, last):
             issuer["gentime"] = convert_time(blocks[j]["time"], "hour")
             issuer["mediantime"] = convert_time(blocks[j]["medianTime"], "hour")
             issuer["hash"] = blocks[j]["hash"][:8]
+        issuers_dict[issuer["pubkey"]] = issuer
         list_issuers.append(issuer)
         j+=1
-    for issuer in list_issuers:
+    for pubkey in issuers_dict.keys():
+        issuer = issuers_dict[pubkey]
         uid = get_uid_from_pubkey(ep, issuer["pubkey"])
         for issuer2 in list_issuers:
             if issuer2.get("pubkey") is not None and issuer.get("pubkey") is not None and \
