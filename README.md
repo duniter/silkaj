@@ -8,12 +8,21 @@ Clone repository:
 git clone https://github.com/duniter/silkaj.git
 ```
 
-Install python packages dependencies needed for Silkaj works:
+### Dependencies
+Silkaj is based on Python dependencies.
+
+#### From pip
 ```bash
 sudo pip3 install -r requirements.txt
 ```
 Use `pip` command if `pip3` is not present.
 Upgrade `pip` adding `--upgrade pip` to previous command.
+
+#### From Distributions package
+Two dependencies (one is missing) could be installed from Debian and Fedora repository packages:
+```bash
+sudo (apt-get or dnf) install python-tabulate python-ipaddress
+```
 
 ## Usage
 - Get help usage with `-h`, `--help` or `--usage` options, then run:
