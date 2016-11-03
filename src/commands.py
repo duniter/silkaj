@@ -55,7 +55,7 @@ def difficulties(ep):
     os.system("clear")
     print("Minimal Proof-of-Work: {0} to match `{1}`\n### Difficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
     .format(current["powMin"], match_pattern(int(current["powMin"]))[0], diffi["block"], issuers, len(diffi["levels"]),
-    tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl")))
+    tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl", stralign="center")))
 
 def network_info(ep, discover):
     rows, columns = os.popen('stty size', 'r').read().split()
@@ -106,7 +106,7 @@ def network_info(ep, discover):
     print("###", len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members,
     "non-members at", datetime.datetime.now().strftime("%H:%M:%S"))
     ### Todo: keep same columns order: issue on tabulate bitbucket ###
-    print(tabulate(endpoints, headers="keys", tablefmt="orgtbl"))
+    print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 def list_issuers(ep, nbr, last):
     current_nbr = get_current_block(ep)["number"]
@@ -136,7 +136,7 @@ def list_issuers(ep, nbr, last):
     print("### Issuers for last {0} blocks from block n°{1} to block n°{2}".format(nbr, current_nbr - nbr + 1, current_nbr), end = " ")
     if last or nbr <= 30:
         sorted_list = sorted(list_issuers, key=itemgetter("block"), reverse=True)
-        print("\n{0}".format(tabulate(sorted_list, headers="keys", tablefmt="orgtbl")))
+        print("\n{0}".format(tabulate(sorted_list, headers="keys", tablefmt="orgtbl", stralign="center")))
     else:
         i, list_issued = 0, list()
         while i < len(list_issuers):
@@ -159,4 +159,4 @@ def list_issuers(ep, nbr, last):
             i+=1
         sorted_list = sorted(list_issued, key=itemgetter("blocks"), reverse=True)
         print("from {0} issuers\n{1}".format(len(list_issued),
-        tabulate(sorted_list, headers="keys", tablefmt="orgtbl", floatfmt=".1f")))
+        tabulate(sorted_list, headers="keys", tablefmt="orgtbl", floatfmt=".1f", stralign="center")))
