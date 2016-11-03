@@ -44,8 +44,10 @@ def parse_endpoints(rep):
         if (rep[i]["status"] == "UP"):
             while j < len(rep[i]["endpoints"]):
                 ep = parse_endpoint(rep[i]["endpoints"][j])
-                ep["pubkey"] = rep[i]["pubkey"]
                 j+=1
+                if ep is None:
+                    break
+                ep["pubkey"] = rep[i]["pubkey"]
                 endpoints.append(ep)
         i+=1; j = 0
     return (endpoints)
@@ -65,7 +67,9 @@ def parse_endpoint(rep):
             ep = endpoint_type(sep[2], ep)
         if len(sep) == 3:
             ep = endpoint_type(sep[1], ep)
-    return (ep)
+        return (ep)
+    else:
+        return (None)
 
 def endpoint_type(sep, ep):
     typ = check_ip(sep)
