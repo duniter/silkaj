@@ -9,9 +9,9 @@ def cli():
     ep, c = dict(), Command()
     ep["domain"], ep["port"] = "duniter.org", "8999"
     try: ep["domain"], ep["port"] = c.get_definition('p').rsplit(':', 1)
-    except: pass
-    try: ep["domain"], ep["port"] = c.get_definition('peer').rsplit(':', 1)
-    except: pass
+    except:
+        print("Fallback to default node {}:{}\nCause: no specifed node, node not reachable or parsing issue."
+        .format(ep["domain"], ep["port"]))
     if ep["domain"].startswith('[') and ep["domain"].endswith(']'): ep["domain"] = ep["domain"][1:-1]
     if c.is_help_request() or c.is_usage_request(): usage()
     if c.is_version_request(): print("silkaj 0.1.0")
@@ -39,7 +39,7 @@ def usage():
     \n  - `--discover` option to discover all network (could take a while) \
     \n - issuers n: display last n issuers (`0` for all blockchain) \
     \n  - last issuers are displayed under n ≤ 30. To force display last ones, use `--last` option \
-    \ncustom endpoint with options `-p` or `--peer` and <domain>:<port>")
+    \ncustom endpoint with option `-p` and <domain>:<port>")
     exit()
 
 if __name__ == '__main__':

@@ -32,9 +32,9 @@ sudo (apt-get or dnf) install python-tabulate python-ipaddress
 
 - Will automatically request `duniter.org 8999` node.
 
-- Specify a custom node with `--peer` or `-p` option:
+- Specify a custom node with `-p` option:
 ```bash
-./silkaj <sub-command> --peer <address>:<port>
+./silkaj <sub-command> -p <address>:<port>
 ```
 
 ## Features
