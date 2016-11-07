@@ -7,14 +7,15 @@ from commands import *
 def cli():
     # ep: endpoint, node's network interface
     ep, c = dict(), Command()
+    subcmd = ["info", "diffi", "network", "issuers"]
+    if c.is_help_request() or c.is_usage_request() or c.subcmd not in subcmd: usage(); exit()
+    if c.is_version_request(): print("silkaj 0.1.0"); exit()
     ep["domain"], ep["port"] = "duniter.org", "8999"
     try: ep["domain"], ep["port"] = c.get_definition('p').rsplit(':', 1)
     except:
         print("Fallback to default node {}:{}\nCause: no specifed node, node not reachable or parsing issue."
         .format(ep["domain"], ep["port"]))
     if ep["domain"].startswith('[') and ep["domain"].endswith(']'): ep["domain"] = ep["domain"][1:-1]
-    if c.is_help_request() or c.is_usage_request(): usage()
-    if c.is_version_request(): print("silkaj 0.1.0")
     return (ep, c)
 
 def manage_cmd(ep, c):
@@ -26,7 +27,6 @@ def manage_cmd(ep, c):
         network_info(ep, c.contains_switches("discover"))
     elif c.subcmd == "issuers" and c.subsubcmd and int(c.subsubcmd) >= 0:
         list_issuers(ep, int(c.subsubcmd), c.contains_switches('last'))
-    else: usage()
 
 def usage():
     print("Silkaj: command line Duniter client \
