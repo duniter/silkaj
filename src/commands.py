@@ -1,5 +1,6 @@
 import datetime
 import os
+from collections import OrderedDict
 from tabulate import tabulate
 from operator import itemgetter
 
@@ -45,6 +46,8 @@ def power(nbr, pow = 0):
 
 def difficulties(ep):
     diffi = request(ep, "blockchain/difficulties")
+    levels = [OrderedDict((i, d[i]) for i in ("uid", "level")) for d in diffi["levels"]]
+    diffi["levels"] = levels
     current = get_current_block(ep)
     issuers, sorted_diffi = 0, sorted(diffi["levels"], key=itemgetter("level"))
     for d in diffi["levels"]:
@@ -64,7 +67,9 @@ def network_info(ep, discover):
     if wide < 146:
         print("Wide screen need to be larger than 146. Current wide:", wide)
         exit()
-    endpoints = discover_peers(ep, discover)
+    # discover peers
+    # and make sure fields are always ordered the same
+    endpoints = [OrderedDict((i, p.get(i, None)) for i in ("domain", "port", "ip4", "ip6", "pubkey")) for p in discover_peers(ep, discover)]
     ### Todo : renommer endpoints en info ###
     diffi = request(ep, "blockchain/difficulties")
     i, members = 0, 0
@@ -105,7 +110,6 @@ def network_info(ep, discover):
     os.system("clear")
     print("###", len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members,
     "non-members at", datetime.datetime.now().strftime("%H:%M:%S"))
-    ### Todo: keep same columns order: issue on tabulate bitbucket ###
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 def list_issuers(ep, nbr, last):
@@ -114,7 +118,7 @@ def list_issuers(ep, nbr, last):
     blocks, list_issuers, j = request(ep, url), list(), 0
     issuers_dict = dict()
     while j < len(blocks):
-        issuer = dict()
+        issuer = OrderedDict()
         issuer["pubkey"] = blocks[j]["issuer"]
         if last or nbr <= 30:
             issuer["block"] = blocks[j]["number"]
