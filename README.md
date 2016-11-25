@@ -88,3 +88,5 @@ I wanted to call that program:
 - margouillat
 - lsociety
 - cashmere
+
+I finally called it `Silkaj` as `Silk` in esperanto.
