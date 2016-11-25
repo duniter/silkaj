@@ -152,7 +152,7 @@ def list_issuers(ep, nbr, last):
                     found = 1; break
                 j+=1
             if found == 0:
-                issued = dict()
+                issued = OrderedDict()
                 issued["uid"] = list_issuers[i]["uid"]
                 issued["blocks"] = 1
                 list_issued.append(issued)
