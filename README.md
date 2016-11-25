@@ -9,7 +9,10 @@ git clone https://github.com/duniter/silkaj.git
 ```
 
 ### Dependencies
-Silkaj is based on Python dependencies.
+Silkaj is based on Python dependencies:
+
+- [Tabulate](https://bitbucket.org/astanin/python-tabulate/overview): to display charts.
+- [Commandlines](https://github.com/chrissimpkins/commandlines): to parse command and sub-commands.
 
 #### From pip
 ```bash
