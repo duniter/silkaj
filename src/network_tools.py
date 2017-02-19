@@ -86,6 +86,8 @@ def request(ep, path):
     address = best_node(ep, 0)
     if address is None: return (address)
     url = "http://" + ep[address] + ":" + ep["port"] + "/" + path
+    if ep["port"] == "443":
+        url = "https://" + ep[address] + "/" + path
     request = urllib.request.Request(url)
     response = urllib.request.urlopen(request)
     encoding = response.info().get_content_charset('utf8')
