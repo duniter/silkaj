@@ -10,7 +10,7 @@ def cli():
     subcmd = ["info", "diffi", "network", "issuers"]
     if c.is_help_request() or c.is_usage_request() or c.subcmd not in subcmd: usage(); exit()
     if c.is_version_request(): print("silkaj 0.1.0"); exit()
-    ep["domain"], ep["port"] = "duniter.org", "8999"
+    ep["domain"], ep["port"] = "duniter.org", "10901"
     try: ep["domain"], ep["port"] = c.get_definition('p').rsplit(':', 1)
     except:
         print("Fallback to default node {}:{}\nCause: no specifed node, node not reachable or parsing issue."
