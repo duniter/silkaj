@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import sys
+
 from commandlines import Command
 
 from commands import *
@@ -14,7 +16,7 @@ def cli():
     try: ep["domain"], ep["port"] = c.get_definition('p').rsplit(':', 1)
     except:
         print("Fallback to default node {}:{}\nCause: no specifed node, node not reachable or parsing issue."
-        .format(ep["domain"], ep["port"]))
+        .format(ep["domain"], ep["port"]), file=sys.stderr)
     if ep["domain"].startswith('[') and ep["domain"].endswith(']'): ep["domain"] = ep["domain"][1:-1]
     return (ep, c)
 
