@@ -164,3 +164,34 @@ def list_issuers(ep, nbr, last):
         sorted_list = sorted(list_issued, key=itemgetter("blocks"), reverse=True)
         print("from {0} issuers\n{1}".format(len(list_issued),
         tabulate(sorted_list, headers="keys", tablefmt="orgtbl", floatfmt=".1f", stralign="center")))
+
+def argos_info(ep):
+    info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
+    pretty_names = {'g1': 'Ğ1', 'gtest': 'Ğtest'}
+    i, info_data = 0, dict()
+    while (i < len(info_type)):
+            info_data[info_type[i]] = request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
+            i +=1
+    current = get_current_block(ep)
+    pretty = current["currency"]
+    if current["currency"] in pretty_names:
+        pretty = pretty_names[current["currency"]]
+    print(pretty, "|")
+    print("---")
+    href = 'href=http://%s:%s/' % (ep[best_node(ep, 1)], ep["port"])
+    print("Connected to node:", ep[best_node(ep, 1)], ep["port"], "|", href,
+    "\nCurrent block number:", current["number"],
+    "\nCurrency name:", current["currency"],
+    "\nNumber of members:", current["membersCount"],
+    "\nMinimal Proof-of-Work:", current["powMin"],
+    "\nCurrent time:", convert_time(current["time"], "all"),
+    "\nMedian time:", convert_time(current["medianTime"], "all"),
+    "\nDifference time:", convert_time(current["time"] - current["medianTime"], "hour"),
+    "\nNumber of blocks containing… \
+     \n-- new comers:", len(info_data["newcomers"]),
+    "\n-- Certifications:", len(info_data["certs"]),
+    "\n-- Actives (members updating their membership):", len(info_data["actives"]),
+    "\n-- Leavers:", len(info_data["leavers"]),
+    "\n-- Excluded:", len(info_data["excluded"]),
+    "\n-- UD created:", len(info_data["ud"]),
+    "\n-- transactions:", len(info_data["tx"]))
