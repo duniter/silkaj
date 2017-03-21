@@ -93,6 +93,21 @@ def request(ep, path):
     encoding = response.info().get_content_charset('utf8')
     return (json.loads(response.read().decode(encoding)))
 
+def post_request(ep, path, postdata):
+    address = best_node(ep, 0)
+    if address is None: return (address)
+    url = "http://" + ep[address] + ":" + ep["port"] + "/" + path
+    if ep["port"] == "443":
+        url = "https://" + ep[address] + "/" + path
+    request = urllib.request.Request(url,bytes(postdata, 'utf-8'))
+    try:
+        response = urllib.request.urlopen(request)
+    except urllib.error.URLError as e:
+        print(e)
+        exit()
+    encoding = response.info().get_content_charset('utf8')
+    return (json.loads(response.read().decode(encoding)))
+
 def best_node(ep, main):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     addresses, port = {"ip6", "ip4", "domain"}, int(ep["port"])

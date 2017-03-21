@@ -1,3 +1,5 @@
 commandlines
 ipaddress
 tabulate
+pynacl
+scrypt
