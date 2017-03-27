@@ -49,7 +49,7 @@ def cli():
     ep, c = dict(), Command()
     subcmd = ["info", "diffi", "network", "issuers", "argos", "amount", "transaction", "generate_auth_file"]
     if c.is_help_request() or c.is_usage_request() or c.subcmd not in subcmd: usage(); exit()
-    if c.is_version_request(): print("silkaj 0.1.0"); exit()
+    if c.is_version_request(): print("silkaj 0.2.0"); exit()
     ep["domain"], ep["port"] = "duniter.org", "10901"
     try: ep["domain"], ep["port"] = c.get_definition('p').rsplit(':', 1)
     except:
