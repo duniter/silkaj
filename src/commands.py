@@ -5,6 +5,8 @@ from tabulate import tabulate
 from operator import itemgetter
 
 from network_tools import *
+from tx import *
+from auth import *
 from tools import *
 
 def currency_info(ep):
@@ -164,6 +166,82 @@ def list_issuers(ep, nbr, last):
         sorted_list = sorted(list_issued, key=itemgetter("blocks"), reverse=True)
         print("from {0} issuers\n{1}".format(len(list_issued),
         tabulate(sorted_list, headers="keys", tablefmt="orgtbl", floatfmt=".1f", stralign="center")))
+
+
+def cmd_amount(ep, c):
+    if c.contains_definitions('pubkey'):
+        pubkey = c.get_definition('pubkey')
+        pubkey = check_public_key(pubkey)
+    else:
+        seed = auth_method(c)
+        pubkey = get_publickey_from_seed(seed)
+
+    show_amount_from_pubkey(ep, pubkey)
+
+
+def cmd_transaction(ep, c):
+    seed = auth_method(c)
+
+    if not (c.contains_definitions('amount') or c.contains_definitions('amountDU')):
+        print("--amount or --amountDU is not set")
+        exit()
+    if not c.contains_definitions('output'):
+        print("--output is not set")
+        exit()
+
+    if c.contains_definitions('amount'):
+        amount = int(float(c.get_definition('amount')) * 100)
+    if c.contains_definitions('amountDU'):
+        du = get_last_du_value(ep)
+        amount = int(float(c.get_definition('amountDU')) * du)
+
+    output = c.get_definition('output') 
+
+    if c.contains_definitions('comment'):
+        comment = c.get_definition('comment')
+    else:
+        comment = ""
+
+    if c.contains_switches('allSources'):
+        allSources = True
+    else:
+        allSources = False
+
+    if c.contains_definitions('outputBackChange'):
+        outputBackChange = c.get_definition('outputBackChange')
+    else:
+        outputBackChange = None
+        
+    generate_and_send_transaction(ep, seed, amount, output, comment, allSources, outputBackChange)
+
+
+def show_amount_from_pubkey(ep, pubkey):
+
+    value = get_amount_from_pubkey(ep, pubkey)
+    totalAmountInput = value[0]
+    amount = value[1]
+    #output
+    DUvalue = get_last_du_value(ep)
+    current_blk = get_current_block(ep)
+    currency_name = str(current_blk["currency"])
+
+
+    if totalAmountInput-amount != 0:
+        print("Blockchain:")
+        print("-----------")
+        print("Relative     =", round(amount / DUvalue, 2), "DU", currency_name)
+        print("Quantitative =",  round(amount / 100, 2), currency_name+"\n")
+        
+        print("Pending Transaction:")
+        print("--------------------")
+        print("Relative     =",  round((totalAmountInput - amount) / DUvalue, 2), "DU", currency_name)
+        print("Quantitative =",  round((totalAmountInput - amount) / 100, 2), currency_name + "\n")
+
+
+    print("Total amount of: " + pubkey)
+    print("----------------------------------------------------------------")
+    print("Total Relative     =",  round(totalAmountInput / DUvalue, 2), "DU", currency_name)
+    print("Total Quantitative =",  round(totalAmountInput / 100, 2), currency_name + "\n")
 
 def argos_info(ep):
     info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]

@@ -1,51 +1,89 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 import sys
 
 from commandlines import Command
-
 from commands import *
 
-def cli():
-    # ep: endpoint, node's network interface
-    ep, c = dict(), Command()
-    subcmd = ["info", "diffi", "network", "issuers", "argos"]
-    if c.is_help_request() or c.is_usage_request() or c.subcmd not in subcmd: usage(); exit()
-    if c.is_version_request(): print("silkaj 0.1.0"); exit()
-    ep["domain"], ep["port"] = "duniter.org", "10901"
-    try: ep["domain"], ep["port"] = c.get_definition('p').rsplit(':', 1)
-    except:
-        print("Fallback to default node {}:{}\nCause: no specifed node, node not reachable or parsing issue."
-        .format(ep["domain"], ep["port"]), file=sys.stderr)
-    if ep["domain"].startswith('[') and ep["domain"].endswith(']'): ep["domain"] = ep["domain"][1:-1]
-    return (ep, c)
-
-def manage_cmd(ep, c):
-    if c.subcmd == "info":
-       currency_info(ep)
-    elif c.subcmd == "diffi":
-        difficulties(ep)
-    elif c.subcmd == "network":
-        network_info(ep, c.contains_switches("discover"))
-    elif c.subcmd == "issuers" and c.subsubcmd and int(c.subsubcmd) >= 0:
-        list_issuers(ep, int(c.subsubcmd), c.contains_switches('last'))
-    elif c.subcmd == "argos":
-       argos_info(ep)
 
 def usage():
     print("Silkaj: command line Duniter client \
     \n\nhelp: -h, --help, --usage \
     \nversion: -v, --version \
-    \ncommands: \
-    \n - info: display information about currency \
+    \n \
+    \nCustom endpoint with option `-p` and <domain>:<port>\
+    \n \
+    \nCommands: \
+    \n - info: Display information about currency \
+    \n \
+    \n - amount: Get amount of one account \
+    \n      --pubkey=<pubkey[:checksum]> | --auth-scrypt | --auth-seed | --auth-file\
+    \n \
+    \n - transaction: Send transaction\
+    \n     --auth-scrypt | --auth-seed | --auth-file [--file=<path file>]\
+    \n     --amountDU=<relative value> | --amount=<quantitative value>\
+    \n     --output=<public key>[:checksum] \
+    \n     [--comment=<comment>] \
+    \n     [--allSources] \
+    \n     [--outputBackChange=<public key[:checksum]>] \
+    \n \
+    \n - network: Display current network with many information \
+    \n      --discover     Discover all network (could take a while) \
+    \n \
     \n - diffi: list proof-of-work difficulty to generate next block \
-    \n - network: display current network with many information \
-    \n  - `--discover` option to discover all network (could take a while) \
+    \n \
     \n - issuers n: display last n issuers (`0` for all blockchain) \
-    \n  - last issuers are displayed under n ≤ 30. To force display last ones, use `--last` option \
+    \n      last issuers are displayed under n <= 30. To force display last ones, use `--last` option\
+    \n \
     \n - argos: display information about currency formated for Argos or BitBar \
-    \ncustom endpoint with option `-p` and <domain>:<port>")
+    \n \
+    \n - generate_auth_file : Generate file to store the seed of the account\
+    \n      --auth-scrypt | --auth-seed \
+    \n      [--file=<path file>]")
     exit()
+
+
+def cli():
+    # ep: endpoint, node's network interface
+    ep, c = dict(), Command()
+    subcmd = ["info", "diffi", "network", "issuers", "argos", "amount", "transaction", "generate_auth_file"]
+    if c.is_help_request() or c.is_usage_request() or c.subcmd not in subcmd: usage(); exit()
+    if c.is_version_request(): print("silkaj 0.1.0"); exit()
+    ep["domain"], ep["port"] = "duniter.org", "10901"
+    try: ep["domain"], ep["port"] = c.get_definition('p').rsplit(':', 1)
+    except:
+        print("Fallback to default node: <{}:{}>"
+        .format(ep["domain"], ep["port"]), file=sys.stderr)
+    if ep["domain"].startswith('[') and ep["domain"].endswith(']'): ep["domain"] = ep["domain"][1:-1]
+    return (ep, c)
+
+
+def manage_cmd(ep, c):
+    if c.subcmd == "info":
+       currency_info(ep)
+
+    elif c.subcmd == "diffi":
+        difficulties(ep)
+
+    elif c.subcmd == "network":
+        network_info(ep, c.contains_switches("discover"))
+
+    elif c.subcmd == "issuers" and c.subsubcmd and int(c.subsubcmd) >= 0:
+        list_issuers(ep, int(c.subsubcmd), c.contains_switches('last'))
+
+    elif c.subcmd == "argos":
+        argos_info(ep)
+
+    elif c.subcmd == "amount" and c.subsubcmd:
+        cmd_amount(ep, c)
+
+    elif c.subcmd == "transaction":
+        cmd_transaction(ep, c)
+
+    elif c.subcmd == "generate_auth_file":
+        generate_auth_file(c)
+
 
 if __name__ == '__main__':
     ep, c = cli()

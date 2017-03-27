@@ -13,6 +13,8 @@ Silkaj is based on Python dependencies:
 
 - [Tabulate](https://bitbucket.org/astanin/python-tabulate/overview): to display charts.
 - [Commandlines](https://github.com/chrissimpkins/commandlines): to parse command and sub-commands.
+- [PyNaCl](https://github.com/pyca/pynacl/): Cryptography (NaCl) library.
+- [scrypt](https://bitbucket.org/mhallin/py-scrypt): scrypt key derivation function.
 
 #### From pip
 ```bash
@@ -28,7 +30,7 @@ sudo (apt-get or dnf) install python-tabulate python-ipaddress
 ```
 
 ### Integrate it on a dropdown menu to the panel
-Under GNOME Shell, with [Argos](https://github.com/p-e-w/argos)  extension:
+Under GNOME Shell, with [Argos](https://github.com/p-e-w/argos) extension:
 
 - [Install Argos](https://github.com/p-e-w/argos#installation)
 - Put inside `~/.config/argos/silkaj.30s.sh`:
@@ -60,6 +62,8 @@ Argos should the script and reload it every 30 seconds.
 
 ## Features
 - Currency information
+- Show amount of account
+- Send transaction
 - Proof-of-Work difficulties: Σ diffi, Π diffi, match
 - network information tab:
  - endpoints, ip6, ip4, domain name and port. Handle nodes sharing same pubkey.
