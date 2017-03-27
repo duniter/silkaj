@@ -56,7 +56,7 @@ def cli():
         print("Fallback to default node: <{}:{}>"
         .format(ep["domain"], ep["port"]), file=sys.stderr)
     if ep["domain"].startswith('[') and ep["domain"].endswith(']'): ep["domain"] = ep["domain"][1:-1]
-    return (ep, c)
+    return ep, c
 
 
 def manage_cmd(ep, c):

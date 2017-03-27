@@ -26,8 +26,7 @@ def get_uid_from_pubkey(ep, pubkey):
 
 
 def get_current_block(ep):
-    current_blk = request(ep, "blockchain/current")
-    return current_blk
+    return request(ep, "blockchain/current")
 
 
 def get_seed_from_scrypt(salt, password, N=4096, r=16, p=1):

@@ -40,11 +40,11 @@ def match_pattern(pow, match = '', π = 1):
         else:
             match += "[0-" + hex(15 - pow)[2:].upper() + "]"
             π *= pow; pow = 0
-    return (match + '*', π)
+    return match + '*', π
 
 def power(nbr, pow = 0):
     while nbr >= 10: nbr /= 10; pow += 1
-    return ("{0:.1f} × 10^{1}".format(nbr, pow))
+    return "{0:.1f} × 10^{1}".format(nbr, pow)
 
 def difficulties(ep):
     diffi = request(ep, "blockchain/difficulties")
@@ -226,11 +226,11 @@ def show_amount_from_pubkey(ep, pubkey):
     currency_name = str(current_blk["currency"])
 
 
-    if totalAmountInput-amount != 0:
+    if totalAmountInput - amount != 0:
         print("Blockchain:")
         print("-----------")
         print("Relative     =", round(amount / DUvalue, 2), "DU", currency_name)
-        print("Quantitative =",  round(amount / 100, 2), currency_name+"\n")
+        print("Quantitative =",  round(amount / 100, 2), currency_name + "\n")
         
         print("Pending Transaction:")
         print("--------------------")

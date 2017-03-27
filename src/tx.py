@@ -42,8 +42,8 @@ def generate_and_send_transaction(ep, seed, AmountTransfered, outputAddr, Commen
                 print("   - Amount:  " + str(listinput_and_amount[1] / 100))
             else:
                 print("   - Amount:  " + str(AmountTransfered / 100))
-            transaction = generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount,outputAddr, Comment, OutputbackChange)
-            transaction += sign_document_from_seed(transaction,seed) + "\n"
+            transaction = generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputAddr, Comment, OutputbackChange)
+            transaction += sign_document_from_seed(transaction, seed) + "\n"
 
             retour =  post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
             print("Transaction successfully sent.")
