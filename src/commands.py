@@ -179,7 +179,6 @@ def cmd_amount(ep, c):
     show_amount_from_pubkey(ep, pubkey)
 
 
-
 def cmd_transaction(ep, c):
     seed = auth_method(c)
 
@@ -191,10 +190,10 @@ def cmd_transaction(ep, c):
         exit()
 
     if c.contains_definitions('amount'):
-        amount = int(float(c.get_definition('amount'))*100)
+        amount = int(float(c.get_definition('amount')) * 100)
     if c.contains_definitions('amountDU'):
         du = get_last_du_value(ep)
-        amount = int(float(c.get_definition('amountDU'))*du)
+        amount = int(float(c.get_definition('amountDU')) * du)
 
     output = c.get_definition('output') 
 
@@ -230,19 +229,19 @@ def show_amount_from_pubkey(ep, pubkey):
     if totalAmountInput-amount != 0:
         print("Blockchain:")
         print("-----------")
-        print("Relative     =", round(amount/DUvalue,2), "DU", currency_name)
-        print("Quantitative =",  round(amount/100,2), currency_name+"\n")
+        print("Relative     =", round(amount / DUvalue, 2), "DU", currency_name)
+        print("Quantitative =",  round(amount / 100, 2), currency_name+"\n")
         
         print("Pending Transaction:")
         print("--------------------")
-        print("Relative     =",  round((totalAmountInput-amount)/DUvalue,2), "DU", currency_name)
-        print("Quantitative =",  round((totalAmountInput-amount)/100,2), currency_name +"\n")
+        print("Relative     =",  round((totalAmountInput - amount) / DUvalue, 2), "DU", currency_name)
+        print("Quantitative =",  round((totalAmountInput - amount) / 100, 2), currency_name + "\n")
 
 
-    print("Total Ammount of : " + pubkey)
+    print("Total amount of: " + pubkey)
     print("----------------------------------------------------------------")
-    print("Total Relative     =",  round(totalAmountInput/DUvalue,2), "DU", currency_name)
-    print("Total Quantitative =",  round(totalAmountInput/100,2), currency_name+"\n")
+    print("Total Relative     =",  round(totalAmountInput / DUvalue, 2), "DU", currency_name)
+    print("Total Quantitative =",  round(totalAmountInput / 100, 2), currency_name + "\n")
 
 def argos_info(ep):
     info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]

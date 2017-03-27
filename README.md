@@ -30,7 +30,7 @@ sudo (apt-get or dnf) install python-tabulate python-ipaddress
 ```
 
 ### Integrate it on a dropdown menu to the panel
-Under GNOME Shell, with [Argos](https://github.com/p-e-w/argos)  extension:
+Under GNOME Shell, with [Argos](https://github.com/p-e-w/argos) extension:
 
 - [Install Argos](https://github.com/p-e-w/argos#installation)
 - Put inside `~/.config/argos/silkaj.30s.sh`:

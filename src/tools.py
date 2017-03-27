@@ -30,8 +30,8 @@ def get_current_block(ep):
     return current_blk
 
 
-def get_seed_from_scrypt(salt,password, N=4096, r=16, p=1):
-    seed = scrypt.hash(password,salt,N,r,p,32)
+def get_seed_from_scrypt(salt, password, N=4096, r=16, p=1):
+    seed = scrypt.hash(password, salt, N, r, p, 32)
     seedhex = nacl.encoding.HexEncoder.encode(seed).decode("utf-8")
     return seedhex
 
@@ -76,12 +76,12 @@ def get_amount_from_pubkey(ep, pubkey):
     listinput = []
     amount = 0
     for source in sources:
-        amount += source["amount"]*10**source["base"]
-        listinput.append(str(source["amount"])+":"+str(source["base"])+":"+str(source["type"])+":"+str(source["identifier"])+":"+str(source["noffset"]))
+        amount += source["amount"] * 10 ** source["base"]
+        listinput.append(str(source["amount"]) + ":" + str(source["base"]) + ":" + str(source["type"]) + ":" + str(source["identifier"]) + ":" + str(source["noffset"]))
 
 
     #pending source
-    history = request(ep, "tx/history/"+ pubkey+"/pending")["history"]
+    history = request(ep, "tx/history/" + pubkey + "/pending")["history"]
     pendings = history["sending"] + history["receiving"] + history["pending"]
     #print(pendings)
 
@@ -94,43 +94,40 @@ def get_amount_from_pubkey(ep, pubkey):
         blockstamp = pending["blockstamp"]
         block_number = int(blockstamp.split("-")[0])
         #if it's not an old transaction (bug in mirror node)
-        if block_number >= last_block_number-3:
+        if block_number >= last_block_number - 3:
             identifier = pending["hash"]
             i = 0
             for output in pending["outputs"]:
                 outputsplited = output.split(":")
-                if outputsplited[2] == "SIG("+pubkey+")":
-                    inputgenerated=str(outputsplited[0])+":"+str(outputsplited[1])+":T:"+identifier+":"+str(i)
+                if outputsplited[2] == "SIG(" + pubkey + ")":
+                    inputgenerated = str(outputsplited[0]) + ":" + str(outputsplited[1]) + ":T:" + identifier + ":" + str(i)
                     if inputgenerated not in listinput:
                         listinput.append(inputgenerated) 
                 i += 1
 
-    #remove input already used           
-    for pending in pendings: 
+    #remove input already used
+    for pending in pendings:
         blockstamp = pending["blockstamp"]
         block_number = int(blockstamp.split("-")[0])
         #if it's not an old transaction (bug in mirror node)
-        if block_number >= last_block_number-3:       
+        if block_number >= last_block_number - 3:
             for input in pending["inputs"]:
                 if input in listinput:
                     listinput.remove(input)
 
-
-
     totalAmountInput = 0  
     for input in listinput:
         inputsplit = input.split(":")
-        totalAmountInput += int(inputsplit[0])*10**int(inputsplit[1])
+        totalAmountInput += int(inputsplit[0]) * 10 ** int(inputsplit[1])
 
-    return int(totalAmountInput),int(amount)
+    return int(totalAmountInput), int(amount)
 
 
 def get_last_du_value(ep):
     blockswithud = request(ep, "blockchain/with/ud")["result"]
-    NBlastDUblock=blockswithud["blocks"][-1]
+    NBlastDUblock = blockswithud["blocks"][-1]
     lastDUblock = request(ep, "blockchain/block/" + str(NBlastDUblock))
-    return lastDUblock["dividend"]*10**lastDUblock["unitbase"]
-
+    return lastDUblock["dividend"] * 10 ** lastDUblock["unitbase"]
 
 
 b58_digits = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
@@ -139,7 +136,7 @@ def b58_encode(b):
     # Convert big-endian bytes to integer
     n = int('0x0' + nacl.encoding.HexEncoder.encode(b).decode('utf8'), 16)
 
-    # Divide that integer into bas58
+    # Divide that integer into base58
     res = []
     while n > 0:
         n, r = divmod (n, 58)
