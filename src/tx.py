@@ -20,9 +20,9 @@ def generate_and_send_transaction(ep, seed, AmountTransfered, outputAddr, Commen
 
     while True:
         listinput_and_amount = get_list_input_for_transaction(ep, issuers, AmountTransfered, all_input)
-        transactionintermediaire = listinput_and_amount[2]
+        intermediatetransaction = listinput_and_amount[2]
 
-        if transactionintermediaire:
+        if intermediatetransaction:
             totalAmountInput = listinput_and_amount[1]
             print("Generate Change Transaction")
             print("   - From:    " + issuers)
@@ -167,7 +167,7 @@ def get_list_input_for_transaction(ep, pubkey, TXamount, allinput = False):
     #generate final list source
     listinputfinal = []
     totalAmountInput = 0
-    transactionintermediaire = False
+    intermediatetransaction = False
     for input in listinput:
         listinputfinal.append(input)
         inputsplit = input.split(":")
@@ -175,14 +175,14 @@ def get_list_input_for_transaction(ep, pubkey, TXamount, allinput = False):
         TXamount -= int(inputsplit[0]) * 10 ** int(inputsplit[1])
         #if more 40 sources, it's an intermediate transaction
         if len(listinputfinal) >= 40:
-            transactionintermediaire = True
+            intermediatetransaction = True
             break
         if TXamount <= 0 and not allinput:
             break
-    if TXamount > 0 and not transactionintermediaire:
+    if TXamount > 0 and not intermediatetransaction:
         print("you don't have enough money")
         exit()
-    return (listinputfinal, totalAmountInput, transactionintermediaire)
+    return listinputfinal, totalAmountInput, intermediatetransaction
 
 
 def checkComment(Comment):
