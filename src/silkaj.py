@@ -27,6 +27,7 @@ def usage():
     \n     [--comment=<comment>] \
     \n     [--allSources] \
     \n     [--outputBackChange=<public key[:checksum]>] \
+    \n     -y | --yes, don't ask for prompt confirmation \
     \n \
     \n - network: Display current network with many information \
     \n      --discover     Discover all network (could take a while) \
