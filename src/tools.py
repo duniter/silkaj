@@ -18,7 +18,11 @@ def convert_time(timestamp, kind):
 
 
 def get_uid_from_pubkey(ep, pubkey):
-    i, results = 0, request(ep, "wot/lookup/" + pubkey)["results"]
+    try:
+        results = request(ep, "wot/lookup/" + pubkey)
+    except:
+        return "No matching identity"
+    i, results = 0, results["results"]
     while i < len(results):
         if results[i]["uids"][0]["uid"] != pubkey:
             return results[i]["uids"][0]["uid"]
