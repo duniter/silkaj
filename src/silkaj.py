@@ -53,7 +53,7 @@ def cli():
     ep["domain"], ep["port"] = "duniter.org", "10901"
     try: ep["domain"], ep["port"] = c.get_definition('p').rsplit(':', 1)
     except:
-        print("Fallback to default node: <{}:{}>"
+        print("Requested default node: <{}:{}>"
         .format(ep["domain"], ep["port"]), file=sys.stderr)
     if ep["domain"].startswith('[') and ep["domain"].endswith(']'): ep["domain"] = ep["domain"][1:-1]
     return ep, c
