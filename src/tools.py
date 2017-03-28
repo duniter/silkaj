@@ -7,6 +7,7 @@ import re
 import sys
 
 from network_tools import *
+from constants import *
 
 def convert_time(timestamp, kind):
     ts = int(timestamp)
@@ -21,7 +22,7 @@ def get_uid_from_pubkey(ep, pubkey):
     try:
         results = request(ep, "wot/lookup/" + pubkey)
     except:
-        return "No matching identity"
+        return NO_MATCHING_ID
     i, results = 0, results["results"]
     while i < len(results):
         if results[i]["uids"][0]["uid"] != pubkey:
@@ -29,12 +30,12 @@ def get_uid_from_pubkey(ep, pubkey):
         i+=1
 
 
-def get_pubkey_from_id(ep, uid):
+def get_pubkeys_from_id(ep, uid):
     try:
         results = request(ep, "wot/lookup/" + uid)
     except:
-        return "No matching identity"
-    return results["results"][0]["pubkey"]
+        return NO_MATCHING_ID
+    return results["results"]
 
 
 def get_current_block(ep):

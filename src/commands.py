@@ -281,8 +281,10 @@ def id_pubkey_correspondence(ep, id_pubkey):
     if check_public_key(id_pubkey):
         print("{} public key corresponds to identity: {}".format(id_pubkey, get_uid_from_pubkey(ep, id_pubkey)))
     else:
-        pubkey = get_pubkey_from_id(ep, id_pubkey)
-        if pubkey == NO_MATCHING_ID:
-            print (pubkey)
+        pubkeys = get_pubkeys_from_id(ep, id_pubkey)
+        if pubkeys == NO_MATCHING_ID:
+            print (NO_MATCHING_ID)
         else:
-            print("{} identity correspond to public key: {}".format(id_pubkey, pubkey))
+            print("Public keys found matching '{}':\n".format(id_pubkey))
+            for pubkey in pubkeys:
+                print("-", pubkey["pubkey"])
