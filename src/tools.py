@@ -67,10 +67,10 @@ def check_public_key(pubkey):
             return pubkey
         else:
             print("error: bad checksum of the public key")
-            exit()
+            return False
 
     print("Error: the format of the public key is invalid")
-    exit()
+    return False
 
 
 def get_amount_from_pubkey(ep, pubkey):

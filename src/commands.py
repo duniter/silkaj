@@ -172,6 +172,7 @@ def cmd_amount(ep, c):
     if c.contains_definitions('pubkey'):
         pubkey = c.get_definition('pubkey')
         pubkey = check_public_key(pubkey)
+        if not pubkey: return
     else:
         seed = auth_method(c)
         pubkey = get_publickey_from_seed(seed)
