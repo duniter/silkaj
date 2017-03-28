@@ -8,6 +8,7 @@ from network_tools import *
 from tx import *
 from auth import *
 from tools import *
+from constants import *
 
 def currency_info(ep):
     info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
@@ -281,7 +282,7 @@ def id_pubkey_correspondence(ep, id_pubkey):
         print("{} public key corresponds to identity: {}".format(id_pubkey, get_uid_from_pubkey(ep, id_pubkey)))
     else:
         pubkey = get_pubkey_from_id(ep, id_pubkey)
-        if pubkey == "No matching identity":
+        if pubkey == NO_MATCHING_ID:
             print (pubkey)
         else:
             print("{} identity correspond to public key: {}".format(id_pubkey, pubkey))
