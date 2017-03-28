@@ -18,7 +18,8 @@ def usage():
     \n - info: Display information about currency \
     \n \
     \n - amount: Get amount of one account \
-    \n      --pubkey=<pubkey[:checksum]> | --auth-scrypt | --auth-seed | --auth-file\
+    \n      --pubkey=<pubkey[:checksum]> | --auth-scrypt\
+    \n      --auth-seed | --auth-file\
     \n \
     \n - transaction: Send transaction\
     \n     --auth-scrypt | --auth-seed | --auth-file [--file=<path file>]\
@@ -29,16 +30,17 @@ def usage():
     \n     [--outputBackChange=<public key[:checksum]>] \
     \n \
     \n - network: Display current network with many information \
-    \n      --discover     Discover all network (could take a while) \
+    \n      --discover: Discover all network (could take a while) \
     \n \
     \n - diffi: list proof-of-work difficulty to generate next block \
     \n \
     \n - issuers n: display last n issuers (`0` for all blockchain) \
-    \n      last issuers are displayed under n <= 30. To force display last ones, use `--last` option\
+    \n      last issuers are displayed under n <= 30.\
+    \n      To force display last ones, use `--last` option\
     \n \
-    \n - argos: display information about currency formated for Argos or BitBar \
+    \n - argos: display currency information formated for Argos or BitBar\
     \n \
-    \n - generate_auth_file : Generate file to store the seed of the account\
+    \n - generate_auth_file: Generate file to store the seed of the account\
     \n      --auth-scrypt | --auth-seed \
     \n      [--file=<path file>]")
     exit()
@@ -48,20 +50,24 @@ def cli():
     # ep: endpoint, node's network interface
     ep, c = dict(), Command()
     subcmd = ["info", "diffi", "network", "issuers", "argos", "amount", "transaction", "generate_auth_file"]
-    if c.is_help_request() or c.is_usage_request() or c.subcmd not in subcmd: usage(); exit()
-    if c.is_version_request(): print("silkaj 0.2.0"); exit()
+    if c.is_help_request() or c.is_usage_request() or c.subcmd not in subcmd:
+        usage()
+    if c.is_version_request():
+        print("silkaj 0.2.0")
+        exit()
     ep["domain"], ep["port"] = "duniter.org", "10901"
-    try: ep["domain"], ep["port"] = c.get_definition('p').rsplit(':', 1)
+    try:
+        ep["domain"], ep["port"] = c.get_definition('p').rsplit(':', 1)
     except:
-        print("Requested default node: <{}:{}>"
-        .format(ep["domain"], ep["port"]), file=sys.stderr)
-    if ep["domain"].startswith('[') and ep["domain"].endswith(']'): ep["domain"] = ep["domain"][1:-1]
+        print("Requested default node: <{}:{}>".format(ep["domain"], ep["port"]), file=sys.stderr)
+    if ep["domain"].startswith('[') and ep["domain"].endswith(']'):
+        ep["domain"] = ep["domain"][1:-1]
     return ep, c
 
 
 def manage_cmd(ep, c):
     if c.subcmd == "info":
-       currency_info(ep)
+        currency_info(ep)
 
     elif c.subcmd == "diffi":
         difficulties(ep)
