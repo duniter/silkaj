@@ -29,10 +29,10 @@ def generate_and_send_transaction(ep, seed, AmountTransfered, outputAddr, Commen
             print("   - To:      " + issuers)
             print("   - Amount:  " + str(totalAmountInput / 100))
             transaction = generate_transaction_document(ep, issuers, totalAmountInput, listinput_and_amount,issuers, "Change operation")
-            transaction += sign_document_from_seed(transaction,seed) + "\n"
+            transaction += sign_document_from_seed(transaction, seed) + "\n"
             retour =  post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
             print("Change Transaction successfully sent.")
-            time.sleep(1) #wait 1 second before sending a new transaction
+            time.sleep(1) # wait 1 second before sending a new transaction
 
         else:
             print("Generate Transaction:")
@@ -45,7 +45,7 @@ def generate_and_send_transaction(ep, seed, AmountTransfered, outputAddr, Commen
             transaction = generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputAddr, Comment, OutputbackChange)
             transaction += sign_document_from_seed(transaction, seed) + "\n"
 
-            retour =  post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
+            retour = post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
             print("Transaction successfully sent.")
             break 
 
