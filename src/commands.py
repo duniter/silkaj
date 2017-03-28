@@ -274,3 +274,14 @@ def argos_info(ep):
     "\n-- Excluded:", len(info_data["excluded"]),
     "\n-- UD created:", len(info_data["ud"]),
     "\n-- transactions:", len(info_data["tx"]))
+
+
+def id_pubkey_correspondence(ep, id_pubkey):
+    if check_public_key(id_pubkey):
+        print("{} public key corresponds to identity: {}".format(id_pubkey, get_uid_from_pubkey(ep, id_pubkey)))
+    else:
+        pubkey = get_pubkey_from_id(ep, id_pubkey)
+        if pubkey == "No matching identity":
+            print (pubkey)
+        else:
+            print("{} identity correspond to public key: {}".format(id_pubkey, pubkey))

@@ -29,6 +29,14 @@ def get_uid_from_pubkey(ep, pubkey):
         i+=1
 
 
+def get_pubkey_from_id(ep, uid):
+    try:
+        results = request(ep, "wot/lookup/" + uid)
+    except:
+        return "No matching identity"
+    return results["results"][0]["pubkey"]
+
+
 def get_current_block(ep):
     return request(ep, "blockchain/current")
 
