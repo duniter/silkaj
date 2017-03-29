@@ -63,6 +63,20 @@ def difficulties(ep):
     .format(current["powMin"], match_pattern(int(current["powMin"]))[0], diffi["block"], issuers, len(diffi["levels"]),
     tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl", stralign="center")))
 
+network_sort_keys = "block,member,diffi,uid".split(",")
+def set_network_sort_keys(some_keys):
+    global network_sort_keys
+    network_sort_keys = some_keys.split(",")
+
+def get_network_sort_key(endpoint):
+    t = list()
+    for akey in network_sort_keys:
+        if akey == 'diffi' or akey == 'block' or akey == 'port':
+            t.append(endpoint[akey] if akey in endpoint else 0)
+        else:
+            t.append(str(endpoint[akey]) if akey in endpoint else "")
+    return tuple(t)
+
 def network_info(ep, discover):
     rows, columns = os.popen('stty size', 'r').read().split()
 #    print(rows, columns) # debug
@@ -111,8 +125,8 @@ def network_info(ep, discover):
             else: endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
         i+=1
     os.system("clear")
-    print("###", len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members,
-    "non-members at", datetime.datetime.now().strftime("%H:%M:%S"))
+    print("###", len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members, "non-members at", datetime.datetime.now().strftime("%H:%M:%S"))
+    endpoints = sorted(endpoints, key=get_network_sort_key)
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 def list_issuers(ep, nbr, last):
