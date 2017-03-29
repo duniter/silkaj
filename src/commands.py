@@ -8,6 +8,7 @@ from network_tools import *
 from tx import *
 from auth import *
 from tools import *
+from constants import *
 
 def currency_info(ep):
     info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
@@ -172,6 +173,7 @@ def cmd_amount(ep, c):
     if c.contains_definitions('pubkey'):
         pubkey = c.get_definition('pubkey')
         pubkey = check_public_key(pubkey)
+        if not pubkey: return
     else:
         seed = auth_method(c)
         pubkey = get_publickey_from_seed(seed)
@@ -276,3 +278,16 @@ def argos_info(ep):
     "\n-- Excluded:", len(info_data["excluded"]),
     "\n-- UD created:", len(info_data["ud"]),
     "\n-- transactions:", len(info_data["tx"]))
+
+
+def id_pubkey_correspondence(ep, id_pubkey):
+    if check_public_key(id_pubkey):
+        print("{} public key corresponds to identity: {}".format(id_pubkey, get_uid_from_pubkey(ep, id_pubkey)))
+    else:
+        pubkeys = get_pubkeys_from_id(ep, id_pubkey)
+        if pubkeys == NO_MATCHING_ID:
+            print (NO_MATCHING_ID)
+        else:
+            print("Public keys found matching '{}':\n".format(id_pubkey))
+            for pubkey in pubkeys:
+                print("-", pubkey["pubkey"])
