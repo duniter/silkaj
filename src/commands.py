@@ -9,7 +9,6 @@ from tx import *
 from auth import *
 from tools import *
 from constants import *
-from argparse import ArgumentError
 
 
 def currency_info(ep):
@@ -38,17 +37,17 @@ def currency_info(ep):
     "\n- transactions:", len(info_data["tx"]))
 
 
-def match_pattern(pow, match='', π=1):
+def match_pattern(pow, match='', p=1):
     while pow > 0:
         if pow >= 16:
             match += "0"
             pow -= 16
-            π *= 16
+            p *= 16
         else:
             match += "[0-" + hex(15 - pow)[2:].upper() + "]"
-            π *= pow
+            p *= pow
             pow = 0
-    return match + '*', π
+    return match + '*', p
 
 
 def power(nbr, pow=0):
