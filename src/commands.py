@@ -85,6 +85,7 @@ def set_network_sort_keys(some_keys):
         exit(1)
     network_sort_keys = some_keys.split(",")
 
+
 def get_network_sort_key(endpoint):
     t = list()
     for akey in network_sort_keys:
@@ -93,6 +94,7 @@ def get_network_sort_key(endpoint):
         else:
             t.append(str(endpoint[akey]) if akey in endpoint else "")
     return tuple(t)
+
 
 def network_info(ep, discover):
     rows, columns = os.popen('stty size', 'r').read().split()
