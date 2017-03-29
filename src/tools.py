@@ -7,6 +7,7 @@ import re
 import sys
 
 from network_tools import *
+from constants import *
 
 def convert_time(timestamp, kind):
     ts = int(timestamp)
@@ -18,11 +19,23 @@ def convert_time(timestamp, kind):
 
 
 def get_uid_from_pubkey(ep, pubkey):
-    i, results = 0, request(ep, "wot/lookup/" + pubkey)["results"]
+    try:
+        results = request(ep, "wot/lookup/" + pubkey)
+    except:
+        return NO_MATCHING_ID
+    i, results = 0, results["results"]
     while i < len(results):
         if results[i]["uids"][0]["uid"] != pubkey:
             return results[i]["uids"][0]["uid"]
         i+=1
+
+
+def get_pubkeys_from_id(ep, uid):
+    try:
+        results = request(ep, "wot/lookup/" + uid)
+    except:
+        return NO_MATCHING_ID
+    return results["results"]
 
 
 def get_current_block(ep):
@@ -63,10 +76,10 @@ def check_public_key(pubkey):
             return pubkey
         else:
             print("error: bad checksum of the public key")
-            exit()
+            return False
 
     print("Error: the format of the public key is invalid")
-    exit()
+    return False
 
 
 def get_amount_from_pubkey(ep, pubkey):

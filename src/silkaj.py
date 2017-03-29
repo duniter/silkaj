@@ -28,6 +28,7 @@ def usage():
     \n     [--comment=<comment>] \
     \n     [--allSources] \
     \n     [--outputBackChange=<public key[:checksum]>] \
+    \n     -y | --yes, don't ask for prompt confirmation \
     \n \
     \n - network: Display current network with many information \
     \n      --discover: Discover all network (could take a while) \
@@ -42,14 +43,17 @@ def usage():
     \n \
     \n - generate_auth_file: Generate file to store the seed of the account\
     \n      --auth-scrypt | --auth-seed \
-    \n      [--file=<path file>]")
+    \n      [--file=<path file>] \
+    \n \
+    \n - id <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
+    \n      it could autocomplete the pubkey corresponding to an identity with three or four following characters.")
     exit()
 
 
 def cli():
     # ep: endpoint, node's network interface
     ep, c = dict(), Command()
-    subcmd = ["info", "diffi", "network", "issuers", "argos", "amount", "transaction", "generate_auth_file"]
+    subcmd = ["info", "diffi", "network", "issuers", "argos", "amount", "transaction", "generate_auth_file", "id"]
     if c.is_help_request() or c.is_usage_request() or c.subcmd not in subcmd:
         usage()
     if c.is_version_request():
@@ -89,6 +93,9 @@ def manage_cmd(ep, c):
 
     elif c.subcmd == "generate_auth_file":
         generate_auth_file(c)
+
+    elif c.subcmd == "id":
+        id_pubkey_correspondence(ep, c.subsubcmd)
 
 
 if __name__ == '__main__':
