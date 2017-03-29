@@ -10,12 +10,13 @@ from auth import *
 from tools import *
 from constants import *
 
+
 def currency_info(ep):
     info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
     i, info_data = 0, dict()
     while (i < len(info_type)):
             info_data[info_type[i]] = request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
-            i +=1
+            i += 1
     current = get_current_block(ep)
     os.system("clear")
     print("Connected to node:", ep[best_node(ep, 1)], ep["port"],
@@ -35,17 +36,26 @@ def currency_info(ep):
     "\n- UD created:", len(info_data["ud"]),
     "\n- transactions:", len(info_data["tx"]))
 
-def match_pattern(pow, match = '', π = 1):
+
+def match_pattern(pow, match='', π=1):
     while pow > 0:
-        if pow >= 16: match += "0"; pow -= 16; π *= 16
+        if pow >= 16:
+            match += "0"
+            pow -= 16
+            π *= 16
         else:
             match += "[0-" + hex(15 - pow)[2:].upper() + "]"
-            π *= pow; pow = 0
+            π *= pow
+            pow = 0
     return match + '*', π
 
-def power(nbr, pow = 0):
-    while nbr >= 10: nbr /= 10; pow += 1
+
+def power(nbr, pow=0):
+    while nbr >= 10:
+        nbr /= 10
+        pow += 1
     return "{0:.1f} × 10^{1}".format(nbr, pow)
+
 
 def difficulties(ep):
     diffi = request(ep, "blockchain/difficulties")
@@ -54,7 +64,8 @@ def difficulties(ep):
     current = get_current_block(ep)
     issuers, sorted_diffi = 0, sorted(diffi["levels"], key=itemgetter("level"))
     for d in diffi["levels"]:
-        if d["level"] / 2 < current["powMin"]: issuers += 1
+        if d["level"] / 2 < current["powMin"]:
+            issuers += 1
         d["match"] = match_pattern(d["level"])[0][:20]
         d["Π diffi"] = power(match_pattern(d["level"])[1])
         d["Σ diffi"] = d.pop("level")
@@ -62,6 +73,7 @@ def difficulties(ep):
     print("Minimal Proof-of-Work: {0} to match `{1}`\n### Difficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
     .format(current["powMin"], match_pattern(int(current["powMin"]))[0], diffi["block"], issuers, len(diffi["levels"]),
     tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl", stralign="center")))
+
 
 def network_info(ep, discover):
     rows, columns = os.popen('stty size', 'r').read().split()
@@ -73,22 +85,25 @@ def network_info(ep, discover):
     # discover peers
     # and make sure fields are always ordered the same
     endpoints = [OrderedDict((i, p.get(i, None)) for i in ("domain", "port", "ip4", "ip6", "pubkey")) for p in discover_peers(ep, discover)]
-    ### Todo : renommer endpoints en info ###
+    # Todo : renommer endpoints en info
     diffi = request(ep, "blockchain/difficulties")
     i, members = 0, 0
     print("Getting informations about nodes:")
     while (i < len(endpoints)):
-        print("{0:.0f}%".format(i/len(endpoints) * 100, 1), end = " ")
+        print("{0:.0f}%".format(i/len(endpoints) * 100, 1), end=" ")
         best_ep = best_node(endpoints[i], 0)
-        print(best_ep if best_ep is None else endpoints[i][best_ep], end = " ")
+        print(best_ep if best_ep is None else endpoints[i][best_ep], end=" ")
         print(endpoints[i]["port"])
         try:
             endpoints[i]["uid"] = get_uid_from_pubkey(ep, endpoints[i]["pubkey"])
-            endpoints[i]["member"] = "yes"; members+=1
-        except: pass
-        if endpoints[i].get("member") is None: endpoints[i]["member"] = "no" 
+            endpoints[i]["member"] = "yes"
+            members += 1
+        except:
+            pass
+        if endpoints[i].get("member") is None:
+            endpoints[i]["member"] = "no"
         endpoints[i]["pubkey"] = endpoints[i]["pubkey"][:5] + "…"
-### Todo: request difficulty from node point of view: two nodes with same pubkey id could be on diffrent branches and have different difficulties ###
+# Todo: request difficulty from node point of view: two nodes with same pubkey id could be on diffrent branches and have different difficulties
 #        diffi = request(endpoints[i], "blockchain/difficulties") # super long, doit être requetté uniquement pour les nœuds d’une autre branche
         for d in diffi["levels"]:
             if endpoints[i].get("uid") is not None:
@@ -99,21 +114,26 @@ def network_info(ep, discover):
         current_blk = get_current_block(endpoints[i])
         if current_blk is not None:
             endpoints[i]["gen_time"] = convert_time(current_blk["time"], "hour")
-            if wide > 171: endpoints[i]["mediantime"] = convert_time(current_blk["medianTime"], "hour")
-            if wide > 185: endpoints[i]["difftime"] = convert_time(current_blk["time"] - current_blk["medianTime"], "hour")
+            if wide > 171:
+                endpoints[i]["mediantime"] = convert_time(current_blk["medianTime"], "hour")
+            if wide > 185:
+                endpoints[i]["difftime"] = convert_time(current_blk["time"] - current_blk["medianTime"], "hour")
             endpoints[i]["block"] = current_blk["number"]
             endpoints[i]["hash"] = current_blk["hash"][:10] + "…"
             endpoints[i]["version"] = request(endpoints[i], "node/summary")["duniter"]["version"]
         if endpoints[i].get("domain") is not None and len(endpoints[i]["domain"]) > 20:
             endpoints[i]["domain"] = "…" + endpoints[i]["domain"][-20:]
         if endpoints[i].get("ip6") is not None:
-            if wide < 156: endpoints[i].pop("ip6")
-            else: endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
-        i+=1
+            if wide < 156:
+                endpoints[i].pop("ip6")
+            else:
+                endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
+        i += 1
     os.system("clear")
     print("###", len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members,
     "non-members at", datetime.datetime.now().strftime("%H:%M:%S"))
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
+
 
 def list_issuers(ep, nbr, last):
     current_nbr = get_current_block(ep)["number"]
@@ -130,17 +150,17 @@ def list_issuers(ep, nbr, last):
             issuer["hash"] = blocks[j]["hash"][:8]
         issuers_dict[issuer["pubkey"]] = issuer
         list_issuers.append(issuer)
-        j+=1
+        j += 1
     for pubkey in issuers_dict.keys():
         issuer = issuers_dict[pubkey]
         uid = get_uid_from_pubkey(ep, issuer["pubkey"])
         for issuer2 in list_issuers:
             if issuer2.get("pubkey") is not None and issuer.get("pubkey") is not None and \
-                issuer2["pubkey"]  == issuer["pubkey"]:
+                issuer2["pubkey"] == issuer["pubkey"]:
                 issuer2["uid"] = uid
                 issuer2.pop("pubkey")
     os.system("clear")
-    print("### Issuers for last {0} blocks from block n°{1} to block n°{2}".format(nbr, current_nbr - nbr + 1, current_nbr), end = " ")
+    print("### Issuers for last {0} blocks from block n°{1} to block n°{2}".format(nbr, current_nbr - nbr + 1, current_nbr), end=" ")
     if last or nbr <= 30:
         sorted_list = sorted(list_issuers, key=itemgetter("block"), reverse=True)
         print("\n{0}".format(tabulate(sorted_list, headers="keys", tablefmt="orgtbl", stralign="center")))
@@ -152,18 +172,19 @@ def list_issuers(ep, nbr, last):
                 if list_issued[j].get("uid") is not None and \
                     list_issued[j]["uid"] == list_issuers[i]["uid"]:
                     list_issued[j]["blocks"] += 1
-                    found = 1; break
-                j+=1
+                    found = 1
+                    break
+                j += 1
             if found == 0:
                 issued = OrderedDict()
                 issued["uid"] = list_issuers[i]["uid"]
                 issued["blocks"] = 1
                 list_issued.append(issued)
-            i+=1
+            i += 1
         i = 0
         while i < len(list_issued):
             list_issued[i]["percent"] = list_issued[i]["blocks"] / nbr * 100
-            i+=1
+            i += 1
         sorted_list = sorted(list_issued, key=itemgetter("blocks"), reverse=True)
         print("from {0} issuers\n{1}".format(len(list_issued),
         tabulate(sorted_list, headers="keys", tablefmt="orgtbl", floatfmt=".1f", stralign="center")))
@@ -173,7 +194,8 @@ def cmd_amount(ep, c):
     if c.contains_definitions('pubkey'):
         pubkey = c.get_definition('pubkey')
         pubkey = check_public_key(pubkey)
-        if not pubkey: return
+        if not pubkey:
+            return
     else:
         seed = auth_method(c)
         pubkey = get_publickey_from_seed(seed)
@@ -197,7 +219,7 @@ def cmd_transaction(ep, c):
         du = get_last_du_value(ep)
         amount = int(float(c.get_definition('amountDU')) * du)
 
-    output = c.get_definition('output') 
+    output = c.get_definition('output')
 
     if c.contains_definitions('comment'):
         comment = c.get_definition('comment')
@@ -213,9 +235,9 @@ def cmd_transaction(ep, c):
         outputBackChange = c.get_definition('outputBackChange')
     else:
         outputBackChange = None
-        
+
     if c.contains_switches('yes') or c.contains_switches('y') or \
-            input("Do you confirm sending {} {} from {} to {} with \"{}\" as comment? [yes/no]: "\
+            input("Do you confirm sending {} {} from {} to {} with \"{}\" as comment? [yes/no]: "
             .format(amount, get_current_block(ep)["currency"], get_publickey_from_seed(seed), output, comment)) == "yes":
         generate_and_send_transaction(ep, seed, amount, output, comment, allSources, outputBackChange)
 
@@ -225,28 +247,27 @@ def show_amount_from_pubkey(ep, pubkey):
     value = get_amount_from_pubkey(ep, pubkey)
     totalAmountInput = value[0]
     amount = value[1]
-    #output
+    # output
     DUvalue = get_last_du_value(ep)
     current_blk = get_current_block(ep)
     currency_name = str(current_blk["currency"])
-
 
     if totalAmountInput - amount != 0:
         print("Blockchain:")
         print("-----------")
         print("Relative     =", round(amount / DUvalue, 2), "DU", currency_name)
         print("Quantitative =",  round(amount / 100, 2), currency_name + "\n")
-        
+
         print("Pending Transaction:")
         print("--------------------")
         print("Relative     =",  round((totalAmountInput - amount) / DUvalue, 2), "DU", currency_name)
         print("Quantitative =",  round((totalAmountInput - amount) / 100, 2), currency_name + "\n")
 
-
     print("Total amount of: " + pubkey)
     print("----------------------------------------------------------------")
     print("Total Relative     =",  round(totalAmountInput / DUvalue, 2), "DU", currency_name)
     print("Total Quantitative =",  round(totalAmountInput / 100, 2), currency_name + "\n")
+
 
 def argos_info(ep):
     info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
@@ -254,7 +275,7 @@ def argos_info(ep):
     i, info_data = 0, dict()
     while (i < len(info_type)):
             info_data[info_type[i]] = request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
-            i +=1
+            i += 1
     current = get_current_block(ep)
     pretty = current["currency"]
     if current["currency"] in pretty_names:
@@ -286,7 +307,7 @@ def id_pubkey_correspondence(ep, id_pubkey):
     else:
         pubkeys = get_pubkeys_from_id(ep, id_pubkey)
         if pubkeys == NO_MATCHING_ID:
-            print (NO_MATCHING_ID)
+            print(NO_MATCHING_ID)
         else:
             print("Public keys found matching '{}':\n".format(id_pubkey))
             for pubkey in pubkeys:
