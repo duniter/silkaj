@@ -9,6 +9,7 @@ from tx import *
 from auth import *
 from tools import *
 from constants import *
+from argparse import ArgumentError
 
 
 def currency_info(ep):
@@ -74,9 +75,15 @@ def difficulties(ep):
     .format(current["powMin"], match_pattern(int(current["powMin"]))[0], diffi["block"], issuers, len(diffi["levels"]),
     tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl", stralign="center")))
 
-network_sort_keys = "block,member,diffi,uid".split(",")
+
+network_sort_keys = ["block", "member", "diffi", "uid"]
+
+
 def set_network_sort_keys(some_keys):
     global network_sort_keys
+    if some_keys.endswith(","):
+        print("Argument 'sort' ends with a comma, you have probably inserted a space after the comma, which is incorrect.")
+        exit(1)
     network_sort_keys = some_keys.split(",")
 
 def get_network_sort_key(endpoint):

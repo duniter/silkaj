@@ -31,9 +31,9 @@ def usage():
     \n     -y | --yes, don't ask for prompt confirmation \
     \n \
     \n - network: Display current network with many information \
-    \n      --discover     Discover all network (could take a while) \
-    \n      -s, --sort     Sort column names comma-separated (for example \"-s block,diffi\") \
-    \n                     Default sort is block,member,diffi,uid \
+    \n      [--discover]     Discover all network (could take a while), optional \
+    \n      [-s, --sort]     Sort column names comma-separated (for example \"-s block,diffi\"), optional \
+    \n                       Default sort is block,member,diffi,uid \
     \n \
     \n - diffi: list proof-of-work difficulty to generate next block \
     \n \
