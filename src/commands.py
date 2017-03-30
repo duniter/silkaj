@@ -117,8 +117,11 @@ def network_info(ep, discover):
         print(endpoints[i]["port"])
         try:
             endpoints[i]["uid"] = get_uid_from_pubkey(ep, endpoints[i]["pubkey"])
-            endpoints[i]["member"] = "yes"
-            members += 1
+            if endpoints[i]["uid"] is NO_MATCHING_ID:
+                endpoints[i]["uid"] = None
+            else:
+                endpoints[i]["member"] = "yes"
+                members += 1
         except:
             pass
         if endpoints[i].get("member") is None:
