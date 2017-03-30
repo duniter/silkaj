@@ -262,7 +262,7 @@ def cmd_transaction(ep, c):
 
     if c.contains_switches('yes') or c.contains_switches('y') or \
             input("Do you confirm sending {} {} from {} to {} with \"{}\" as comment? [yes/no]: "
-            .format(amount, get_current_block(ep)["currency"], get_publickey_from_seed(seed), output, comment)) == "yes":
+            .format(amount / 100, get_current_block(ep)["currency"], get_publickey_from_seed(seed), output, comment)) == "yes":
         generate_and_send_transaction(ep, seed, amount, output, comment, allSources, outputBackChange)
 
 
