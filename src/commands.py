@@ -263,8 +263,15 @@ def cmd_transaction(ep, c):
     tx = list()
     tx.append(["amount (" + get_current_block(ep)["currency"] + ")", amount / 100])
     tx.append(["amount (DU " + get_current_block(ep)["currency"] + ")", amount / du])
-    tx.append(["from", get_publickey_from_seed(seed)])
+    pubkey = get_publickey_from_seed(seed)
+    tx.append(["from", pubkey])
+    id_from = get_uid_from_pubkey(ep, pubkey)
+    if id_from is not NO_MATCHING_ID:
+        tx.append(["from (id)", id_from])
     tx.append(["to", output])
+    id_to = get_uid_from_pubkey(ep, output)
+    if id_to is not NO_MATCHING_ID:
+        tx.append(["to (id)", id_to])
     tx.append(["comment", comment])
 
     if c.contains_switches('yes') or c.contains_switches('y') or \
