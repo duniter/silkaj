@@ -237,10 +237,10 @@ def cmd_transaction(ep, c):
         print("--output is not set")
         exit()
 
+    du = get_last_du_value(ep)
     if c.contains_definitions('amount'):
         amount = int(float(c.get_definition('amount')) * 100)
     if c.contains_definitions('amountDU'):
-        du = get_last_du_value(ep)
         amount = int(float(c.get_definition('amountDU')) * du)
 
     output = c.get_definition('output')
@@ -260,9 +260,16 @@ def cmd_transaction(ep, c):
     else:
         outputBackChange = None
 
+    tx = list()
+    tx.append(["amount (" + get_current_block(ep)["currency"] + ")", amount / 100])
+    tx.append(["amount (DU " + get_current_block(ep)["currency"] + ")", amount / du])
+    tx.append(["from", get_publickey_from_seed(seed)])
+    tx.append(["to", output])
+    tx.append(["comment", comment])
+
     if c.contains_switches('yes') or c.contains_switches('y') or \
-            input("Do you confirm sending {} {} from {} to {} with \"{}\" as comment? [yes/no]: "
-            .format(amount / 100, get_current_block(ep)["currency"], get_publickey_from_seed(seed), output, comment)) == "yes":
+        input(tabulate(tx, tablefmt="fancy_grid") + \
+        "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
         generate_and_send_transaction(ep, seed, amount, output, comment, allSources, outputBackChange)
 
 
