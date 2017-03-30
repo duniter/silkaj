@@ -31,7 +31,9 @@ def usage():
     \n     -y | --yes, don't ask for prompt confirmation \
     \n \
     \n - network: Display current network with many information \
-    \n      --discover: Discover all network (could take a while) \
+    \n      [--discover]     Discover all network (could take a while), optional \
+    \n      [-s, --sort]     Sort column names comma-separated (for example \"-s block,diffi\"), optional \
+    \n                       Default sort is block,member,diffi,uid \
     \n \
     \n - diffi: list proof-of-work difficulty to generate next block \
     \n \
@@ -77,6 +79,11 @@ def manage_cmd(ep, c):
         difficulties(ep)
 
     elif c.subcmd == "network":
+        from commands import set_network_sort_keys
+        if c.contains_switches("sort"):
+            set_network_sort_keys(c.get_definition("sort"))
+        if c.contains_switches("s"):
+            set_network_sort_keys(c.get_definition("s"))
         network_info(ep, c.contains_switches("discover"))
 
     elif c.subcmd == "issuers" and c.subsubcmd and int(c.subsubcmd) >= 0:

@@ -37,17 +37,17 @@ def currency_info(ep):
     "\n- transactions:", len(info_data["tx"]))
 
 
-def match_pattern(pow, match='', π=1):
+def match_pattern(pow, match='', p=1):
     while pow > 0:
         if pow >= 16:
             match += "0"
             pow -= 16
-            π *= 16
+            p *= 16
         else:
             match += "[0-" + hex(15 - pow)[2:].upper() + "]"
-            π *= pow
+            p *= pow
             pow = 0
-    return match + '*', π
+    return match + '*', p
 
 
 def power(nbr, pow=0):
@@ -73,6 +73,27 @@ def difficulties(ep):
     print("Minimal Proof-of-Work: {0} to match `{1}`\n### Difficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
     .format(current["powMin"], match_pattern(int(current["powMin"]))[0], diffi["block"], issuers, len(diffi["levels"]),
     tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl", stralign="center")))
+
+
+network_sort_keys = ["block", "member", "diffi", "uid"]
+
+
+def set_network_sort_keys(some_keys):
+    global network_sort_keys
+    if some_keys.endswith(","):
+        print("Argument 'sort' ends with a comma, you have probably inserted a space after the comma, which is incorrect.")
+        exit(1)
+    network_sort_keys = some_keys.split(",")
+
+
+def get_network_sort_key(endpoint):
+    t = list()
+    for akey in network_sort_keys:
+        if akey == 'diffi' or akey == 'block' or akey == 'port':
+            t.append(endpoint[akey] if akey in endpoint else 0)
+        else:
+            t.append(str(endpoint[akey]) if akey in endpoint else "")
+    return tuple(t)
 
 
 def network_info(ep, discover):
@@ -130,8 +151,8 @@ def network_info(ep, discover):
                 endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
         i += 1
     os.system("clear")
-    print("###", len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members,
-    "non-members at", datetime.datetime.now().strftime("%H:%M:%S"))
+    print("###", len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members, "non-members at", datetime.datetime.now().strftime("%H:%M:%S"))
+    endpoints = sorted(endpoints, key=get_network_sort_key)
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 
