@@ -90,7 +90,7 @@ def get_network_sort_key(endpoint):
     t = list()
     for akey in network_sort_keys:
         if akey == 'diffi' or akey == 'block' or akey == 'port':
-            t.append(endpoint[akey] if akey in endpoint else 0)
+            t.append(int(endpoint[akey]) if akey in endpoint else 0)
         else:
             t.append(str(endpoint[akey]) if akey in endpoint else "")
     return tuple(t)
