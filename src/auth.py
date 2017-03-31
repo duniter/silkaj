@@ -10,6 +10,8 @@ def auth_method(c):
         return auth_by_seed()
     if c.contains_switches('auth-file'):
         return auth_by_auth_file(c)
+    if c.contains_switches('auth-wif'):
+        return auth_by_wif()
     print("Error: no authentication method")
     exit()
 
@@ -65,3 +67,9 @@ def auth_by_scrypt():
         print("Error: the values of Scrypt parameters are not good")
 
     return get_seed_from_scrypt(salt, password, n, r, p)
+
+
+def auth_by_wif():
+    wif = input("Please enter your WIF address: ")
+    seed = get_seed_from_wif(wif)
+    return seed

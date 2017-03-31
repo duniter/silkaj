@@ -50,6 +50,36 @@ def get_seed_from_scrypt(salt, password, N=4096, r=16, p=1):
     seed = scrypt.hash(password, salt, N, r, p, 32)
     seedhex = nacl.encoding.HexEncoder.encode(seed).decode("utf-8")
     return seedhex
+    
+    
+def get_seed_from_wif(wif):
+    regex = re.compile('^[1-9A-HJ-NP-Za-km-z]*$')
+    if not re.search(regex, wif):
+        print("Error: the format of WIF is invalid")
+        exit()
+
+    wif_bytes = b58_decode(wif)
+    if len(wif_bytes) != 35:
+        print("Error: the size of WIF is invalid")
+        exit()
+
+    checksum_from_wif = wif_bytes[-2:]
+    fi = wif_bytes[0:1]
+    seed = wif_bytes[1:-2]
+    seed_fi = wif_bytes[0:-2]
+
+    if fi != b'\x01':
+        print("Error: It's not a WIF format")
+        exit()
+
+    #checksum control 
+    checksum = nacl.hash.sha256(nacl.hash.sha256(seed_fi, nacl.encoding.RawEncoder),nacl.encoding.RawEncoder)[0:2]
+    if checksum_from_wif != checksum:
+        print("Error: bad checksum of the WIF")
+        exit()
+
+    seedhex = nacl.encoding.HexEncoder.encode(seed).decode("utf-8")
+    return seedhex
 
 
 def sign_document_from_seed(document, seed):
