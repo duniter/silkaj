@@ -23,8 +23,8 @@ def usage():
     \n \
     \n - transaction: Send transaction\
     \n     - authentication:\
-    \n         --auth-scrypt | --auth-seed\
-    \n         --auth-file [--file=<path file>]\
+    \n         --auth-scrypt | [script parameters -n N -r r -p p] (default: 4096,16,1)\
+    \n         --auth-seed | --auth-file [--file=<path file>]\
     \n     - amount:\
     \n         --amountDU=<relative value> | --amount=<quantitative value>\
     \n         [--allSources] \
