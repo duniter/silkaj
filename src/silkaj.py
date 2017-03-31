@@ -18,12 +18,13 @@ def usage():
     \n - info: Display information about currency \
     \n \
     \n - amount: Get amount of one account \
-    \n      --pubkey=<pubkey[:checksum]> | --auth-scrypt\
-    \n      --auth-seed | --auth-file\
+    \n      --pubkey=<pubkey[:checksum]>\
+    \n      --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
+    \n      --auth-seed | --auth-file [--file=<path file>]\
     \n \
     \n - transaction: Send transaction\
     \n     - authentication:\
-    \n         --auth-scrypt [script parameters -n N -r r -p p] (default: 4096,16,1)\
+    \n         --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
     \n         --auth-seed | --auth-file [--file=<path file>]\
     \n     - amount:\
     \n         --amountDU=<relative value> | --amount=<quantitative value>\
@@ -47,8 +48,8 @@ def usage():
     \n - argos: display currency information formated for Argos or BitBar\
     \n \
     \n - generate_auth_file: Generate file to store the seed of the account\
-    \n      --auth-scrypt | --auth-seed \
-    \n      [--file=<path file>] \
+    \n      --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
+    \n      --auth-seed | --auth-file [--file=<path file>]\
     \n \
     \n - id <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
     \n      it could autocomplete the pubkey corresponding to an identity with three or four following characters.")
