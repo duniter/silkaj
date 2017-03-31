@@ -13,7 +13,7 @@ def auth_method(c):
     if c.contains_switches('auth-wif'):
         return auth_by_wif()
     print("Error: no authentication method")
-    exit()
+    exit(1)
 
 
 def generate_auth_file(c):
@@ -34,13 +34,13 @@ def auth_by_auth_file(c):
         file = "authfile"
     if not os.path.isfile(file):
         print("Error: the file \"" + file + "\" does not exist")
-        exit()
+        exit(1)
     with open(file) as f:
         seed = f.read()
     regex = re.compile('^[0-9a-fA-F]{64}$')
     if not re.search(regex, seed):
         print("Error: the format of the file is invalid")
-        exit()
+        exit(1)
     return seed
 
 
@@ -49,7 +49,7 @@ def auth_by_seed():
     regex = re.compile('^[0-9a-fA-F]{64}$')
     if not re.search(regex, seed):
         print("Error: the format of the seed is invalid")
-        exit()
+        exit(1)
     return seed
 
 
