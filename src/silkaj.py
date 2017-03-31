@@ -22,11 +22,14 @@ def usage():
     \n      --auth-seed | --auth-file\
     \n \
     \n - transaction: Send transaction\
-    \n     --auth-scrypt | --auth-seed | --auth-file [--file=<path file>]\
-    \n     --amountDU=<relative value> | --amount=<quantitative value>\
+    \n     - authentication:\
+    \n         --auth-scrypt | --auth-seed\
+    \n         --auth-file [--file=<path file>]\
+    \n     - amount:\
+    \n         --amountDU=<relative value> | --amount=<quantitative value>\
+    \n         [--allSources] \
     \n     --output=<public key>[:checksum] \
     \n     [--comment=<comment>] \
-    \n     [--allSources] \
     \n     [--outputBackChange=<public key[:checksum]>] \
     \n     -y | --yes, don't ask for prompt confirmation \
     \n \
