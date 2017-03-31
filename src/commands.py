@@ -261,8 +261,9 @@ def cmd_transaction(ep, c):
         outputBackChange = None
 
     tx = list()
-    tx.append(["amount (" + get_current_block(ep)["currency"] + ")", amount / 100])
-    tx.append(["amount (DU " + get_current_block(ep)["currency"] + ")", amount / du])
+    currency_name = get_current_block(ep)["currency"]
+    tx.append(["amount (" + currency_name + ")", amount / 100])
+    tx.append(["amount (DU " + currency_name + ")", amount / du])
     pubkey = get_publickey_from_seed(seed)
     tx.append(["from", pubkey])
     id_from = get_uid_from_pubkey(ep, pubkey)
