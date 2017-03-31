@@ -58,12 +58,12 @@ def auth_by_scrypt(c):
         n, r, p = c.get_definition('n'), c.get_definition('r'), c.get_definition('p')
         if n.isnumeric() and r.isnumeric() and p.isnumeric():
             n, r, p = int(n), int(r), int(p)
-            if (n <= 0 or n > 65536 or r <= 0 or r > 512 or p <= 0 or p > 32):
+            if n <= 0 or n > 65536 or r <= 0 or r > 512 or p <= 0 or p > 32:
                 print("Error: the values of Scrypt parameters are not good")
-                exit()
+                exit(1)
         else:
             print("one of n, r or p is not a number")
-            exit()
+            exit(1)
     else:
         print("Using default values. Scrypt parameters not specified or wrong format")
         n, r, p = 4096, 16, 1
