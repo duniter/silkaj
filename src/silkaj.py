@@ -20,23 +20,23 @@ def usage():
     \n - amount: Get amount of one account \
     \n      --pubkey=<pubkey[:checksum]>\
     \n      --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
-    \n      --auth-seed | --auth-file [--file=<path file>]\
+    \n      --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
     \n \
     \n - transaction: Send transaction\
     \n     - authentication:\
     \n         --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
-    \n         --auth-seed | --auth-file [--file=<path file>]\
+    \n         --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
     \n     - amount:\
     \n         --amountDU=<relative value> | --amount=<quantitative value>\
     \n         [--allSources] \
     \n     --output=<public key>[:checksum] \
     \n     [--comment=<comment>] \
     \n     [--outputBackChange=<public key[:checksum]>] \
-    \n     -y | --yes, don't ask for prompt confirmation \
+    \n     [-y | --yes], don't ask for prompt confirmation \
     \n \
     \n - network: Display current network with many information \
     \n      [--discover]     Discover all network (could take a while), optional \
-    \n      [-s, --sort]     Sort column names comma-separated (for example \"-s block,diffi\"), optional \
+    \n      [-s | --sort]     Sort column names comma-separated (for example \"-s block,diffi\"), optional \
     \n                       Default sort is block,member,diffi,uid \
     \n \
     \n - diffi: list proof-of-work difficulty to generate next block \
@@ -49,7 +49,7 @@ def usage():
     \n \
     \n - generate_auth_file: Generate file to store the seed of the account\
     \n      --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
-    \n      --auth-seed | --auth-file [--file=<path file>]\
+    \n      --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
     \n \
     \n - id <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
     \n      it could autocomplete the pubkey corresponding to an identity with three or four following characters.")
