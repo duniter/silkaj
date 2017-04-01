@@ -19,20 +19,20 @@ def usage():
     \n \
     \n - amount: Get amount of one account \
     \n      --pubkey=<pubkey[:checksum]> | --auth-scrypt\
-    \n      --auth-seed | --auth-file\
+    \n      --auth-seed | --auth-file | --auth-wif\
     \n \
     \n - transaction: Send transaction\
-    \n     --auth-scrypt | --auth-seed | --auth-file [--file=<path file>]\
+    \n     --auth-scrypt | --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
     \n     --amountDU=<relative value> | --amount=<quantitative value>\
     \n     --output=<public key>[:checksum] \
     \n     [--comment=<comment>] \
     \n     [--allSources] \
     \n     [--outputBackChange=<public key[:checksum]>] \
-    \n     -y | --yes, don't ask for prompt confirmation \
+    \n     [-y | --yes], don't ask for prompt confirmation \
     \n \
     \n - network: Display current network with many information \
     \n      [--discover]     Discover all network (could take a while), optional \
-    \n      [-s, --sort]     Sort column names comma-separated (for example \"-s block,diffi\"), optional \
+    \n      [-s | --sort]     Sort column names comma-separated (for example \"-s block,diffi\"), optional \
     \n                       Default sort is block,member,diffi,uid \
     \n \
     \n - diffi: list proof-of-work difficulty to generate next block \
@@ -44,7 +44,7 @@ def usage():
     \n - argos: display currency information formated for Argos or BitBar\
     \n \
     \n - generate_auth_file: Generate file to store the seed of the account\
-    \n      --auth-scrypt | --auth-seed \
+    \n      --auth-scrypt | --auth-seed | --auth-wif\
     \n      [--file=<path file>] \
     \n \
     \n - id <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
