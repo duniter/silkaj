@@ -5,7 +5,7 @@ import os
 
 def auth_method(c):
     if c.contains_switches('auth-scrypt'):
-        return auth_by_scrypt()
+        return auth_by_scrypt(c)
     if c.contains_switches('auth-seed'):
         return auth_by_seed()
     if c.contains_switches('auth-file'):
@@ -53,18 +53,23 @@ def auth_by_seed():
     return seed
 
 
-def auth_by_scrypt():
+def auth_by_scrypt(c):
     salt = input("Please enter your Scrypt Salt (Secret identifier): ")
     password = getpass.getpass("Please enter your Scrypt password (masked): ")
-    scrypt_param = input("Please enter your Scrypt parameters (N,r,p): default [4096,16,1]: ")
-    if not scrypt_param:
-        scrypt_param = "4096,16,1"
-    scrypt_param_splited = scrypt_param.split(",")
-    n = int(scrypt_param_splited[0])
-    r = int(scrypt_param_splited[1])
-    p = int(scrypt_param_splited[2])
-    if (n <= 0 or n > 65536 or r <= 0 or r > 512 or p <= 0 or p > 32):
-        print("Error: the values of Scrypt parameters are not good")
+    if c.contains_definitions('n') and c.contains_definitions('r') and c.contains_definitions('p'):
+        n, r, p = c.get_definition('n'), c.get_definition('r'), c.get_definition('p')
+        if n.isnumeric() and r.isnumeric() and p.isnumeric():
+            n, r, p = int(n), int(r), int(p)
+            if n <= 0 or n > 65536 or r <= 0 or r > 512 or p <= 0 or p > 32:
+                print("Error: the values of Scrypt parameters are not good")
+                exit(1)
+        else:
+            print("one of n, r or p is not a number")
+            exit(1)
+    else:
+        print("Using default values. Scrypt parameters not specified or wrong format")
+        n, r, p = 4096, 16, 1
+    print("Scrypt parameters used: N: {0}, r: {1}, p: {2}".format(n, r, p))
 
     return get_seed_from_scrypt(salt, password, n, r, p)
 
