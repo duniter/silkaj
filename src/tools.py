@@ -2,9 +2,7 @@ import datetime
 import nacl.encoding
 import nacl.signing
 import nacl.hash
-import scrypt
 import re
-import sys
 
 from network_tools import *
 from constants import *
@@ -46,40 +44,6 @@ def get_current_block(ep):
     return request(ep, "blockchain/current")
 
 
-def get_seed_from_scrypt(salt, password, N=4096, r=16, p=1):
-    seed = scrypt.hash(password, salt, N, r, p, 32)
-    seedhex = nacl.encoding.HexEncoder.encode(seed).decode("utf-8")
-    return seedhex
-    
-    
-def get_seed_from_wif(wif):
-    regex = re.compile('^[1-9A-HJ-NP-Za-km-z]*$')
-    if not re.search(regex, wif):
-        print("Error: the format of WIF is invalid")
-        exit(1)
-
-    wif_bytes = b58_decode(wif)
-    if len(wif_bytes) != 35:
-        print("Error: the size of WIF is invalid")
-        exit(1)
-
-    checksum_from_wif = wif_bytes[-2:]
-    fi = wif_bytes[0:1]
-    seed = wif_bytes[1:-2]
-    seed_fi = wif_bytes[0:-2]
-
-    if fi != b'\x01':
-        print("Error: It's not a WIF format")
-        exit(1)
-
-    #checksum control 
-    checksum = nacl.hash.sha256(nacl.hash.sha256(seed_fi, nacl.encoding.RawEncoder),nacl.encoding.RawEncoder)[0:2]
-    if checksum_from_wif != checksum:
-        print("Error: bad checksum of the WIF")
-        exit(1)
-
-    seedhex = nacl.encoding.HexEncoder.encode(seed).decode("utf-8")
-    return seedhex
 
 
 def sign_document_from_seed(document, seed):
@@ -190,10 +154,7 @@ def b58_encode(b):
     res = ''.join(res[::-1])
 
     # Encode leading zeros as base58 zeros
-    czero = b'\x00'
-    if sys.version > '3':
-        # In Python3 indexing a bytes returns numbers, not characters.
-        czero = 0
+    czero = 0
     pad = 0
     for c in b:
         if c == czero:
@@ -230,3 +191,10 @@ def b58_decode(s):
         else:
             break
     return b'\x00' * pad + res
+
+
+def xor_bytes(b1, b2):
+    result = bytearray()
+    for b1, b2 in zip(b1, b2):
+        result.append(b1 ^ b2)
+    return result
