@@ -44,14 +44,12 @@ def get_current_block(ep):
     return request(ep, "blockchain/current")
 
 
-
-
 def sign_document_from_seed(document, seed):
     seed = bytes(seed, 'utf-8')
     signing_key = nacl.signing.SigningKey(seed, nacl.encoding.HexEncoder)
     signed = signing_key.sign(bytes(document, 'utf-8'))
-    signed_b64 = nacl.encoding.Base64Encoder.encode(signed.signature).decode("utf-8")
-    return signed_b64
+    signed_b64 = nacl.encoding.Base64Encoder.encode(signed.signature)
+    return signed_b64.decode("utf-8")
 
 
 def get_publickey_from_seed(seed):
@@ -63,13 +61,16 @@ def get_publickey_from_seed(seed):
 
 def check_public_key(pubkey):
     regex = re.compile('^[1-9A-HJ-NP-Za-km-z]{43,44}$')
-    regex_checksum = re.compile('^[1-9A-HJ-NP-Za-km-z]{43,44}:[1-9A-HJ-NP-Za-km-z]{3}$')
+    regex_checksum = re.compile('^[1-9A-HJ-NP-Za-km-z]{43,44}' +
+                                ':[1-9A-HJ-NP-Za-km-z]{3}$')
     if re.search(regex, pubkey):
         return pubkey
     if re.search(regex_checksum, pubkey):
         pubkey, checksum = pubkey.split(":")
         pubkey_byte = b58_decode(pubkey)
-        checksum_calculed = b58_encode(nacl.hash.sha256(nacl.hash.sha256(pubkey_byte, nacl.encoding.RawEncoder), nacl.encoding.RawEncoder))[:3]
+        checksum_calculed = b58_encode(nacl.hash.sha256(
+                    nacl.hash.sha256(pubkey_byte, nacl.encoding.RawEncoder),
+                    nacl.encoding.RawEncoder))[:3]
         if checksum_calculed == checksum:
             return pubkey
         else:
@@ -87,7 +88,11 @@ def get_amount_from_pubkey(ep, pubkey):
     amount = 0
     for source in sources:
         amount += source["amount"] * 10 ** source["base"]
-        listinput.append(str(source["amount"]) + ":" + str(source["base"]) + ":" + str(source["type"]) + ":" + str(source["identifier"]) + ":" + str(source["noffset"]))
+        listinput.append(str(source["amount"]) + ":" +
+                         str(source["base"]) + ":" +
+                         str(source["type"]) + ":" +
+                         str(source["identifier"]) + ":" +
+                         str(source["noffset"]))
 
     # pending source
     history = request(ep, "tx/history/" + pubkey + "/pending")["history"]
@@ -108,7 +113,11 @@ def get_amount_from_pubkey(ep, pubkey):
             for output in pending["outputs"]:
                 outputsplited = output.split(":")
                 if outputsplited[2] == "SIG(" + pubkey + ")":
-                    inputgenerated = str(outputsplited[0]) + ":" + str(outputsplited[1]) + ":T:" + identifier + ":" + str(i)
+                    inputgenerated = (
+                                        str(outputsplited[0]) + ":" +
+                                        str(outputsplited[1]) + ":T:" +
+                                        identifier + ":" + str(i)
+                                      )
                     if inputgenerated not in listinput:
                         listinput.append(inputgenerated)
                 i += 1
@@ -173,7 +182,8 @@ def b58_decode(s):
     for c in s:
         n *= 58
         if c not in b58_digits:
-            raise InvalidBase58Error('Character %r is not a valid base58 character' % c)
+            raise InvalidBase58Error('Character %r is not a ' +
+                                     'valid base58 character' % c)
         digit = b58_digits.index(c)
         n += digit
 
