@@ -15,6 +15,7 @@ Silkaj is based on Python dependencies:
 - [Commandlines](https://github.com/chrissimpkins/commandlines): to parse command and sub-commands.
 - [PyNaCl](https://github.com/pyca/pynacl/): Cryptography (NaCl) library.
 - [scrypt](https://bitbucket.org/mhallin/py-scrypt): scrypt key derivation function.
+- [pyaes](https://github.com/ricmoo/pyaes): Pure-Python implementation of AES
 
 #### From pip
 ```bash

@@ -3,3 +3,4 @@ ipaddress
 tabulate
 pynacl
 scrypt
+pyaes

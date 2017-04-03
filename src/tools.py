@@ -2,9 +2,7 @@ import datetime
 import nacl.encoding
 import nacl.signing
 import nacl.hash
-import scrypt
 import re
-import sys
 
 from network_tools import *
 from constants import *
@@ -46,48 +44,12 @@ def get_current_block(ep):
     return request(ep, "blockchain/current")
 
 
-def get_seed_from_scrypt(salt, password, N=4096, r=16, p=1):
-    seed = scrypt.hash(password, salt, N, r, p, 32)
-    seedhex = nacl.encoding.HexEncoder.encode(seed).decode("utf-8")
-    return seedhex
-    
-    
-def get_seed_from_wif(wif):
-    regex = re.compile('^[1-9A-HJ-NP-Za-km-z]*$')
-    if not re.search(regex, wif):
-        print("Error: the format of WIF is invalid")
-        exit(1)
-
-    wif_bytes = b58_decode(wif)
-    if len(wif_bytes) != 35:
-        print("Error: the size of WIF is invalid")
-        exit(1)
-
-    checksum_from_wif = wif_bytes[-2:]
-    fi = wif_bytes[0:1]
-    seed = wif_bytes[1:-2]
-    seed_fi = wif_bytes[0:-2]
-
-    if fi != b'\x01':
-        print("Error: It's not a WIF format")
-        exit(1)
-
-    #checksum control 
-    checksum = nacl.hash.sha256(nacl.hash.sha256(seed_fi, nacl.encoding.RawEncoder),nacl.encoding.RawEncoder)[0:2]
-    if checksum_from_wif != checksum:
-        print("Error: bad checksum of the WIF")
-        exit(1)
-
-    seedhex = nacl.encoding.HexEncoder.encode(seed).decode("utf-8")
-    return seedhex
-
-
 def sign_document_from_seed(document, seed):
     seed = bytes(seed, 'utf-8')
     signing_key = nacl.signing.SigningKey(seed, nacl.encoding.HexEncoder)
     signed = signing_key.sign(bytes(document, 'utf-8'))
-    signed_b64 = nacl.encoding.Base64Encoder.encode(signed.signature).decode("utf-8")
-    return signed_b64
+    signed_b64 = nacl.encoding.Base64Encoder.encode(signed.signature)
+    return signed_b64.decode("utf-8")
 
 
 def get_publickey_from_seed(seed):
@@ -99,13 +61,16 @@ def get_publickey_from_seed(seed):
 
 def check_public_key(pubkey):
     regex = re.compile('^[1-9A-HJ-NP-Za-km-z]{43,44}$')
-    regex_checksum = re.compile('^[1-9A-HJ-NP-Za-km-z]{43,44}:[1-9A-HJ-NP-Za-km-z]{3}$')
+    regex_checksum = re.compile('^[1-9A-HJ-NP-Za-km-z]{43,44}' +
+                                ':[1-9A-HJ-NP-Za-km-z]{3}$')
     if re.search(regex, pubkey):
         return pubkey
     if re.search(regex_checksum, pubkey):
         pubkey, checksum = pubkey.split(":")
         pubkey_byte = b58_decode(pubkey)
-        checksum_calculed = b58_encode(nacl.hash.sha256(nacl.hash.sha256(pubkey_byte, nacl.encoding.RawEncoder), nacl.encoding.RawEncoder))[:3]
+        checksum_calculed = b58_encode(nacl.hash.sha256(
+                    nacl.hash.sha256(pubkey_byte, nacl.encoding.RawEncoder),
+                    nacl.encoding.RawEncoder))[:3]
         if checksum_calculed == checksum:
             return pubkey
         else:
@@ -123,7 +88,11 @@ def get_amount_from_pubkey(ep, pubkey):
     amount = 0
     for source in sources:
         amount += source["amount"] * 10 ** source["base"]
-        listinput.append(str(source["amount"]) + ":" + str(source["base"]) + ":" + str(source["type"]) + ":" + str(source["identifier"]) + ":" + str(source["noffset"]))
+        listinput.append(str(source["amount"]) + ":" +
+                         str(source["base"]) + ":" +
+                         str(source["type"]) + ":" +
+                         str(source["identifier"]) + ":" +
+                         str(source["noffset"]))
 
     # pending source
     history = request(ep, "tx/history/" + pubkey + "/pending")["history"]
@@ -144,7 +113,11 @@ def get_amount_from_pubkey(ep, pubkey):
             for output in pending["outputs"]:
                 outputsplited = output.split(":")
                 if outputsplited[2] == "SIG(" + pubkey + ")":
-                    inputgenerated = str(outputsplited[0]) + ":" + str(outputsplited[1]) + ":T:" + identifier + ":" + str(i)
+                    inputgenerated = (
+                                        str(outputsplited[0]) + ":" +
+                                        str(outputsplited[1]) + ":T:" +
+                                        identifier + ":" + str(i)
+                                      )
                     if inputgenerated not in listinput:
                         listinput.append(inputgenerated)
                 i += 1
@@ -190,10 +163,7 @@ def b58_encode(b):
     res = ''.join(res[::-1])
 
     # Encode leading zeros as base58 zeros
-    czero = b'\x00'
-    if sys.version > '3':
-        # In Python3 indexing a bytes returns numbers, not characters.
-        czero = 0
+    czero = 0
     pad = 0
     for c in b:
         if c == czero:
@@ -212,7 +182,8 @@ def b58_decode(s):
     for c in s:
         n *= 58
         if c not in b58_digits:
-            raise InvalidBase58Error('Character %r is not a valid base58 character' % c)
+            raise InvalidBase58Error('Character %r is not a ' +
+                                     'valid base58 character' % c)
         digit = b58_digits.index(c)
         n += digit
 
@@ -230,3 +201,10 @@ def b58_decode(s):
         else:
             break
     return b'\x00' * pad + res
+
+
+def xor_bytes(b1, b2):
+    result = bytearray()
+    for b1, b2 in zip(b1, b2):
+        result.append(b1 ^ b2)
+    return result
