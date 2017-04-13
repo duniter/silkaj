@@ -3,10 +3,6 @@
 CLI Duniter client written with Python 3.
 
 ## Install
-Clone repository:
-```bash
-git clone https://github.com/duniter/silkaj.git
-```
 
 ### Dependencies
 Silkaj is based on Python dependencies:
@@ -16,19 +12,6 @@ Silkaj is based on Python dependencies:
 - [PyNaCl](https://github.com/pyca/pynacl/): Cryptography (NaCl) library.
 - [scrypt](https://bitbucket.org/mhallin/py-scrypt): scrypt key derivation function.
 - [pyaes](https://github.com/ricmoo/pyaes): Pure-Python implementation of AES
-
-#### From pip
-```bash
-sudo pip3 install -r requirements.txt
-```
-Use `pip` command if `pip3` is not present.
-Upgrade `pip` adding `--upgrade pip` to previous command.
-
-#### From Distributions package
-Two dependencies (one is missing) could be installed from Debian and Fedora repository packages:
-```bash
-sudo (apt-get or dnf) install python-tabulate python-ipaddress
-```
 
 ## Usage
 - Get help usage with `-h`, `--help` or `--usage` options, then run:
