@@ -4,15 +4,6 @@ CLI Duniter client written with Python 3.
 
 ## Install
 
-### Dependencies
-Silkaj is based on Python dependencies:
-
-- [Tabulate](https://bitbucket.org/astanin/python-tabulate/overview): to display charts.
-- [Commandlines](https://github.com/chrissimpkins/commandlines): to parse command and sub-commands.
-- [PyNaCl](https://github.com/pyca/pynacl/): Cryptography (NaCl) library.
-- [scrypt](https://bitbucket.org/mhallin/py-scrypt): scrypt key derivation function.
-- [pyaes](https://github.com/ricmoo/pyaes): Pure-Python implementation of AES
-
 ## Usage
 - Get help usage with `-h`, `--help` or `--usage` options, then run:
 ```bash
@@ -69,6 +60,15 @@ Silkaj is based on Python dependencies:
 | duniter.cco.ovh     | 163.172.176.32 |  8999| 41166 | 000027421F… | 15:59:00 | charles   | yes  | DA4PY… |  77 | 0.31.0a8 |
 | duniter.ktorn.com   | 107.170.192.122|  8999| 41166 | 000027421F… | 15:59:00 | ktorn     | yes  | BR5DD… |  77 | 0.30.17  |
 ```
+
+### Dependencies
+Silkaj is based on Python dependencies:
+
+- [Tabulate](https://bitbucket.org/astanin/python-tabulate/overview): to display charts.
+- [Commandlines](https://github.com/chrissimpkins/commandlines): to parse command and sub-commands.
+- [PyNaCl](https://github.com/pyca/pynacl/): Cryptography (NaCl) library.
+- [scrypt](https://bitbucket.org/mhallin/py-scrypt): scrypt key derivation function.
+- [pyaes](https://github.com/ricmoo/pyaes): Pure-Python implementation of AES
 
 ### Names
 I wanted to call that program:
