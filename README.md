@@ -1,6 +1,7 @@
 # Silkaj
 
-CLI Duniter client written with Python 3.
+- CLI Duniter client written with Python 3.
+- [Website](https://silkaj.duniter.org)
 
 ## Install
 
@@ -10,7 +11,7 @@ CLI Duniter client written with Python 3.
 ./silkaj <sub-command>
 ```
 
-- Will automatically request `duniter.org 8999` node.
+- Will automatically request and post data on `duniter.org 10901` main Ğ1 node.
 
 - Specify a custom node with `-p` option:
 ```bash

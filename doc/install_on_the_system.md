@@ -19,7 +19,7 @@ sudo pip3 install -r requirements.txt
 Use `pip` command if `pip3` is not present.
 Upgrade `pip` adding `--upgrade pip` to previous command.
 
-### From distributions package
+### From distributions package managers
 #### Debian-like
 ```bash
 sudo apt-get install python-tabulate python-ipaddress
