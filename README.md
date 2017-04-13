@@ -4,6 +4,9 @@
 - [Website](https://silkaj.duniter.org)
 
 ## Install
+- [Install inside a Python environemnt](https://github.com/duniter/silkaj/blob/master/doc/install_pyenv.md)
+- [Install without Python environment](https://github.com/duniter/silkaj/blob/master/doc/install_on_the_system.md)
+- [Install as a drop-down for GNOME Shell with Argos](https://github.com/duniter/silkaj/blob/master/doc/argos.md)
 
 ## Usage
 - Get help usage with `-h`, `--help` or `--usage` options, then run:
