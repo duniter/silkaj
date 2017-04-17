@@ -4,6 +4,14 @@
 - [Website](https://silkaj.duniter.org)
 
 ## Install
+### With release
+Download [last release](https://github.com/duniter/silkaj/releases/latest) with `wget`.
+Add executable permissions:
+```bash
+chmod a+x silkaj
+```
+
+### Manually
 - [Install inside a Python environemnt](https://github.com/duniter/silkaj/blob/master/doc/install_pyenv.md)
 - [Install without Python environment](https://github.com/duniter/silkaj/blob/master/doc/install_on_the_system.md)
 - [Build an executable with Pyinstaller](https://github.com/duniter/silkaj/blob/master/doc/build_with_pyinstaller.md)
