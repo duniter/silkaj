@@ -1,5 +1,6 @@
 import datetime
 import os
+import sys
 from collections import OrderedDict
 from tabulate import tabulate
 from operator import itemgetter
@@ -82,7 +83,7 @@ def set_network_sort_keys(some_keys):
     global network_sort_keys
     if some_keys.endswith(","):
         print("Argument 'sort' ends with a comma, you have probably inserted a space after the comma, which is incorrect.")
-        exit(1)
+        sys.exit(1)
     network_sort_keys = some_keys.split(",")
 
 
@@ -102,7 +103,7 @@ def network_info(ep, discover):
     wide = int(columns)
     if wide < 146:
         print("Wide screen need to be larger than 146. Current wide:", wide)
-        exit(1)
+        sys.exit(1)
     # discover peers
     # and make sure fields are always ordered the same
     endpoints = [OrderedDict((i, p.get(i, None)) for i in ("domain", "port", "ip4", "ip6", "pubkey")) for p in discover_peers(ep, discover)]
@@ -232,10 +233,10 @@ def cmd_transaction(ep, c):
 
     if not (c.contains_definitions('amount') or c.contains_definitions('amountDU')):
         print("--amount or --amountDU is not set")
-        exit(1)
+        sys.exit(1)
     if not c.contains_definitions('output'):
         print("--output is not set")
-        exit(1)
+        sys.exit(1)
 
     du = get_last_du_value(ep)
     if c.contains_definitions('amount'):

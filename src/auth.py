@@ -6,6 +6,7 @@ import scrypt
 import pyaes
 import getpass
 import os
+import sys
 
 
 def auth_method(c):
@@ -18,7 +19,7 @@ def auth_method(c):
     if c.contains_switches('auth-wif'):
         return auth_by_wif()
     print("Error: no authentication method")
-    exit(1)
+    sys.exit(1)
 
 
 def generate_auth_file(c):
@@ -40,13 +41,13 @@ def auth_by_auth_file(c):
         file = "authfile"
     if not os.path.isfile(file):
         print("Error: the file \"" + file + "\" does not exist")
-        exit(1)
+        sys.exit(1)
     with open(file) as f:
         seed = f.read()
     regex = re.compile('^[0-9a-fA-F]{64}$')
     if not re.search(regex, seed):
         print("Error: the format of the file is invalid")
-        exit(1)
+        sys.exit(1)
     return seed
 
 
@@ -55,7 +56,7 @@ def auth_by_seed():
     regex = re.compile('^[0-9a-fA-F]{64}$')
     if not re.search(regex, seed):
         print("Error: the format of the seed is invalid")
-        exit(1)
+        sys.exit(1)
     return seed
 
 
@@ -69,10 +70,10 @@ def auth_by_scrypt(c):
             n, r, p = int(n), int(r), int(p)
             if n <= 0 or n > 65536 or r <= 0 or r > 512 or p <= 0 or p > 32:
                 print("Error: the values of Scrypt parameters are not good")
-                exit(1)
+                sys.exit(1)
         else:
             print("one of n, r or p is not a number")
-            exit(1)
+            sys.exit(1)
     else:
         print("Using default values. Scrypt parameters not specified or wrong format")
         n, r, p = 4096, 16, 1
@@ -87,7 +88,7 @@ def auth_by_wif():
     regex = re.compile('^[1-9A-HJ-NP-Za-km-z]*$')
     if not re.search(regex, wif):
         print("Error: the format of WIF is invalid")
-        exit(1)
+        sys.exit(1)
 
     wif_bytes = b58_decode(wif)
     fi = wif_bytes[0:1]
@@ -100,7 +101,7 @@ def auth_by_wif():
         return get_seed_from_ewifv1(wif, password)
 
     print("Error: the format of WIF is invalid or unknown")
-    exit(1)
+    sys.exit(1)
 
 
 def get_seed_from_scrypt(salt, password, N=4096, r=16, p=1):
@@ -113,12 +114,12 @@ def get_seed_from_wifv1(wif):
     regex = re.compile('^[1-9A-HJ-NP-Za-km-z]*$')
     if not re.search(regex, wif):
         print("Error: the format of WIF is invalid")
-        exit(1)
+        sys.exit(1)
 
     wif_bytes = b58_decode(wif)
     if len(wif_bytes) != 35:
         print("Error: the size of WIF is invalid")
-        exit(1)
+        sys.exit(1)
 
     checksum_from_wif = wif_bytes[-2:]
     fi = wif_bytes[0:1]
@@ -127,7 +128,7 @@ def get_seed_from_wifv1(wif):
 
     if fi != b'\x01':
         print("Error: It's not a WIF format")
-        exit(1)
+        sys.exit(1)
 
     # checksum control
     checksum = nacl.hash.sha256(
@@ -135,7 +136,7 @@ def get_seed_from_wifv1(wif):
                     nacl.encoding.RawEncoder)[0:2]
     if checksum_from_wif != checksum:
         print("Error: bad checksum of the WIF")
-        exit(1)
+        sys.exit(1)
 
     seedhex = nacl.encoding.HexEncoder.encode(seed).decode("utf-8")
     return seedhex
@@ -145,12 +146,12 @@ def get_seed_from_ewifv1(ewif, password):
     regex = re.compile('^[1-9A-HJ-NP-Za-km-z]*$')
     if not re.search(regex, ewif):
         print("Error: the format of EWIF is invalid")
-        exit(1)
+        sys.exit(1)
 
     wif_bytes = b58_decode(ewif)
     if len(wif_bytes) != 39:
         print("Error: the size of EWIF is invalid")
-        exit(1)
+        sys.exit(1)
 
     wif_no_checksum = wif_bytes[0:-2]
     checksum_from_ewif = wif_bytes[-2:]
@@ -161,7 +162,7 @@ def get_seed_from_ewifv1(ewif, password):
 
     if fi != b'\x02':
         print("Error: It's not a EWIF format")
-        exit(1)
+        sys.exit(1)
 
     # Checksum Control
     checksum = nacl.hash.sha256(
@@ -169,7 +170,7 @@ def get_seed_from_ewifv1(ewif, password):
                    nacl.encoding.RawEncoder)[0:2]
     if checksum_from_ewif != checksum:
         print("Error: bad checksum of EWIF address")
-        exit(1)
+        sys.exit(1)
 
     # SCRYPT
     password = password.encode("utf-8")
@@ -196,6 +197,6 @@ def get_seed_from_ewifv1(ewif, password):
                         nacl.encoding.RawEncoder)[0:4]
     if salt_from_seed != salt:
         print("Error: bad Password of EWIF address")
-        exit(1)
+        sys.exit(1)
 
     return seedhex

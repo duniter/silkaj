@@ -3,6 +3,7 @@ import ipaddress
 import json
 import socket
 import urllib.request
+import sys
 
 
 def discover_peers(ep, discover):
@@ -123,7 +124,7 @@ def post_request(ep, path, postdata):
         response = urllib.request.urlopen(request)
     except urllib.error.URLError as e:
         print(e)
-        exit(1)
+        sys.exit(1)
     encoding = response.info().get_content_charset('utf8')
     return json.loads(response.read().decode(encoding))
 
@@ -141,7 +142,7 @@ def best_node(ep, main):
                 pass
     if main:
         print("Wrong node gived as argument")
-        exit(1)
+        sys.exit(1)
     return None
 
 
@@ -150,8 +151,8 @@ def check_port(port):
         port = int(port)
     except:
         print("Port must be an integer")
-        exit(1)
+        sys.exit(1)
     if (port < 0 or port > 65536):
         print("Wrong port number")
-        exit(1)
+        sys.exit(1)
     return 1

@@ -4,6 +4,7 @@ from tools import *
 import re
 import math
 import time
+import sys
 
 
 def generate_and_send_transaction(ep, seed, AmountTransfered, outputAddr, Comment="", all_input=False, OutputbackChange=None):
@@ -17,7 +18,7 @@ def generate_and_send_transaction(ep, seed, AmountTransfered, outputAddr, Commen
     totalamount = get_amount_from_pubkey(ep, issuers)[0]
     if totalamount < AmountTransfered:
         print("the account: " + issuers + " don't have enough money for this transaction")
-        exit(1)
+        sys.exit(1)
 
     while True:
         listinput_and_amount = get_list_input_for_transaction(ep, issuers, AmountTransfered, all_input)
@@ -182,18 +183,18 @@ def get_list_input_for_transaction(ep, pubkey, TXamount, allinput=False):
             break
     if TXamount > 0 and not intermediatetransaction:
         print("Error: you don't have enough money")
-        exit(1)
+        sys.exit(1)
     return listinputfinal, totalAmountInput, intermediatetransaction
 
 
 def checkComment(Comment):
     if len(Comment) > 255:
         print("Error: Comment is too long")
-        exit(1)
+        sys.exit(1)
     regex = re.compile('^[0-9a-zA-Z\ \-\_\:\/\;\*\[\]\(\)\?\!\^\+\=\@\&\~\#\{\}\|\\\<\>\%\.]*$')
     if not re.search(regex, Comment):
         print("Error: the format of the comment is invalid")
-        exit(1)
+        sys.exit(1)
 
 
 def truncBase(amount, base):

@@ -53,7 +53,7 @@ def usage():
     \n \
     \n - id <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
     \n      it could autocomplete the pubkey corresponding to an identity with three or four following characters.")
-    exit()
+    sys.exit()
 
 
 def cli():
@@ -64,7 +64,7 @@ def cli():
         usage()
     if c.is_version_request():
         print("silkaj 0.2.0")
-        exit()
+        sys.exit()
     ep["domain"], ep["port"] = "duniter.org", "10901"
     try:
         ep["domain"], ep["port"] = c.get_definition('p').rsplit(':', 1)
