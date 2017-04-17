@@ -61,7 +61,7 @@ def cli():
     ep, c = dict(), Command()
     subcmd = ["info", "diffi", "network", "issuers", "argos", "amount", "transaction", "generate_auth_file", "id"]
     if c.is_version_request():
-        print("silkaj 0.2.0")
+        print("silkaj 0.3.0")
         sys.exit()
     if c.is_help_request() or c.is_usage_request() or c.subcmd not in subcmd:
         usage()
