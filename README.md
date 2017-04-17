@@ -6,6 +6,7 @@
 ## Install
 - [Install inside a Python environemnt](https://github.com/duniter/silkaj/blob/master/doc/install_pyenv.md)
 - [Install without Python environment](https://github.com/duniter/silkaj/blob/master/doc/install_on_the_system.md)
+- [Build an executable with Pyinstaller](https://github.com/duniter/silkaj/blob/master/doc/build_with_pyinstaller.md)
 - [Install as a drop-down for GNOME Shell with Argos](https://github.com/duniter/silkaj/blob/master/doc/argos.md)
 
 ## Usage
