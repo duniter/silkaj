@@ -21,14 +21,17 @@ def received_sent_certifications(ep, id):
     certs = request(ep, "wot/lookup/" + id)["results"]
     for cert in certs:
         if cert["uids"][0]["uid"].lower() == id.lower():
-           certs = cert
+            certs = cert
     certifications = OrderedDict()
     certifications["received"] = list()
     certifications["sent"] = list()
-    for received, cert in enumerate(certs["uids"][0]["others"]):
-        certifications["received"].append(cert["uids"][0])
-    for sent, cert in enumerate(certs["signed"]):
-        certifications["sent"].append(cert["uid"])
+    received, sent = 0, 0
+    if certs["uids"]:
+        for received, cert in enumerate(certs["uids"][0]["others"]):
+            certifications["received"].append(cert["uids"][0])
+    if certs["signed"]:
+        for sent, cert in enumerate(certs["signed"]):
+            certifications["sent"].append(cert["uid"])
     os.system("clear")
     print("{0} received {1} and sent {2} certifications:\n{3}"
     .format(id, received, sent, tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
