@@ -2,8 +2,8 @@ import os
 from tabulate import tabulate
 from collections import OrderedDict
 
-from network_tools import *
-from tools import *
+from network_tools import request
+from tools import get_pubkeys_from_id
 from constants import *
 
 
