@@ -123,7 +123,7 @@ def post_request(ep, path, postdata):
     try:
         response = urllib.request.urlopen(request)
     except urllib.error.URLError as e:
-        print(e)
+        print(e, file=sys.stderr)
         sys.exit(1)
     encoding = response.info().get_content_charset('utf8')
     return json.loads(response.read().decode(encoding))
@@ -141,7 +141,7 @@ def best_node(ep, main):
             except:
                 pass
     if main:
-        print("Wrong node gived as argument")
+        print("Wrong node gived as argument", file=sys.stderr)
         sys.exit(1)
     return None
 
@@ -150,9 +150,9 @@ def check_port(port):
     try:
         port = int(port)
     except:
-        print("Port must be an integer")
+        print("Port must be an integer", file=sys.stderr)
         sys.exit(1)
     if (port < 0 or port > 65536):
-        print("Wrong port number")
+        print("Wrong port number", file=sys.stderr)
         sys.exit(1)
     return 1
