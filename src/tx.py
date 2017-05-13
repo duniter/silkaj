@@ -131,7 +131,8 @@ def get_list_input_for_transaction(ep, pubkey, TXamount, allinput=False):
     listinput = []
 
     for source in sources:
-        listinput.append(str(source["amount"]) + ":" + str(source["base"]) + ":" + str(source["type"]) + ":" + str(source["identifier"]) + ":" + str(source["noffset"]))
+        if source["conditions"] == "SIG(" + pubkey + ")":
+            listinput.append(str(source["amount"]) + ":" + str(source["base"]) + ":" + str(source["type"]) + ":" + str(source["identifier"]) + ":" + str(source["noffset"]))
 
     # pending source
     history = request(ep, "tx/history/" + pubkey + "/pending")["history"]
