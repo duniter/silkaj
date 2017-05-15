@@ -14,6 +14,8 @@ def generate_and_send_transaction(ep, seed, AmountTransfered, outputAddr, Commen
     outputAddr = check_public_key(outputAddr)
     if OutputbackChange:
         OutputbackChange = check_public_key(OutputbackChange)
+    if outputAddr is False or OutputbackChange is False:
+        sys.exit(1)
 
     totalamount = get_amount_from_pubkey(ep, issuers)[0]
     if totalamount < AmountTransfered:
