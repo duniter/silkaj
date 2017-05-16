@@ -43,9 +43,18 @@ def auth_by_auth_file(c):
         print("Error: the file \"" + file + "\" does not exist")
         sys.exit(1)
     with open(file) as f:
-        seed = f.read()
-    regex = re.compile('^[0-9a-fA-F]{64}$')
-    if not re.search(regex, seed):
+        filetxt = f.read()
+
+    regex_seed = re.compile('^[0-9a-fA-F]{64}$')
+    regex_gannonce = re.compile('^pub: [1-9A-HJ-NP-Za-km-z]{43,44}\nsec: [1-9A-HJ-NP-Za-km-z]{88,90}.*$')
+    # Seed Format
+    if re.search(regex_seed, filetxt):
+        seed = filetxt[0:64]
+    # gannonce.duniter.org Format
+    elif re.search(regex_gannonce, filetxt):
+        private_key = filetxt.split("sec: ")[1].split("\n")[0]
+        seed = nacl.encoding.HexEncoder.encode(b58_decode(private_key))[0:64].decode("utf-8")
+    else:
         print("Error: the format of the file is invalid")
         sys.exit(1)
     return seed
@@ -63,7 +72,7 @@ def auth_by_seed():
 def auth_by_scrypt(c):
     salt = input("Please enter your Scrypt Salt (Secret identifier): ")
     password = getpass.getpass("Please enter your Scrypt password (masked): ")
-        
+
     if c.contains_definitions('n') and c.contains_definitions('r') and c.contains_definitions('p'):
         n, r, p = c.get_definition('n'), c.get_definition('r'), c.get_definition('p')
         if n.isnumeric() and r.isnumeric() and p.isnumeric():
