@@ -87,12 +87,13 @@ def get_amount_from_pubkey(ep, pubkey):
     listinput = []
     amount = 0
     for source in sources:
-        amount += source["amount"] * 10 ** source["base"]
-        listinput.append(str(source["amount"]) + ":" +
-                         str(source["base"]) + ":" +
-                         str(source["type"]) + ":" +
-                         str(source["identifier"]) + ":" +
-                         str(source["noffset"]))
+        if source["conditions"] == "SIG(" + pubkey + ")":
+            amount += source["amount"] * 10 ** source["base"]
+            listinput.append(str(source["amount"]) + ":" +
+                             str(source["base"]) + ":" +
+                             str(source["type"]) + ":" +
+                             str(source["identifier"]) + ":" +
+                             str(source["noffset"]))
 
     # pending source
     history = request(ep, "tx/history/" + pubkey + "/pending")["history"]
