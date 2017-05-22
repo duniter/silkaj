@@ -1,4 +1,5 @@
 import datetime
+import time
 import os
 import sys
 from collections import OrderedDict
@@ -59,21 +60,23 @@ def power(nbr, pow=0):
 
 
 def difficulties(ep):
-    diffi = request(ep, "blockchain/difficulties")
-    levels = [OrderedDict((i, d[i]) for i in ("uid", "level")) for d in diffi["levels"]]
-    diffi["levels"] = levels
-    current = get_current_block(ep)
-    issuers, sorted_diffi = 0, sorted(diffi["levels"], key=itemgetter("level"))
-    for d in diffi["levels"]:
-        if d["level"] / 2 < current["powMin"]:
-            issuers += 1
-        d["match"] = match_pattern(d["level"])[0][:20]
-        d["Π diffi"] = power(match_pattern(d["level"])[1])
-        d["Σ diffi"] = d.pop("level")
-    os.system("clear")
-    print("Minimal Proof-of-Work: {0} to match `{1}`\n### Difficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
-    .format(current["powMin"], match_pattern(int(current["powMin"]))[0], diffi["block"], issuers, len(diffi["levels"]),
-    tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl", stralign="center")))
+    while True:
+        diffi = request(ep, "blockchain/difficulties")
+        levels = [OrderedDict((i, d[i]) for i in ("uid", "level")) for d in diffi["levels"]]
+        diffi["levels"] = levels
+        current = get_current_block(ep)
+        issuers, sorted_diffi = 0, sorted(diffi["levels"], key=itemgetter("level"))
+        for d in diffi["levels"]:
+            if d["level"] / 2 < current["powMin"]:
+                issuers += 1
+            d["match"] = match_pattern(d["level"])[0][:20]
+            d["Π diffi"] = power(match_pattern(d["level"])[1])
+            d["Σ diffi"] = d.pop("level")
+        os.system("clear")
+        print("Minimal Proof-of-Work: {0} to match `{1}`\n### Difficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
+        .format(current["powMin"], match_pattern(int(current["powMin"]))[0], diffi["block"], issuers, len(diffi["levels"]),
+        tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl", stralign="center")))
+        time.sleep(5)
 
 
 network_sort_keys = ["block", "member", "diffi", "uid"]
