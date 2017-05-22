@@ -5,6 +5,7 @@ import sys
 
 from commandlines import Command
 from commands import *
+from wot import *
 
 
 def usage():
@@ -52,14 +53,16 @@ def usage():
     \n      --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
     \n \
     \n - id <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
-    \n      it could autocomplete the pubkey corresponding to an identity with three or four following characters.")
+    \n      it could autocomplete the pubkey corresponding to an identity with three or four following characters.\
+    \n \
+    \n - wot <pubkey> or <identity>: display received and sent certifications for an account.")
     sys.exit()
 
 
 def cli():
     # ep: endpoint, node's network interface
     ep, c = dict(), Command()
-    subcmd = ["info", "diffi", "network", "issuers", "argos", "amount", "transaction", "generate_auth_file", "id"]
+    subcmd = ["info", "diffi", "network", "issuers", "argos", "amount", "transaction", "generate_auth_file", "id", "wot"]
     if c.is_version_request():
         print("silkaj 0.3.0")
         sys.exit()
@@ -107,6 +110,9 @@ def manage_cmd(ep, c):
 
     elif c.subcmd == "id":
         id_pubkey_correspondence(ep, c.subsubcmd)
+
+    elif c.subcmd == "wot":
+        received_sent_certifications(ep, c.subsubcmd)
 
 
 if __name__ == '__main__':
