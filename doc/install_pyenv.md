@@ -2,9 +2,9 @@
 
 ## Install Pyenv
 
-### Retrieve pyenv sources
+### Install pyenv tools
 ```bash
-git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
 ```
 
 ### Handle shell modifications: point 2,3 and 4.
