@@ -26,7 +26,6 @@ def received_sent_certifications(ep, id):
     certifications = OrderedDict()
     certifications["received"] = list()
     certifications["sent"] = list()
-    received, sent = 0, 0
     if certs["uids"]:
         for received, cert in enumerate(certs["uids"][0]["others"]):
             certifications["received"].append(cert["uids"][0])
@@ -35,4 +34,4 @@ def received_sent_certifications(ep, id):
             certifications["sent"].append(cert["uid"])
     os.system("clear")
     print("{0} received {1} and sent {2} certifications:\n{3}"
-    .format(id, received, sent, tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
+    .format(id, received + 1, sent + 1, tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
