@@ -26,6 +26,7 @@ def received_sent_certifications(ep, id):
     certifications = OrderedDict()
     certifications["received"] = list()
     certifications["sent"] = list()
+    received, sent = 0, 0
     if certs["uids"]:
         for received, cert in enumerate(certs["uids"][0]["others"]):
             certifications["received"].append(cert["uids"][0])
