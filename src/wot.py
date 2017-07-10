@@ -36,6 +36,7 @@ def received_sent_certifications(ep, id):
             for cert in certs["others"]:
                 certifications["received"].append(cert["uids"][0])
             certifications["sent"] = get_sent_certifications(certs_req)
-            print("{0} from block #{1}\nreceived {2} and sent {3} certifications:\n{4}\n"
-                    .format(id, certs["meta"]["timestamp"][:15], len(certifications["received"]), len(certifications["sent"]),
+            print("{0} ({1}) from block #{2}\nreceived {3} and sent {4} certifications:\n{5}\n"
+                    .format(id, certs_req["pubkey"][:5] + "…", certs["meta"]["timestamp"][:15] + "…",
+                        len(certifications["received"]), len(certifications["sent"]),
                         tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
