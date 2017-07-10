@@ -8,6 +8,14 @@ from tools import get_pubkeys_from_id
 from constants import *
 
 
+def get_sent_certifications(certs):
+    sent = list()
+    if certs["signed"]:
+        for cert in certs["signed"]:
+            sent.append(cert["uid"])
+    return sent
+
+
 def received_sent_certifications(ep, id):
     """
     check id exist
@@ -19,25 +27,15 @@ def received_sent_certifications(ep, id):
     if get_pubkeys_from_id(ep, id) == NO_MATCHING_ID:
         print(NO_MATCHING_ID)
         sys.exit(1)
-    certs = request(ep, "wot/lookup/" + id)["results"]
-    for cert in certs:
-        if cert["uids"][0]["uid"].lower() == id.lower():
-            certs = cert
+    certs_req = request(ep, "wot/lookup/" + id)["results"][0]
     certifications = OrderedDict()
-    certifications["received"] = list()
-    certifications["sent"] = list()
-    if certs["uids"]:
-        for received, cert in enumerate(certs["uids"][0]["others"]):
-            certifications["received"].append(cert["uids"][0])
-        received += 1;
-    else:
-        received = 0
-    if certs["signed"]:
-        for sent, cert in enumerate(certs["signed"]):
-            certifications["sent"].append(cert["uid"])
-        sent += 1;
-    else:
-        sent = 0
     os.system("clear")
-    print("{0} received {1} and sent {2} certifications:\n{3}"
-    .format(id, received, sent, tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
+    for certs in certs_req["uids"]:
+        if certs["uid"].lower() == id.lower():
+            certifications["received"] = list()
+            for cert in certs["others"]:
+                certifications["received"].append(cert["uids"][0])
+            certifications["sent"] = get_sent_certifications(certs_req)
+            print("{0} from block #{1}\nreceived {2} and sent {3} certifications:\n{4}\n"
+                    .format(id, certs["meta"]["timestamp"][:15], len(certifications["received"]), len(certifications["sent"]),
+                        tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
