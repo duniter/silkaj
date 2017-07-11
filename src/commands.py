@@ -354,4 +354,8 @@ def id_pubkey_correspondence(ep, id_pubkey):
         else:
             print("Public keys found matching '{}':\n".format(id_pubkey))
             for pubkey in pubkeys:
-                print("-", pubkey["pubkey"])
+                print("→", pubkey["pubkey"], end = " ")
+                try:
+                    print("↔ " + request(ep, "wot/identity-of/" + pubkey["pubkey"])["uid"])
+                except:
+                    print("")
