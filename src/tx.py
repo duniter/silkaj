@@ -11,9 +11,9 @@ def generate_and_send_transaction(ep, seed, AmountTransfered, outputAddr, Commen
 
     issuers = get_publickey_from_seed(seed)
 
-    outputAddr = check_public_key(outputAddr)
+    outputAddr = check_public_key(outputAddr, True)
     if OutputbackChange:
-        OutputbackChange = check_public_key(OutputbackChange)
+        OutputbackChange = check_public_key(OutputbackChange, True)
     if outputAddr is False or OutputbackChange is False:
         sys.exit(1)
 
@@ -57,9 +57,9 @@ def generate_and_send_transaction(ep, seed, AmountTransfered, outputAddr, Commen
 def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputaddr, Comment="", OutputbackChange=None):
     # check comment
     checkComment(Comment)
-    outputAddr = check_public_key(outputaddr)
+    outputAddr = check_public_key(outputaddr, True)
     if OutputbackChange:
-        OutputbackChange = check_public_key(OutputbackChange)
+        OutputbackChange = check_public_key(OutputbackChange, True)
 
     listinput = listinput_and_amount[0]
     totalAmountInput = listinput_and_amount[1]

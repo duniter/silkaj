@@ -59,7 +59,7 @@ def get_publickey_from_seed(seed):
     return b58_encode(public_key)
 
 
-def check_public_key(pubkey):
+def check_public_key(pubkey, error):
     regex = re.compile('^[1-9A-HJ-NP-Za-km-z]{43,44}$')
     regex_checksum = re.compile('^[1-9A-HJ-NP-Za-km-z]{43,44}' +
                                 ':[1-9A-HJ-NP-Za-km-z]{3}$')
@@ -77,7 +77,8 @@ def check_public_key(pubkey):
             print("error: bad checksum of the public key")
             return False
 
-    print("Error: the format of the public key is invalid")
+    if error:
+        print("Error: the format of the public key is invalid")
     return False
 
 

@@ -221,7 +221,7 @@ def list_issuers(ep, nbr, last):
 def cmd_amount(ep, c):
     if c.contains_definitions('pubkey'):
         pubkey = c.get_definition('pubkey')
-        pubkey = check_public_key(pubkey)
+        pubkey = check_public_key(pubkey, True)
         if not pubkey:
             return
     else:
@@ -345,7 +345,7 @@ def argos_info(ep):
 
 
 def id_pubkey_correspondence(ep, id_pubkey):
-    if check_public_key(id_pubkey):
+    if check_public_key(id_pubkey, False):
         print("{} public key corresponds to identity: {}".format(id_pubkey, get_uid_from_pubkey(ep, id_pubkey)))
     else:
         pubkeys = get_pubkeys_from_id(ep, id_pubkey)
