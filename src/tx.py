@@ -10,8 +10,6 @@ from auth import auth_method
 
 
 def cmd_transaction(ep, c):
-    seed = auth_method(c)
-
     if not (c.contains_definitions('amount') or c.contains_definitions('amountDU')):
         print("--amount or --amountDU is not set")
         sys.exit(1)
@@ -44,6 +42,8 @@ def cmd_transaction(ep, c):
 
     # check comment
     checkComment(comment)
+
+    seed = auth_method(c)
 
     tx = list()
     currency_name = get_current_block(ep)["currency"]
