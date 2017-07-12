@@ -42,6 +42,9 @@ def cmd_transaction(ep, c):
     else:
         outputBackChange = None
 
+    # check comment
+    checkComment(comment)
+
     tx = list()
     currency_name = get_current_block(ep)["currency"]
     tx.append(["amount (" + currency_name + ")", amount / 100])
@@ -111,8 +114,6 @@ def generate_and_send_transaction(ep, seed, AmountTransfered, outputAddr, Commen
 
 
 def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputaddr, Comment="", OutputbackChange=None):
-    # check comment
-    checkComment(Comment)
     outputAddr = check_public_key(outputaddr, True)
     if OutputbackChange:
         OutputbackChange = check_public_key(OutputbackChange, True)
