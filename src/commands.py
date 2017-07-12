@@ -7,7 +7,6 @@ from tabulate import tabulate
 from operator import itemgetter
 
 from network_tools import *
-from tx import *
 from auth import *
 from tools import *
 from constants import *

@@ -4,6 +4,7 @@
 import sys
 
 from commandlines import Command
+from tx import cmd_transaction
 from commands import *
 from wot import *
 
