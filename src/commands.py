@@ -231,60 +231,6 @@ def cmd_amount(ep, c):
     show_amount_from_pubkey(ep, pubkey)
 
 
-def cmd_transaction(ep, c):
-    seed = auth_method(c)
-
-    if not (c.contains_definitions('amount') or c.contains_definitions('amountDU')):
-        print("--amount or --amountDU is not set")
-        sys.exit(1)
-    if not c.contains_definitions('output'):
-        print("--output is not set")
-        sys.exit(1)
-
-    du = get_last_du_value(ep)
-    if c.contains_definitions('amount'):
-        amount = int(float(c.get_definition('amount')) * 100)
-    if c.contains_definitions('amountDU'):
-        amount = int(float(c.get_definition('amountDU')) * du)
-
-    output = c.get_definition('output')
-
-    if c.contains_definitions('comment'):
-        comment = c.get_definition('comment')
-    else:
-        comment = ""
-
-    if c.contains_switches('allSources'):
-        allSources = True
-    else:
-        allSources = False
-
-    if c.contains_definitions('outputBackChange'):
-        outputBackChange = c.get_definition('outputBackChange')
-    else:
-        outputBackChange = None
-
-    tx = list()
-    currency_name = get_current_block(ep)["currency"]
-    tx.append(["amount (" + currency_name + ")", amount / 100])
-    tx.append(["amount (DU " + currency_name + ")", amount / du])
-    pubkey = get_publickey_from_seed(seed)
-    tx.append(["from", pubkey])
-    id_from = get_uid_from_pubkey(ep, pubkey)
-    if id_from is not NO_MATCHING_ID:
-        tx.append(["from (id)", id_from])
-    tx.append(["to", output])
-    id_to = get_uid_from_pubkey(ep, output)
-    if id_to is not NO_MATCHING_ID:
-        tx.append(["to (id)", id_to])
-    tx.append(["comment", comment])
-
-    if c.contains_switches('yes') or c.contains_switches('y') or \
-        input(tabulate(tx, tablefmt="fancy_grid") + \
-        "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
-        generate_and_send_transaction(ep, seed, amount, output, comment, allSources, outputBackChange)
-
-
 def show_amount_from_pubkey(ep, pubkey):
 
     value = get_amount_from_pubkey(ep, pubkey)
