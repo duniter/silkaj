@@ -16,8 +16,16 @@ def send_transaction(ep, c):
     ud = get_last_ud_value(ep)
     amount, output, comment, allSources, outputBackChange = cmd_transaction(c, ud)
     checkComment(comment)
+
+    output = check_public_key(output, True)
+    if outputBackChange:
+        outputBackChange = check_public_key(outputBackChange, True)
+    if output is False or outputBackChange is False:
+        sys.exit(1)
+
     seed = auth_method(c)
     issuer_pubkey = get_publickey_from_seed(seed)
+
     tx_confirmation = transaction_confirmation(ep, c, issuer_pubkey, amount, ud, output, comment)
     if c.contains_switches('yes') or c.contains_switches('y') or \
         input(tabulate(tx_confirmation, tablefmt="fancy_grid") + \
@@ -73,12 +81,6 @@ def transaction_confirmation(ep, c, issuer_pubkey, amount, ud, output, comment):
 
 
 def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAddr, Comment="", all_input=False, OutputbackChange=None):
-    outputAddr = check_public_key(outputAddr, True)
-    if OutputbackChange:
-        OutputbackChange = check_public_key(OutputbackChange, True)
-    if outputAddr is False or OutputbackChange is False:
-        sys.exit(1)
-
     totalamount = get_amount_from_pubkey(ep, issuers)[0]
     if totalamount < AmountTransfered:
         print("the account: " + issuers + " don't have enough money for this transaction")
