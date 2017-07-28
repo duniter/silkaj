@@ -17,11 +17,12 @@ def send_transaction(ep, c):
     amount, output, comment, allSources, outputBackChange = cmd_transaction(c, ud)
     checkComment(comment)
     seed = auth_method(c)
-    tx_confirmation = transaction_confirmation(ep, c, amount, ud, seed, output, comment)
+    issuer_pubkey = get_publickey_from_seed(seed)
+    tx_confirmation = transaction_confirmation(ep, c, issuer_pubkey, amount, ud, output, comment)
     if c.contains_switches('yes') or c.contains_switches('y') or \
         input(tabulate(tx_confirmation, tablefmt="fancy_grid") + \
         "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
-        generate_and_send_transaction(ep, seed, amount, output, comment, allSources, outputBackChange)
+        generate_and_send_transaction(ep, seed, issuer_pubkey, amount, output, comment, allSources, outputBackChange)
 
 
 def cmd_transaction(c, ud):
@@ -51,7 +52,7 @@ def cmd_transaction(c, ud):
     return amount, output, comment, allSources, outputBackChange
 
 
-def transaction_confirmation(ep, c, amount, ud, seed, output, comment):
+def transaction_confirmation(ep, c, issuer_pubkey, amount, ud, output, comment):
     """
     Generate transaction confirmation
     """
@@ -59,9 +60,8 @@ def transaction_confirmation(ep, c, amount, ud, seed, output, comment):
     currency_name = get_current_block(ep)["currency"]
     tx.append(["amount (" + currency_name + ")", amount / 100])
     tx.append(["amount (UD " + currency_name + ")", amount / ud])
-    pubkey = get_publickey_from_seed(seed)
-    tx.append(["from", pubkey])
-    id_from = get_uid_from_pubkey(ep, pubkey)
+    tx.append(["from", issuer_pubkey])
+    id_from = get_uid_from_pubkey(ep, issuer_pubkey)
     if id_from is not NO_MATCHING_ID:
         tx.append(["from (id)", id_from])
     tx.append(["to", output])
@@ -72,10 +72,7 @@ def transaction_confirmation(ep, c, amount, ud, seed, output, comment):
     return tx
 
 
-def generate_and_send_transaction(ep, seed, AmountTransfered, outputAddr, Comment="", all_input=False, OutputbackChange=None):
-
-    issuers = get_publickey_from_seed(seed)
-
+def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAddr, Comment="", all_input=False, OutputbackChange=None):
     outputAddr = check_public_key(outputAddr, True)
     if OutputbackChange:
         OutputbackChange = check_public_key(OutputbackChange, True)
