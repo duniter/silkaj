@@ -24,25 +24,15 @@ def cmd_transaction(ep, c):
         amount = int(float(c.get_definition('amountUD')) * ud)
 
     output = c.get_definition('output')
-
-    if c.contains_definitions('comment'):
-        comment = c.get_definition('comment')
-    else:
-        comment = ""
-
-    if c.contains_switches('allSources'):
-        allSources = True
-    else:
-        allSources = False
+    comment = c.get_definition('comment') if c.contains_definitions('comment') else ""
+    allSources = c.contains_switches('allSources')
 
     if c.contains_definitions('outputBackChange'):
         outputBackChange = c.get_definition('outputBackChange')
     else:
         outputBackChange = None
 
-    # check comment
     checkComment(comment)
-
     seed = auth_method(c)
 
     tx = list()
