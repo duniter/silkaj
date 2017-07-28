@@ -15,14 +15,7 @@ def send_transaction(ep, c):
     """
     ud = get_last_ud_value(ep)
     amount, output, comment, allSources, outputBackChange = cmd_transaction(c, ud)
-    checkComment(comment)
-
-    output = check_public_key(output, True)
-    if outputBackChange:
-        outputBackChange = check_public_key(outputBackChange, True)
-    if output is False or outputBackChange is False:
-        sys.exit(1)
-
+    check_transaction_values(comment, output, outputBackChange)
     seed = auth_method(c)
     issuer_pubkey = get_publickey_from_seed(seed)
 
@@ -58,6 +51,16 @@ def cmd_transaction(c, ud):
     else:
         outputBackChange = None
     return amount, output, comment, allSources, outputBackChange
+
+
+def check_transaction_values(comment, output, outputBackChange):
+    checkComment(comment)
+
+    output = check_public_key(output, True)
+    if outputBackChange:
+        outputBackChange = check_public_key(outputBackChange, True)
+    if output is False or outputBackChange is False:
+        sys.exit(1)
 
 
 def transaction_confirmation(ep, c, issuer_pubkey, amount, ud, output, comment):
