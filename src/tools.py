@@ -142,11 +142,11 @@ def get_amount_from_pubkey(ep, pubkey):
     return int(totalAmountInput), int(amount)
 
 
-def get_last_du_value(ep):
+def get_last_ud_value(ep):
     blockswithud = request(ep, "blockchain/with/ud")["result"]
-    NBlastDUblock = blockswithud["blocks"][-1]
-    lastDUblock = request(ep, "blockchain/block/" + str(NBlastDUblock))
-    return lastDUblock["dividend"] * 10 ** lastDUblock["unitbase"]
+    NBlastUDblock = blockswithud["blocks"][-1]
+    lastUDblock = request(ep, "blockchain/block/" + str(NBlastUDblock))
+    return lastUDblock["dividend"] * 10 ** lastUDblock["unitbase"]
 
 
 b58_digits = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'

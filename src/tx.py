@@ -10,18 +10,18 @@ from auth import auth_method
 
 
 def cmd_transaction(ep, c):
-    if not (c.contains_definitions('amount') or c.contains_definitions('amountDU')):
-        print("--amount or --amountDU is not set")
+    if not (c.contains_definitions('amount') or c.contains_definitions('amountUD')):
+        print("--amount or --amountUD is not set")
         sys.exit(1)
     if not c.contains_definitions('output'):
         print("--output is not set")
         sys.exit(1)
 
-    du = get_last_du_value(ep)
+    ud = get_last_ud_value(ep)
     if c.contains_definitions('amount'):
         amount = int(float(c.get_definition('amount')) * 100)
-    if c.contains_definitions('amountDU'):
-        amount = int(float(c.get_definition('amountDU')) * du)
+    if c.contains_definitions('amountUD'):
+        amount = int(float(c.get_definition('amountUD')) * ud)
 
     output = c.get_definition('output')
 
@@ -48,7 +48,7 @@ def cmd_transaction(ep, c):
     tx = list()
     currency_name = get_current_block(ep)["currency"]
     tx.append(["amount (" + currency_name + ")", amount / 100])
-    tx.append(["amount (DU " + currency_name + ")", amount / du])
+    tx.append(["amount (UD " + currency_name + ")", amount / ud])
     pubkey = get_publickey_from_seed(seed)
     tx.append(["from", pubkey])
     id_from = get_uid_from_pubkey(ep, pubkey)

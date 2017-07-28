@@ -236,24 +236,24 @@ def show_amount_from_pubkey(ep, pubkey):
     totalAmountInput = value[0]
     amount = value[1]
     # output
-    DUvalue = get_last_du_value(ep)
+    UDvalue = get_last_ud_value(ep)
     current_blk = get_current_block(ep)
     currency_name = str(current_blk["currency"])
 
     if totalAmountInput - amount != 0:
         print("Blockchain:")
         print("-----------")
-        print("Relative     =", round(amount / DUvalue, 2), "DU", currency_name)
+        print("Relative     =", round(amount / UDvalue, 2), "UD", currency_name)
         print("Quantitative =",  round(amount / 100, 2), currency_name + "\n")
 
         print("Pending Transaction:")
         print("--------------------")
-        print("Relative     =",  round((totalAmountInput - amount) / DUvalue, 2), "DU", currency_name)
+        print("Relative     =",  round((totalAmountInput - amount) / UDvalue, 2), "UD", currency_name)
         print("Quantitative =",  round((totalAmountInput - amount) / 100, 2), currency_name + "\n")
 
     print("Total amount of: " + pubkey)
     print("----------------------------------------------------------------")
-    print("Total Relative     =",  round(totalAmountInput / DUvalue, 2), "DU", currency_name)
+    print("Total Relative     =",  round(totalAmountInput / UDvalue, 2), "UD", currency_name)
     print("Total Quantitative =",  round(totalAmountInput / 100, 2), currency_name + "\n")
 
 

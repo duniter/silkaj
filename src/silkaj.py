@@ -29,7 +29,7 @@ def usage():
     \n         --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
     \n         --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
     \n     - amount:\
-    \n         --amountDU=<relative value> | --amount=<quantitative value>\
+    \n         --amountUD=<relative value> | --amount=<quantitative value>\
     \n         [--allSources] \
     \n     --output=<public key>[:checksum] \
     \n     [--comment=<comment>] \
