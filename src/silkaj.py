@@ -4,7 +4,7 @@
 import sys
 
 from commandlines import Command
-from tx import cmd_transaction
+from tx import send_transaction
 from commands import *
 from wot import *
 
@@ -104,7 +104,7 @@ def manage_cmd(ep, c):
         cmd_amount(ep, c)
 
     elif c.subcmd == "transaction":
-        cmd_transaction(ep, c)
+        send_transaction(ep, c)
 
     elif c.subcmd == "generate_auth_file":
         generate_auth_file(c)

@@ -9,7 +9,25 @@ from tools import *
 from auth import auth_method
 
 
-def cmd_transaction(ep, c):
+def send_transaction(ep, c):
+    """
+    Main function
+    """
+    ud = get_last_ud_value(ep)
+    amount, output, comment, allSources, outputBackChange = cmd_transaction(c, ud)
+    checkComment(comment)
+    seed = auth_method(c)
+    tx_confirmation = transaction_confirmation(ep, c, amount, ud, seed, output, comment)
+    if c.contains_switches('yes') or c.contains_switches('y') or \
+        input(tabulate(tx_confirmation, tablefmt="fancy_grid") + \
+        "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
+        generate_and_send_transaction(ep, seed, amount, output, comment, allSources, outputBackChange)
+
+
+def cmd_transaction(c, ud):
+    """
+    Retrieve values from command line interface
+    """
     if not (c.contains_definitions('amount') or c.contains_definitions('amountUD')):
         print("--amount or --amountUD is not set")
         sys.exit(1)
@@ -17,7 +35,6 @@ def cmd_transaction(ep, c):
         print("--output is not set")
         sys.exit(1)
 
-    ud = get_last_ud_value(ep)
     if c.contains_definitions('amount'):
         amount = int(float(c.get_definition('amount')) * 100)
     if c.contains_definitions('amountUD'):
@@ -31,10 +48,13 @@ def cmd_transaction(ep, c):
         outputBackChange = c.get_definition('outputBackChange')
     else:
         outputBackChange = None
+    return amount, output, comment, allSources, outputBackChange
 
-    checkComment(comment)
-    seed = auth_method(c)
 
+def transaction_confirmation(ep, c, amount, ud, seed, output, comment):
+    """
+    Generate transaction confirmation
+    """
     tx = list()
     currency_name = get_current_block(ep)["currency"]
     tx.append(["amount (" + currency_name + ")", amount / 100])
@@ -49,11 +69,7 @@ def cmd_transaction(ep, c):
     if id_to is not NO_MATCHING_ID:
         tx.append(["to (id)", id_to])
     tx.append(["comment", comment])
-
-    if c.contains_switches('yes') or c.contains_switches('y') or \
-        input(tabulate(tx, tablefmt="fancy_grid") + \
-        "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
-        generate_and_send_transaction(ep, seed, amount, output, comment, allSources, outputBackChange)
+    return tx
 
 
 def generate_and_send_transaction(ep, seed, AmountTransfered, outputAddr, Comment="", all_input=False, OutputbackChange=None):
