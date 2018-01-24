@@ -69,7 +69,7 @@ def cli():
         sys.exit()
     if c.is_help_request() or c.is_usage_request() or c.subcmd not in subcmd:
         usage()
-    ep["domain"], ep["port"] = "duniter.org", "10901"
+    ep["domain"], ep["port"] = "g1.duniter.org", "443"
     try:
         ep["domain"], ep["port"] = c.get_definition('p').rsplit(':', 1)
     except:
