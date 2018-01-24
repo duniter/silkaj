@@ -64,7 +64,7 @@ def difficulties(ep):
         levels = [OrderedDict((i, d[i]) for i in ("uid", "level")) for d in diffi["levels"]]
         diffi["levels"] = levels
         current = get_current_block(ep)
-        issuers, sorted_diffi = 0, sorted(diffi["levels"], key=itemgetter("level"))
+        issuers, sorted_diffi = 0, sorted(diffi["levels"], key=itemgetter("level"), reverse=True)
         for d in diffi["levels"]:
             if d["level"] / 2 < current["powMin"]:
                 issuers += 1
