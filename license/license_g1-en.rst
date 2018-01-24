@@ -1,8 +1,8 @@
-License Ğ1 - v0.2.3
+License Ğ1 - v0.2.5
 ===================
 
 :date: 2017-08-21 16:59
-:modified: 2017-08-21 16:59
+:modified: 2018-01-24 19:20
 
 **Money licensing and liability commitment.**
 

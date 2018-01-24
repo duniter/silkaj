@@ -1,8 +1,8 @@
-Licence Ğ1 - v0.2.4
+Licence Ğ1 - v0.2.5
 ===================
 
 :date: 2017-04-04 12:59
-:modified: 2017-10-14 10:23
+:modified: 2018-01-24 19:20
 
 **Licence de la monnaie et engagement de responsabilité.**
 
