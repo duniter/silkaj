@@ -6,6 +6,7 @@ import sys
 from commandlines import Command
 from tx import send_transaction
 from money import cmd_amount
+from cert import send_certification
 from commands import *
 from tools import *
 from wot import *
@@ -39,6 +40,12 @@ def usage():
     \n     [--outputBackChange=<public key[:checksum]>] \
     \n     [-y | --yes], don't ask for prompt confirmation \
     \n \
+    \n - cert: Send certification\
+    \n     - e.g.: silkaj cert <id> <auth>\
+    \n     - authentication:\
+    \n         --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
+    \n         --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
+    \n \
     \n - net/network: Display current network with many information \
     \n      [--discover]     Discover all network (could take a while), optional \
     \n      [-s | --sort]     Sort column names comma-separated (for example \"-s block,diffi\"), optional \
@@ -65,7 +72,7 @@ def usage():
 def cli():
     # ep: endpoint, node's network interface
     ep, cli_args = dict(), Command()
-    subcmd = ["info", "diffi", "net", "network", "issuers", "argos", "amount", "tx", "transaction", "generate_auth_file", "id", "identities", "wot"]
+    subcmd = ["info", "diffi", "net", "network", "issuers", "argos", "amount", "tx", "transaction", "cert", "generate_auth_file", "id", "identities", "wot"]
     if cli_args.is_version_request():
         message_exit(SILKAJ_VERSION)
     if cli_args.is_help_request() or cli_args.is_usage_request() or cli_args.subcmd not in subcmd:
@@ -105,6 +112,9 @@ def manage_cmd(ep, c):
 
     elif cli_args.subcmd == "tx" or cli_args.subcmd == "transaction":
         send_transaction(ep, cli_args)
+
+    elif cli_args.subcmd == "cert":
+        send_certification(ep, c)
 
     elif cli_args.subcmd == "generate_auth_file":
         generate_auth_file(cli_args)
