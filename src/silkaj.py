@@ -19,8 +19,8 @@ def usage():
     \nCommands: \
     \n - info: Display information about currency \
     \n \
-    \n - amount: Get amount of one account \
-    \n      --pubkey=<pubkey[:checksum]>\
+    \n - amount: Get amount of accounts \
+    \n      --pubkeys=<pubkey:pubkey:pubkey>\
     \n      --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
     \n      --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
     \n \
