@@ -7,6 +7,7 @@ from commandlines import Command
 from tx import send_transaction
 from commands import *
 from wot import *
+from constants import SILKAJ_VERSION
 
 
 def usage():
@@ -65,7 +66,7 @@ def cli():
     ep, c = dict(), Command()
     subcmd = ["info", "diffi", "network", "issuers", "argos", "amount", "transaction", "generate_auth_file", "id", "wot"]
     if c.is_version_request():
-        print("silkaj 0.3.0")
+        print(SILKAJ_VERSION)
         sys.exit()
     if c.is_help_request() or c.is_usage_request() or c.subcmd not in subcmd:
         usage()
