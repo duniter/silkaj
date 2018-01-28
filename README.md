@@ -6,6 +6,11 @@
 ## Install
 ### With release
 Download [last release](https://github.com/duniter/silkaj/releases/latest) with `wget`.
+Check it's integrity comparing it to `silkaj_sha256sum`:
+```bash
+sha256sum silkaj
+```
+
 Add executable permissions:
 ```bash
 chmod a+x silkaj
