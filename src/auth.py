@@ -70,8 +70,12 @@ def auth_by_seed():
 
 
 def auth_by_scrypt(c):
-    salt = getpass.getpass("Please enter your Scrypt Salt (Secret identifier): ")
-    password = getpass.getpass("Please enter your Scrypt password (masked): ")
+    if c.contains_definitions('salt') and c.contains_definitions('password'):
+        salt = c.get_definition('salt')
+        password = c.get_definition('password')
+    else:
+        salt = getpass.getpass("Please enter your Scrypt Salt (Secret identifier): ")
+        password = getpass.getpass("Please enter your Scrypt password (masked): ")
 
     if c.contains_definitions('n') and c.contains_definitions('r') and c.contains_definitions('p'):
         n, r, p = c.get_definition('n'), c.get_definition('r'), c.get_definition('p')
