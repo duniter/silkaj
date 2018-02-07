@@ -52,6 +52,7 @@ def usage():
     \n \
     \n - generate_auth_file: Generate file to store the seed of the account\
     \n      --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
+    \n                    [--salt=<salt sentence> --password=<password>] (default prompt for it)\ 
     \n      --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
     \n \
     \n - id <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
