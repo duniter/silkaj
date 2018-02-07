@@ -22,7 +22,7 @@ def currency_info(ep):
     os.system("clear")
     print("Connected to node:", ep[best_node(ep, 1)], ep["port"],
     "\nCurrent block number:", current["number"],
-    "\nCurrency name:", current["currency"],
+    "\nCurrency name:", get_currency_symbol(current["currency"]),
     "\nNumber of members:", current["membersCount"],
     "\nMinimal Proof-of-Work:", current["powMin"],
     "\nCurrent time:", convert_time(current["time"], "all"),
@@ -245,23 +245,23 @@ def show_amount_from_pubkey(ep, pubkey, value):
     # output
     UDvalue = get_last_ud_value(ep)
     current_blk = get_current_block(ep)
-    currency_name = str(current_blk["currency"])
+    currency_symbol = get_currency_symbol(current_blk["currency"])
 
     if totalAmountInput - amount != 0:
         print("Blockchain:")
         print("-----------")
-        print("Relative     =", round(amount / UDvalue, 2), "UD", currency_name)
-        print("Quantitative =",  round(amount / 100, 2), currency_name + "\n")
+        print("Relative     =", round(amount / UDvalue, 2), "UD", currency_symbol)
+        print("Quantitative =",  round(amount / 100, 2), currency_symbol + "\n")
 
         print("Pending Transaction:")
         print("--------------------")
-        print("Relative     =",  round((totalAmountInput - amount) / UDvalue, 2), "UD", currency_name)
-        print("Quantitative =",  round((totalAmountInput - amount) / 100, 2), currency_name + "\n")
+        print("Relative     =",  round((totalAmountInput - amount) / UDvalue, 2), "UD", currency_symbol)
+        print("Quantitative =",  round((totalAmountInput - amount) / 100, 2), currency_symbol + "\n")
 
     print("Total amount of: " + pubkey)
     print("----------------------------------------------------------------")
-    print("Total Relative     =",  round(totalAmountInput / UDvalue, 2), "UD", currency_name)
-    print("Total Quantitative =",  round(totalAmountInput / 100, 2), currency_name + "\n")
+    print("Total Relative     =",  round(totalAmountInput / UDvalue, 2), "UD", currency_symbol)
+    print("Total Quantitative =",  round(totalAmountInput / 100, 2), currency_symbol + "\n")
 
 
 def argos_info(ep):
@@ -280,7 +280,7 @@ def argos_info(ep):
     href = 'href=http://%s:%s/' % (ep[best_node(ep, 1)], ep["port"])
     print("Connected to node:", ep[best_node(ep, 1)], ep["port"], "|", href,
     "\nCurrent block number:", current["number"],
-    "\nCurrency name:", current["currency"],
+    "\nCurrency name:", get_currency_symbol(current["currency"]),
     "\nNumber of members:", current["membersCount"],
     "\nMinimal Proof-of-Work:", current["powMin"],
     "\nCurrent time:", convert_time(current["time"], "all"),

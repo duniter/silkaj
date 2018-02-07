@@ -68,9 +68,9 @@ def transaction_confirmation(ep, c, issuer_pubkey, amount, ud, output, comment):
     Generate transaction confirmation
     """
     tx = list()
-    currency_name = get_current_block(ep)["currency"]
-    tx.append(["amount (" + currency_name + ")", amount / 100])
-    tx.append(["amount (UD " + currency_name + ")", amount / ud])
+    currency_symbol = get_currency_symbol(get_current_block(ep)["currency"])
+    tx.append(["amount (" + currency_symbol + ")", amount / 100])
+    tx.append(["amount (UD " + currency_symbol + ")", amount / ud])
     tx.append(["from", issuer_pubkey])
     id_from = get_uid_from_pubkey(ep, issuer_pubkey)
     if id_from is not NO_MATCHING_ID:
@@ -130,7 +130,7 @@ def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_a
     totalAmountInput = listinput_and_amount[1]
 
     current_blk = get_current_block(ep)
-    currency_name = str(current_blk["currency"])
+    currency_symbol = get_currency_symbol(current_blk["currency"])
     blockstamp_current = str(current_blk["number"]) + "-" + str(current_blk["hash"])
     curentUnitBase = current_blk["unitbase"]
 

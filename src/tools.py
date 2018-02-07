@@ -43,6 +43,12 @@ def get_pubkeys_from_id(ep, uid):
 def get_current_block(ep):
     return request(ep, "blockchain/current")
 
+def get_currency_symbol(currency):
+    if currency == "g1":
+        return G1_SYMBOL
+    elif currency == "g1-test":
+        return GTEST_SYMBOL
+
 
 def sign_document_from_seed(document, seed):
     seed = bytes(seed, 'utf-8')
