@@ -38,3 +38,23 @@ def received_sent_certifications(ep, id):
                     .format(id, certs_req["pubkey"][:5] + "…", certs["meta"]["timestamp"][:15] + "…",
                         len(certifications["received"]), len(certifications["sent"]),
                         tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
+
+
+def get_uid_from_pubkey(ep, pubkey):
+    try:
+        results = get_request(ep, "wot/lookup/" + pubkey)
+    except:
+        return NO_MATCHING_ID
+    i, results = 0, results["results"]
+    while i < len(results):
+        if results[i]["uids"][0]["uid"] != pubkey:
+            return results[i]["uids"][0]["uid"]
+        i += 1
+
+
+def get_pubkeys_from_id(ep, uid):
+    try:
+        results = get_request(ep, "wot/lookup/" + uid)
+    except:
+        return NO_MATCHING_ID
+    return results["results"]

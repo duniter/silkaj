@@ -7,6 +7,7 @@ from tabulate import tabulate
 from network_tools import *
 from tools import *
 from auth import auth_method
+from wot import *
 
 
 def send_transaction(ep, cli_args):

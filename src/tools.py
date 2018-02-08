@@ -21,18 +21,6 @@ def convert_time(timestamp, kind):
     return datetime.datetime.fromtimestamp(ts).strftime(pattern)
 
 
-def get_uid_from_pubkey(ep, pubkey):
-    try:
-        results = get_request(ep, "wot/lookup/" + pubkey)
-    except:
-        return NO_MATCHING_ID
-    i, results = 0, results["results"]
-    while i < len(results):
-        if results[i]["uids"][0]["uid"] != pubkey:
-            return results[i]["uids"][0]["uid"]
-        i += 1
-
-
 def get_pubkeys_from_id(ep, uid):
     try:
         results = get_request(ep, "wot/lookup/" + uid)

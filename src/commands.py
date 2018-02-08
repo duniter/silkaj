@@ -5,6 +5,7 @@ from collections import OrderedDict
 from tabulate import tabulate
 from operator import itemgetter
 
+from wot import *
 from network_tools import *
 from auth import *
 from tools import *
