@@ -25,7 +25,7 @@ def usage():
     \n      --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
     \n      --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
     \n \
-    \n - transaction: Send transaction\
+    \n - tx/transaction: Send transaction\
     \n     - authentication:\
     \n         --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
     \n         --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
@@ -37,7 +37,7 @@ def usage():
     \n     [--outputBackChange=<public key[:checksum]>] \
     \n     [-y | --yes], don't ask for prompt confirmation \
     \n \
-    \n - network: Display current network with many information \
+    \n - net/network: Display current network with many information \
     \n      [--discover]     Discover all network (could take a while), optional \
     \n      [-s | --sort]     Sort column names comma-separated (for example \"-s block,diffi\"), optional \
     \n                       Default sort is block,member,diffi,uid \
@@ -54,7 +54,7 @@ def usage():
     \n      --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
     \n      --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
     \n \
-    \n - id <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
+    \n - id/identities <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
     \n      it could autocomplete the pubkey corresponding to an identity with three or four following characters.\
     \n \
     \n - wot <pubkey> or <identity>: display received and sent certifications for an account.")
@@ -64,7 +64,7 @@ def usage():
 def cli():
     # ep: endpoint, node's network interface
     ep, c = dict(), Command()
-    subcmd = ["info", "diffi", "network", "issuers", "argos", "amount", "transaction", "generate_auth_file", "id", "wot"]
+    subcmd = ["info", "diffi", "net", "network", "issuers", "argos", "amount", "tx", "transaction", "generate_auth_file", "id", "identities", "wot"]
     if c.is_version_request():
         print(SILKAJ_VERSION)
         sys.exit()
@@ -87,7 +87,7 @@ def manage_cmd(ep, c):
     elif c.subcmd == "diffi":
         difficulties(ep)
 
-    elif c.subcmd == "network":
+    elif c.subcmd == "net" or c.subcmd == "network":
         from commands import set_network_sort_keys
         if c.contains_switches("sort"):
             set_network_sort_keys(c.get_definition("sort"))
@@ -104,13 +104,13 @@ def manage_cmd(ep, c):
     elif c.subcmd == "amount" and c.subsubcmd:
         cmd_amount(ep, c)
 
-    elif c.subcmd == "transaction":
+    elif c.subcmd == "tx" or c.subcmd == "transaction":
         send_transaction(ep, c)
 
     elif c.subcmd == "generate_auth_file":
         generate_auth_file(c)
 
-    elif c.subcmd == "id":
+    elif c.subcmd == "id" or c.subcmd == "identities":
         id_pubkey_correspondence(ep, c.subsubcmd)
 
     elif c.subcmd == "wot":
