@@ -22,7 +22,7 @@ def convert_time(timestamp, kind):
 
 def get_uid_from_pubkey(ep, pubkey):
     try:
-        results = request(ep, "wot/lookup/" + pubkey)
+        results = get_request(ep, "wot/lookup/" + pubkey)
     except:
         return NO_MATCHING_ID
     i, results = 0, results["results"]
@@ -34,14 +34,14 @@ def get_uid_from_pubkey(ep, pubkey):
 
 def get_pubkeys_from_id(ep, uid):
     try:
-        results = request(ep, "wot/lookup/" + uid)
+        results = get_request(ep, "wot/lookup/" + uid)
     except:
         return NO_MATCHING_ID
     return results["results"]
 
 
 def get_current_block(ep):
-    return request(ep, "blockchain/current")
+    return get_request(ep, "blockchain/current")
 
 def get_currency_symbol(currency):
     if currency == "g1":
@@ -94,7 +94,7 @@ def check_public_key(pubkey, display_error):
 
 
 def get_amount_from_pubkey(ep, pubkey):
-    sources = request(ep, "tx/sources/" + pubkey)["sources"]
+    sources = get_request(ep, "tx/sources/" + pubkey)["sources"]
 
     listinput = []
     amount = 0
@@ -108,7 +108,7 @@ def get_amount_from_pubkey(ep, pubkey):
                              str(source["noffset"]))
 
     # pending source
-    history = request(ep, "tx/history/" + pubkey + "/pending")["history"]
+    history = get_request(ep, "tx/history/" + pubkey + "/pending")["history"]
     pendings = history["sending"] + history["receiving"] + history["pending"]
     # print(pendings)
 
@@ -154,9 +154,9 @@ def get_amount_from_pubkey(ep, pubkey):
 
 
 def get_last_ud_value(ep):
-    blockswithud = request(ep, "blockchain/with/ud")["result"]
+    blockswithud = get_request(ep, "blockchain/with/ud")["result"]
     NBlastUDblock = blockswithud["blocks"][-1]
-    lastUDblock = request(ep, "blockchain/block/" + str(NBlastUDblock))
+    lastUDblock = get_request(ep, "blockchain/block/" + str(NBlastUDblock))
     return lastUDblock["dividend"] * 10 ** lastUDblock["unitbase"]
 
 

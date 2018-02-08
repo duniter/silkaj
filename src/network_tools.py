@@ -13,7 +13,7 @@ def discover_peers(ep, discover):
     If discover option: scan all network to know all nodes.
         display percentage discovering.
     """
-    endpoints = parse_endpoints(request(ep, "network/peers")["peers"])
+    endpoints = parse_endpoints(get_request(ep, "network/peers")["peers"])
     if discover:
         print("Discovering network")
     for i, ep in enumerate(endpoints):
@@ -31,7 +31,7 @@ def recursive_discovering(endpoints, ep):
     Discover recursively new nodes.
     If new node found add it and try to found new node from his known nodes.
     """
-    news = parse_endpoints(request(ep, "network/peers")["peers"])
+    news = parse_endpoints(get_request(ep, "network/peers")["peers"])
     for new in news:
         if best_node(new, 0) is not None and new not in endpoints:
             endpoints.append(new)
@@ -99,7 +99,7 @@ def check_ip(address):
         return 0
 
 
-def request(ep, path):
+def get_request(ep, path):
     address = best_node(ep, 0)
     if address is None:
         return address

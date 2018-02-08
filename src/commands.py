@@ -16,7 +16,7 @@ def currency_info(ep):
     info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
     i, info_data = 0, dict()
     while (i < len(info_type)):
-            info_data[info_type[i]] = request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
+            info_data[info_type[i]] = get_request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
             i += 1
     current = get_current_block(ep)
     os.system("clear")
@@ -60,7 +60,7 @@ def power(nbr, pow=0):
 
 def difficulties(ep):
     while True:
-        diffi = request(ep, "blockchain/difficulties")
+        diffi = get_request(ep, "blockchain/difficulties")
         levels = [OrderedDict((i, d[i]) for i in ("uid", "level")) for d in diffi["levels"]]
         diffi["levels"] = levels
         current = get_current_block(ep)
@@ -110,7 +110,7 @@ def network_info(ep, discover):
     # and make sure fields are always ordered the same
     endpoints = [OrderedDict((i, p.get(i, None)) for i in ("domain", "port", "ip4", "ip6", "pubkey")) for p in discover_peers(ep, discover)]
     # Todo : renommer endpoints en info
-    diffi = request(ep, "blockchain/difficulties")
+    diffi = get_request(ep, "blockchain/difficulties")
     i, members = 0, 0
     print("Getting informations about nodes:")
     while (i < len(endpoints)):
@@ -131,7 +131,7 @@ def network_info(ep, discover):
             endpoints[i]["member"] = "no"
         endpoints[i]["pubkey"] = endpoints[i]["pubkey"][:5] + "…"
 # Todo: request difficulty from node point of view: two nodes with same pubkey id could be on diffrent branches and have different difficulties
-#        diffi = request(endpoints[i], "blockchain/difficulties") # super long, doit être requetté uniquement pour les nœuds d’une autre branche
+#        diffi = get_request(endpoints[i], "blockchain/difficulties") # super long, doit être requetté uniquement pour les nœuds d’une autre branche
         for d in diffi["levels"]:
             if endpoints[i].get("uid") is not None:
                 if endpoints[i]["uid"] == d["uid"]:
@@ -147,7 +147,7 @@ def network_info(ep, discover):
                 endpoints[i]["difftime"] = convert_time(current_blk["time"] - current_blk["medianTime"], "hour")
             endpoints[i]["block"] = current_blk["number"]
             endpoints[i]["hash"] = current_blk["hash"][:10] + "…"
-            endpoints[i]["version"] = request(endpoints[i], "node/summary")["duniter"]["version"]
+            endpoints[i]["version"] = get_request(endpoints[i], "node/summary")["duniter"]["version"]
         if endpoints[i].get("domain") is not None and len(endpoints[i]["domain"]) > 20:
             endpoints[i]["domain"] = "…" + endpoints[i]["domain"][-20:]
         if endpoints[i].get("ip6") is not None:
@@ -165,7 +165,7 @@ def network_info(ep, discover):
 def list_issuers(ep, nbr, last):
     current_nbr = get_current_block(ep)["number"]
     url = "blockchain/blocks/" + str(nbr) + "/" + str(current_nbr - nbr + 1)
-    blocks, list_issuers, j = request(ep, url), list(), 0
+    blocks, list_issuers, j = get_request(ep, url), list(), 0
     issuers_dict = dict()
     while j < len(blocks):
         issuer = OrderedDict()
@@ -269,7 +269,7 @@ def argos_info(ep):
     pretty_names = {'g1': 'Ğ1', 'gtest': 'Ğtest'}
     i, info_data = 0, dict()
     while (i < len(info_type)):
-            info_data[info_type[i]] = request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
+            info_data[info_type[i]] = get_request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
             i += 1
     current = get_current_block(ep)
     pretty = current["currency"]
@@ -308,6 +308,6 @@ def id_pubkey_correspondence(ep, id_pubkey):
             for pubkey in pubkeys:
                 print("→", pubkey["pubkey"], end = " ")
                 try:
-                    print("↔ " + request(ep, "wot/identity-of/" + pubkey["pubkey"])["uid"])
+                    print("↔ " + get_request(ep, "wot/identity-of/" + pubkey["pubkey"])["uid"])
                 except:
                     print("")

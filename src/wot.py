@@ -3,7 +3,7 @@ import sys
 from tabulate import tabulate
 from collections import OrderedDict
 
-from network_tools import request
+from network_tools import get_request
 from tools import get_pubkeys_from_id
 from constants import *
 
@@ -27,7 +27,7 @@ def received_sent_certifications(ep, id):
     if get_pubkeys_from_id(ep, id) == NO_MATCHING_ID:
         print(NO_MATCHING_ID)
         sys.exit(1)
-    certs_req = request(ep, "wot/lookup/" + id)["results"][0]
+    certs_req = get_request(ep, "wot/lookup/" + id)["results"][0]
     certifications = OrderedDict()
     os.system("clear")
     for certs in certs_req["uids"]:

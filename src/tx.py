@@ -192,7 +192,7 @@ def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_a
 
 def get_list_input_for_transaction(ep, pubkey, TXamount, allinput=False):
     # real source in blockchain
-    sources = request(ep, "tx/sources/" + pubkey)["sources"]
+    sources = get_request(ep, "tx/sources/" + pubkey)["sources"]
     if sources is None:
         return None
     listinput = []
@@ -202,7 +202,7 @@ def get_list_input_for_transaction(ep, pubkey, TXamount, allinput=False):
             listinput.append(str(source["amount"]) + ":" + str(source["base"]) + ":" + str(source["type"]) + ":" + str(source["identifier"]) + ":" + str(source["noffset"]))
 
     # pending source
-    history = request(ep, "tx/history/" + pubkey + "/pending")["history"]
+    history = get_request(ep, "tx/history/" + pubkey + "/pending")["history"]
     pendings = history["sending"] + history["receiving"] + history["pending"]
 
     current_blk = get_current_block(ep)
