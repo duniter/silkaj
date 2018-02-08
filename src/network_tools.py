@@ -156,3 +156,6 @@ def check_port(port):
         print("Wrong port number", file=sys.stderr)
         sys.exit(1)
     return 1
+
+def get_current_block(ep):
+    return get_request(ep, "blockchain/current")

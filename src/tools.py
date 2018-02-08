@@ -41,9 +41,6 @@ def get_pubkeys_from_id(ep, uid):
     return results["results"]
 
 
-def get_current_block(ep):
-    return get_request(ep, "blockchain/current")
-
 def get_currency_symbol(currency):
     if currency == "g1":
         return G1_SYMBOL
