@@ -9,34 +9,34 @@ import os
 import sys
 
 
-def auth_method(c):
-    if c.contains_switches('auth-scrypt'):
-        return auth_by_scrypt(c)
-    if c.contains_switches('auth-seed'):
+def auth_method(cli_args):
+    if cli_args.contains_switches('auth-scrypt'):
+        return auth_by_scrypt(cli_args)
+    if cli_args.contains_switches('auth-seed'):
         return auth_by_seed()
-    if c.contains_switches('auth-file'):
-        return auth_by_auth_file(c)
-    if c.contains_switches('auth-wif'):
+    if cli_args.contains_switches('auth-file'):
+        return auth_by_auth_file(cli_args)
+    if cli_args.contains_switches('auth-wif'):
         return auth_by_wif()
     print("Error: no authentication method")
     sys.exit(1)
 
 
-def generate_auth_file(c):
-    if c.contains_definitions('file'):
-        file = c.get_definition('file')
+def generate_auth_file(cli_args):
+    if cli_args.contains_definitions('file'):
+        file = cli_args.get_definition('file')
     else:
         file = "authfile"
-    seed = auth_method(c)
+    seed = auth_method(cli_args)
     with open(file, "w") as f:
         f.write(seed)
     print("Authfile generated for the public key: ",
           get_publickey_from_seed(seed))
 
 
-def auth_by_auth_file(c):
-    if c.contains_definitions('file'):
-        file = c.get_definition('file')
+def auth_by_auth_file(cli_args):
+    if cli_args.contains_definitions('file'):
+        file = cli_args.get_definition('file')
     else:
         file = "authfile"
     if not os.path.isfile(file):
@@ -69,12 +69,12 @@ def auth_by_seed():
     return seed
 
 
-def auth_by_scrypt(c):
+def auth_by_scrypt(cli_args):
     salt = getpass.getpass("Please enter your Scrypt Salt (Secret identifier): ")
     password = getpass.getpass("Please enter your Scrypt password (masked): ")
 
-    if c.contains_definitions('n') and c.contains_definitions('r') and c.contains_definitions('p'):
-        n, r, p = c.get_definition('n'), c.get_definition('r'), c.get_definition('p')
+    if cli_args.contains_definitions('n') and cli_args.contains_definitions('r') and cli_args.contains_definitions('p'):
+        n, r, p = cli_args.get_definition('n'), cli_args.get_definition('r'), cli_args.get_definition('p')
         if n.isnumeric() and r.isnumeric() and p.isnumeric():
             n, r, p = int(n), int(r), int(p)
             if n <= 0 or n > 65536 or r <= 0 or r > 512 or p <= 0 or p > 32:

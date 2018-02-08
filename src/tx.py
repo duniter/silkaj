@@ -9,45 +9,45 @@ from tools import *
 from auth import auth_method
 
 
-def send_transaction(ep, c):
+def send_transaction(ep, cli_args):
     """
     Main function
     """
     ud = get_last_ud_value(ep)
-    amount, output, comment, allSources, outputBackChange = cmd_transaction(c, ud)
+    amount, output, comment, allSources, outputBackChange = cmd_transaction(cli_args, ud)
     check_transaction_values(comment, output, outputBackChange)
-    seed = auth_method(c)
+    seed = auth_method(cli_args)
     issuer_pubkey = get_publickey_from_seed(seed)
 
     tx_confirmation = transaction_confirmation(ep, c, issuer_pubkey, amount, ud, output, comment)
-    if c.contains_switches('yes') or c.contains_switches('y') or \
+    if cli_args.contains_switches('yes') or cli_args.contains_switches('y') or \
         input(tabulate(tx_confirmation, tablefmt="fancy_grid") + \
         "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
         generate_and_send_transaction(ep, seed, issuer_pubkey, amount, output, comment, allSources, outputBackChange)
 
 
-def cmd_transaction(c, ud):
+def cmd_transaction(cli_args, ud):
     """
     Retrieve values from command line interface
     """
-    if not (c.contains_definitions('amount') or c.contains_definitions('amountUD')):
+    if not (cli_args.contains_definitions('amount') or cli_args.contains_definitions('amountUD')):
         print("--amount or --amountUD is not set")
         sys.exit(1)
-    if not c.contains_definitions('output'):
+    if not cli_args.contains_definitions('output'):
         print("--output is not set")
         sys.exit(1)
 
-    if c.contains_definitions('amount'):
-        amount = int(float(c.get_definition('amount')) * 100)
-    if c.contains_definitions('amountUD'):
-        amount = int(float(c.get_definition('amountUD')) * ud)
+    if cli_args.contains_definitions('amount'):
+        amount = int(float(cli_args.get_definition('amount')) * 100)
+    if cli_args.contains_definitions('amountUD'):
+        amount = int(float(cli_args.get_definition('amountUD')) * ud)
 
-    output = c.get_definition('output')
-    comment = c.get_definition('comment') if c.contains_definitions('comment') else ""
-    allSources = c.contains_switches('allSources')
+    output = cli_args.get_definition('output')
+    comment = cli_args.get_definition('comment') if cli_args.contains_definitions('comment') else ""
+    allSources = cli_args.contains_switches('allSources')
 
-    if c.contains_definitions('outputBackChange'):
-        outputBackChange = c.get_definition('outputBackChange')
+    if cli_args.contains_definitions('outputBackChange'):
+        outputBackChange = cli_args.get_definition('outputBackChange')
     else:
         outputBackChange = None
     return amount, output, comment, allSources, outputBackChange

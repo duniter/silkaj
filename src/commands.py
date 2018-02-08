@@ -217,9 +217,9 @@ def list_issuers(ep, nbr, last):
         tabulate(sorted_list, headers="keys", tablefmt="orgtbl", floatfmt=".1f", stralign="center")))
 
 
-def cmd_amount(ep, c):
-    if c.contains_definitions("pubkeys"):
-        pubkeys = c.get_definition("pubkeys").split(":")
+def cmd_amount(ep, cli_args):
+    if cli_args.contains_definitions("pubkeys"):
+        pubkeys = cli_args.get_definition("pubkeys").split(":")
         for pubkey in pubkeys:
             pubkey = check_public_key(pubkey, True)
             if not pubkey:
@@ -233,7 +233,7 @@ def cmd_amount(ep, c):
         if (len(pubkeys) > 1):
             show_amount_from_pubkey(ep, "Total", total)
     else:
-        seed = auth_method(c)
+        seed = auth_method(cli_args)
         pubkey = get_publickey_from_seed(seed)
         show_amount_from_pubkey(ep, pubkey, get_amount_from_pubkey(ep, pubkey))
 

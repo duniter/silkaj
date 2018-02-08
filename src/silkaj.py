@@ -63,62 +63,62 @@ def usage():
 
 def cli():
     # ep: endpoint, node's network interface
-    ep, c = dict(), Command()
+    ep, cli_args = dict(), Command()
     subcmd = ["info", "diffi", "net", "network", "issuers", "argos", "amount", "tx", "transaction", "generate_auth_file", "id", "identities", "wot"]
-    if c.is_version_request():
+    if cli_args.is_version_request():
         print(SILKAJ_VERSION)
         sys.exit()
-    if c.is_help_request() or c.is_usage_request() or c.subcmd not in subcmd:
+    if cli_args.is_help_request() or cli_args.is_usage_request() or cli_args.subcmd not in subcmd:
         usage()
     ep["domain"], ep["port"] = "g1.duniter.org", "443"
     try:
-        ep["domain"], ep["port"] = c.get_definition('p').rsplit(':', 1)
+        ep["domain"], ep["port"] = cli_args.get_definition('p').rsplit(':', 1)
     except:
         print("Requested default node: <{}:{}>".format(ep["domain"], ep["port"]), file=sys.stderr)
     if ep["domain"].startswith('[') and ep["domain"].endswith(']'):
         ep["domain"] = ep["domain"][1:-1]
-    return ep, c
+    return ep, cli_args
 
 
 def manage_cmd(ep, c):
-    if c.subcmd == "info":
+    if cli_args.subcmd == "info":
         currency_info(ep)
 
-    elif c.subcmd == "diffi":
+    elif cli_args.subcmd == "diffi":
         difficulties(ep)
 
-    elif c.subcmd == "net" or c.subcmd == "network":
+    elif cli_args.subcmd == "net" or cli_args.subcmd == "network":
         from commands import set_network_sort_keys
-        if c.contains_switches("sort"):
-            set_network_sort_keys(c.get_definition("sort"))
-        if c.contains_switches("s"):
-            set_network_sort_keys(c.get_definition("s"))
-        network_info(ep, c.contains_switches("discover"))
+        if cli_args.contains_switches("sort"):
+            set_network_sort_keys(cli_args.get_definition("sort"))
+        if cli_args.contains_switches("s"):
+            set_network_sort_keys(cli_args.get_definition("s"))
+        network_info(ep, cli_args.contains_switches("discover"))
 
-    elif c.subcmd == "issuers" and c.subsubcmd and int(c.subsubcmd) >= 0:
-        list_issuers(ep, int(c.subsubcmd), c.contains_switches('last'))
+    elif cli_args.subcmd == "issuers" and cli_args.subsubcmd and int(cli_args.subsubcmd) >= 0:
+        list_issuers(ep, int(cli_args.subsubcmd), cli_args.contains_switches('last'))
 
-    elif c.subcmd == "argos":
+    elif cli_args.subcmd == "argos":
         argos_info(ep)
 
-    elif c.subcmd == "amount" and c.subsubcmd:
-        cmd_amount(ep, c)
+    elif cli_args.subcmd == "amount" and cli_args.subsubcmd:
+        cmd_amount(ep, cli_args)
 
-    elif c.subcmd == "tx" or c.subcmd == "transaction":
-        send_transaction(ep, c)
+    elif cli_args.subcmd == "tx" or cli_args.subcmd == "transaction":
+        send_transaction(ep, cli_args)
 
-    elif c.subcmd == "generate_auth_file":
-        generate_auth_file(c)
+    elif cli_args.subcmd == "generate_auth_file":
+        generate_auth_file(cli_args)
 
-    elif c.subcmd == "id" or c.subcmd == "identities":
-        id_pubkey_correspondence(ep, c.subsubcmd)
+    elif cli_args.subcmd == "id" or cli_args.subcmd == "identities":
+        id_pubkey_correspondence(ep, cli_args.subsubcmd)
 
-    elif c.subcmd == "wot":
-        received_sent_certifications(ep, c.subsubcmd)
+    elif cli_args.subcmd == "wot":
+        received_sent_certifications(ep, cli_args.subsubcmd)
 
 
 if __name__ == '__main__':
-    ep, c = cli()
+    ep, cli_args = cli()
     check_port(ep["port"])
     best_node(ep, 1)
-    manage_cmd(ep, c)
+    manage_cmd(ep, cli_args)
