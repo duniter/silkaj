@@ -88,7 +88,6 @@ def manage_cmd(ep, c):
         difficulties(ep)
 
     elif cli_args.subcmd == "net" or cli_args.subcmd == "network":
-        from commands import set_network_sort_keys
         if cli_args.contains_switches("sort"):
             set_network_sort_keys(cli_args.get_definition("sort"))
         if cli_args.contains_switches("s"):
