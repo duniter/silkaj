@@ -72,7 +72,7 @@ def difficulties(ep):
             d["Π diffi"] = power(match_pattern(d["level"])[1])
             d["Σ diffi"] = d.pop("level")
         os.system("clear")
-        print("Minimal Proof-of-Work: {0} to match `{1}`\n### Difficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
+        print("Minimal Proof-of-Work: {0} to match `{1}`\nDifficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
         .format(current["powMin"], match_pattern(int(current["powMin"]))[0], diffi["block"], issuers, len(diffi["levels"]),
         tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl", stralign="center")))
         time.sleep(5)
@@ -157,7 +157,7 @@ def network_info(ep, discover):
                 endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
         i += 1
     os.system("clear")
-    print("###", len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members, "non-members at", datetime.datetime.now().strftime("%H:%M:%S"))
+    print(len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members, "non-members at", datetime.datetime.now().strftime("%H:%M:%S"))
     endpoints = sorted(endpoints, key=get_network_sort_key)
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
@@ -187,7 +187,7 @@ def list_issuers(ep, nbr, last):
                 issuer2["uid"] = uid
                 issuer2.pop("pubkey")
     os.system("clear")
-    print("### Issuers for last {0} blocks from block n°{1} to block n°{2}".format(nbr, current_nbr - nbr + 1, current_nbr), end=" ")
+    print("Issuers for last {0} blocks from block n°{1} to block n°{2}".format(nbr, current_nbr - nbr + 1, current_nbr), end=" ")
     if last or nbr <= 30:
         sorted_list = sorted(list_issuers, key=itemgetter("block"), reverse=True)
         print("\n{0}".format(tabulate(sorted_list, headers="keys", tablefmt="orgtbl", stralign="center")))
