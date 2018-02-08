@@ -3,6 +3,7 @@ import nacl.encoding
 import nacl.signing
 import nacl.hash
 import re
+import sys
 
 from network_tools import *
 from constants import *
@@ -221,3 +222,7 @@ def xor_bytes(b1, b2):
     for b1, b2 in zip(b1, b2):
         result.append(b1 ^ b2)
     return result
+
+def message_exit(message):
+    print(message)
+    sys.exit(1)

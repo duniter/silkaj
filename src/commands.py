@@ -1,7 +1,6 @@
 import datetime
 import time
 import os
-import sys
 from collections import OrderedDict
 from tabulate import tabulate
 from operator import itemgetter
@@ -84,8 +83,7 @@ network_sort_keys = ["block", "member", "diffi", "uid"]
 def set_network_sort_keys(some_keys):
     global network_sort_keys
     if some_keys.endswith(","):
-        print("Argument 'sort' ends with a comma, you have probably inserted a space after the comma, which is incorrect.")
-        sys.exit(1)
+        message_exit("Argument 'sort' ends with a comma, you have probably inserted a space after the comma, which is incorrect.")
     network_sort_keys = some_keys.split(",")
 
 
@@ -104,8 +102,7 @@ def network_info(ep, discover):
 #    print(rows, columns) # debug
     wide = int(columns)
     if wide < 146:
-        print("Wide screen need to be larger than 146. Current wide:", wide)
-        sys.exit(1)
+        message_exit("Wide screen need to be larger than 146. Current wide: " + wide)
     # discover peers
     # and make sure fields are always ordered the same
     endpoints = [OrderedDict((i, p.get(i, None)) for i in ("domain", "port", "ip4", "ip6", "pubkey")) for p in discover_peers(ep, discover)]

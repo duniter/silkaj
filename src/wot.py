@@ -1,10 +1,9 @@
 import os
-import sys
 from tabulate import tabulate
 from collections import OrderedDict
 
 from network_tools import get_request
-from tools import get_pubkeys_from_id
+from tools import get_pubkeys_from_id, message_exit
 from constants import *
 
 
@@ -25,8 +24,7 @@ def received_sent_certifications(ep, id):
     display on a chart the result with the numbers
     """
     if get_pubkeys_from_id(ep, id) == NO_MATCHING_ID:
-        print(NO_MATCHING_ID)
-        sys.exit(1)
+        message_exit(NO_MATCHING_ID)
     certs_req = get_request(ep, "wot/lookup/" + id)["results"][0]
     certifications = OrderedDict()
     os.system("clear")

@@ -6,12 +6,13 @@ import sys
 from commandlines import Command
 from tx import send_transaction
 from commands import *
+from tools import *
 from wot import *
 from constants import SILKAJ_VERSION
 
 
 def usage():
-    print("Silkaj: command line Duniter client \
+    message_exit("Silkaj: command line Duniter client \
     \n\nhelp: -h, --help, --usage \
     \nversion: -v, --version \
     \n \
@@ -58,7 +59,6 @@ def usage():
     \n      it could autocomplete the pubkey corresponding to an identity with three or four following characters.\
     \n \
     \n - wot <pubkey> or <identity>: display received and sent certifications for an account.")
-    sys.exit()
 
 
 def cli():
@@ -66,8 +66,7 @@ def cli():
     ep, cli_args = dict(), Command()
     subcmd = ["info", "diffi", "net", "network", "issuers", "argos", "amount", "tx", "transaction", "generate_auth_file", "id", "identities", "wot"]
     if cli_args.is_version_request():
-        print(SILKAJ_VERSION)
-        sys.exit()
+        message_exit(SILKAJ_VERSION)
     if cli_args.is_help_request() or cli_args.is_usage_request() or cli_args.subcmd not in subcmd:
         usage()
     ep["domain"], ep["port"] = "g1.duniter.org", "443"

@@ -31,11 +31,9 @@ def cmd_transaction(cli_args, ud):
     Retrieve values from command line interface
     """
     if not (cli_args.contains_definitions('amount') or cli_args.contains_definitions('amountUD')):
-        print("--amount or --amountUD is not set")
-        sys.exit(1)
+        message_exit("--amount or --amountUD is not set")
     if not cli_args.contains_definitions('output'):
-        print("--output is not set")
-        sys.exit(1)
+        message_exit("--output is not set")
 
     if cli_args.contains_definitions('amount'):
         amount = int(float(cli_args.get_definition('amount')) * 100)
@@ -86,8 +84,7 @@ def transaction_confirmation(ep, c, issuer_pubkey, amount, ud, output, comment):
 def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAddr, Comment="", all_input=False, OutputbackChange=None):
     totalamount = get_amount_from_pubkey(ep, issuers)[0]
     if totalamount < AmountTransfered:
-        print("the account: " + issuers + " don't have enough money for this transaction")
-        sys.exit(1)
+        message_exit("the account: " + issuers + " don't have enough money for this transaction")
 
     while True:
         listinput_and_amount = get_list_input_for_transaction(ep, issuers, AmountTransfered, all_input)
@@ -250,19 +247,16 @@ def get_list_input_for_transaction(ep, pubkey, TXamount, allinput=False):
         if TXamount <= 0 and not allinput:
             break
     if TXamount > 0 and not intermediatetransaction:
-        print("Error: you don't have enough money")
-        sys.exit(1)
+        message_exit("Error: you don't have enough money")
     return listinputfinal, totalAmountInput, intermediatetransaction
 
 
 def checkComment(Comment):
     if len(Comment) > 255:
-        print("Error: Comment is too long")
-        sys.exit(1)
+        message_exit("Error: Comment is too long")
     regex = re.compile('^[0-9a-zA-Z\ \-\_\:\/\;\*\[\]\(\)\?\!\^\+\=\@\&\~\#\{\}\|\\\<\>\%\.]*$')
     if not re.search(regex, Comment):
-        print("Error: the format of the comment is invalid")
-        sys.exit(1)
+        message_exit("Error: the format of the comment is invalid")
 
 
 def truncBase(amount, base):
