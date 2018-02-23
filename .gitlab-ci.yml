@@ -1,0 +1,8 @@
+# inspiré de : https://forum.duniter.org/t/doppler-gitlab/3183/30
+# GITHUB_URL_AND_KEY should look like https://duniter-gitlab:TOKEN@github.com/chemin/vers/ton/depot/github
+mirror_to_github:
+  script:
+    - git remote add github $GITHUB_URL_AND_KEY
+    - git config --global user.email "contact@duniter.org"
+    - git config --global user.name "Duniter"
+    - git push --force --mirror github
