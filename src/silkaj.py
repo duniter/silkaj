@@ -5,6 +5,7 @@ import sys
 
 from commandlines import Command
 from tx import send_transaction
+from money import cmd_amount
 from commands import *
 from tools import *
 from wot import *

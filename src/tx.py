@@ -8,6 +8,7 @@ from network_tools import *
 from tools import *
 from auth import auth_method
 from wot import *
+from money import get_last_ud_value, get_amount_from_pubkey
 
 
 def send_transaction(ep, cli_args):
