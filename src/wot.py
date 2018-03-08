@@ -3,7 +3,7 @@ from tabulate import tabulate
 from collections import OrderedDict
 
 from network_tools import get_request
-from tools import get_pubkeys_from_id, message_exit
+from tools import message_exit
 from constants import *
 
 

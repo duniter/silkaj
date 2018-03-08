@@ -21,14 +21,6 @@ def convert_time(timestamp, kind):
     return datetime.datetime.fromtimestamp(ts).strftime(pattern)
 
 
-def get_pubkeys_from_id(ep, uid):
-    try:
-        results = get_request(ep, "wot/lookup/" + uid)
-    except:
-        return NO_MATCHING_ID
-    return results["results"]
-
-
 def get_currency_symbol(currency):
     if currency == "g1":
         return G1_SYMBOL
