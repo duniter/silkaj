@@ -3,7 +3,7 @@ from tabulate import tabulate
 from collections import OrderedDict
 
 from network_tools import get_request
-from tools import message_exit
+from tools import message_exit, check_public_key
 from constants import *
 
 
@@ -38,6 +38,23 @@ def received_sent_certifications(ep, id):
                     .format(id, certs_req["pubkey"][:5] + "…", certs["meta"]["timestamp"][:15] + "…",
                         len(certifications["received"]), len(certifications["sent"]),
                         tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
+
+
+def id_pubkey_correspondence(ep, id_pubkey):
+    if check_public_key(id_pubkey, False):
+        print("{} public key corresponds to identity: {}".format(id_pubkey, get_uid_from_pubkey(ep, id_pubkey)))
+    else:
+        pubkeys = get_pubkeys_from_id(ep, id_pubkey)
+        if pubkeys == NO_MATCHING_ID:
+            print(NO_MATCHING_ID)
+        else:
+            print("Public keys found matching '{}':\n".format(id_pubkey))
+            for pubkey in pubkeys:
+                print("→", pubkey["pubkey"], end = " ")
+                try:
+                    print("↔ " + get_request(ep, "wot/identity-of/" + pubkey["pubkey"])["uid"])
+                except:
+                    print("")
 
 
 def get_uid_from_pubkey(ep, pubkey):

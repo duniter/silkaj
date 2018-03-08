@@ -292,20 +292,3 @@ def argos_info(ep):
     "\n-- Excluded:", len(info_data["excluded"]),
     "\n-- UD created:", len(info_data["ud"]),
     "\n-- transactions:", len(info_data["tx"]))
-
-
-def id_pubkey_correspondence(ep, id_pubkey):
-    if check_public_key(id_pubkey, False):
-        print("{} public key corresponds to identity: {}".format(id_pubkey, get_uid_from_pubkey(ep, id_pubkey)))
-    else:
-        pubkeys = get_pubkeys_from_id(ep, id_pubkey)
-        if pubkeys == NO_MATCHING_ID:
-            print(NO_MATCHING_ID)
-        else:
-            print("Public keys found matching '{}':\n".format(id_pubkey))
-            for pubkey in pubkeys:
-                print("→", pubkey["pubkey"], end = " ")
-                try:
-                    print("↔ " + get_request(ep, "wot/identity-of/" + pubkey["pubkey"])["uid"])
-                except:
-                    print("")
