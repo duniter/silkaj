@@ -22,7 +22,7 @@ def usage():
     \n - info: Display information about currency \
     \n \
     \n - amount: Get amount of accounts \
-    \n      --pubkeys=<pubkey:pubkey:pubkey>\
+    \n      pubkeys and/or ids separated with colon: <pubkey:id:pubkey>\
     \n      --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
     \n      --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
     \n \

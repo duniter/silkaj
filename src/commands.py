@@ -216,8 +216,8 @@ def list_issuers(ep, nbr, last):
 
 
 def cmd_amount(ep, cli_args):
-    if cli_args.contains_definitions("pubkeys"):
-        pubkeys = cli_args.get_definition("pubkeys").split(":")
+    if not cli_args.subsubcmd.startswith("--"):
+        pubkeys = cli_args.subsubcmd.split(":")
         for pubkey in pubkeys:
             pubkey = check_public_key(pubkey, True)
             if not pubkey:
