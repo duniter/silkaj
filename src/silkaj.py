@@ -70,7 +70,7 @@ def cli():
         message_exit(SILKAJ_VERSION)
     if cli_args.is_help_request() or cli_args.is_usage_request() or cli_args.subcmd not in subcmd:
         usage()
-    ep["domain"], ep["port"] = "g1.duniter.org", "443"
+    ep["domain"], ep["port"] = G1_DEFAULT_ENDPOINT
     try:
         ep["domain"], ep["port"] = cli_args.get_definition('p').rsplit(':', 1)
     except:
