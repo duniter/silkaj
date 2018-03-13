@@ -46,7 +46,7 @@ def usage():
     \n \
     \n - diffi: list proof-of-work difficulty to generate next block \
     \n \
-    \n - issuers n: display last n issuers (`0` for all blockchain) \
+    \n - issuers n: display last n issuers (`0` for current window size) \
     \n      last issuers are displayed under n <= 30.\
     \n      To force display last ones, use `--last` option\
     \n \

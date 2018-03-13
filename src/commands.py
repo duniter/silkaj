@@ -161,7 +161,10 @@ def network_info(ep, discover):
 
 
 def list_issuers(ep, nbr, last):
-    current_nbr = get_current_block(ep)["number"]
+    current_blk = get_current_block(ep)
+    current_nbr = current_blk["number"]
+    if nbr == 0:
+        nbr = current_blk["issuersFrame"]
     url = "blockchain/blocks/" + str(nbr) + "/" + str(current_nbr - nbr + 1)
     blocks, list_issuers, j = get_request(ep, url), list(), 0
     issuers_dict = dict()
