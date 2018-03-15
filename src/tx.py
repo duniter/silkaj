@@ -129,7 +129,8 @@ def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_a
     totalAmountInput = listinput_and_amount[1]
 
     current_blk = get_current_block(ep)
-    currency_symbol = get_currency_symbol(current_blk["currency"])
+    currency_name = current_blk["currency"]
+    currency_symbol = get_currency_symbol(currency_name)
     blockstamp_current = str(current_blk["number"]) + "-" + str(current_blk["hash"])
     curentUnitBase = current_blk["unitbase"]
 
