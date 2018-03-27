@@ -6,3 +6,8 @@ mirror_to_github:
     - git config --global user.email "contact@duniter.org"
     - git config --global user.name "Duniter"
     - git push --force --mirror github
+npm:
+  script:
+    - echo TODO
+  only:
+    tags
