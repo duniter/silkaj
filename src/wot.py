@@ -27,7 +27,6 @@ def received_sent_certifications(ep, id):
         message_exit(NO_MATCHING_ID)
     certs_req = get_request(ep, "wot/lookup/" + id)["results"]
     for certs_id in certs_req:
-        print(certs_id['uids'][0]['uid'], id)
         if certs_id['uids'][0]['uid'].lower() == id.lower():
             id_certs = certs_id
             break
