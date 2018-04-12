@@ -175,7 +175,7 @@ def list_issuers(ep, nbr, last):
             issuer["block"] = blocks[j]["number"]
             issuer["gentime"] = convert_time(blocks[j]["time"], "hour")
             issuer["mediantime"] = convert_time(blocks[j]["medianTime"], "hour")
-            issuer["hash"] = blocks[j]["hash"][:8]
+            issuer["hash"] = blocks[j]["hash"][:10]
         issuers_dict[issuer["pubkey"]] = issuer
         list_issuers.append(issuer)
         j += 1
