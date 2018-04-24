@@ -1,0 +1,24 @@
+{
+  "name": "licence-g1",
+  "version": "1.0.0",
+  "description": "Licence de la Ǧ1",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.duniter.org:communication/licence-G1.git"
+  },
+  "keywords": [
+    "licence",
+    "crypto-currency",
+    "monnaie",
+    "libre",
+    "June",
+    "G1",
+    "Ǧ1"
+  ],
+  "author": "Duniter community",
+  "license": "ISC"
+}
