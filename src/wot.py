@@ -79,3 +79,19 @@ def get_pubkeys_from_id(ep, uid):
     except:
         return NO_MATCHING_ID
     return results["results"]
+
+
+def is_member(ep, pubkey, uid):
+    members = get_request(ep, "wot/members")["results"]
+    for member in members:
+        if (pubkey in member["pubkey"] and uid in member["uid"]):
+            return(True)
+    return(False)
+
+
+def get_pubkey_from_id(ep, uid):
+    members = get_request(ep, "wot/members")["results"]
+    for member in members:
+        if (uid in member["uid"]):
+            return(member["pubkey"])
+    return(NO_MATCHING_ID)
