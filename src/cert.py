@@ -6,9 +6,8 @@ from pydoc import pager
 from tabulate import tabulate
 
 from auth import auth_method
-from tools import get_publickey_from_seed, message_exit, get_current_block,\
-        sign_document_from_seed
-from network_tools import get_request, get_current_block, post_request
+from tools import get_publickey_from_seed, message_exit, sign_document_from_seed
+from network_tools import get_current_block, post_request
 from constants import NO_MATCHING_ID
 from wot import is_member, get_pubkey_from_id, get_pubkeys_from_id,\
         get_uid_from_pubkey

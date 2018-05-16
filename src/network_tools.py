@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
-import ipaddress
-import json
+from ipaddress import ip_address
+from json import loads
 import socket
 import urllib.request
-import sys
+from sys import exit, stderr
 
 
 def discover_peers(ep, discover):
@@ -94,7 +94,7 @@ def endpoint_type(sep, ep):
 
 def check_ip(address):
     try:
-        return ipaddress.ip_address(address).version
+        return ip_address(address).version
     except:
         return 0
 
@@ -109,7 +109,7 @@ def get_request(ep, path):
     request = urllib.request.Request(url)
     response = urllib.request.urlopen(request)
     encoding = response.info().get_content_charset('utf8')
-    return json.loads(response.read().decode(encoding))
+    return loads(response.read().decode(encoding))
 
 
 def post_request(ep, path, postdata):
@@ -123,10 +123,10 @@ def post_request(ep, path, postdata):
     try:
         response = urllib.request.urlopen(request)
     except urllib.error.URLError as e:
-        print(e, file=sys.stderr)
-        sys.exit(1)
+        print(e, file=stderr)
+        exit(1)
     encoding = response.info().get_content_charset('utf8')
-    return json.loads(response.read().decode(encoding))
+    return loads(response.read().decode(encoding))
 
 
 def best_node(ep, main):
@@ -141,8 +141,8 @@ def best_node(ep, main):
             except:
                 pass
     if main:
-        print("Wrong node gived as argument", file=sys.stderr)
-        sys.exit(1)
+        print("Wrong node gived as argument", file=stderr)
+        exit(1)
     return None
 
 
@@ -150,12 +150,13 @@ def check_port(port):
     try:
         port = int(port)
     except:
-        print("Port must be an integer", file=sys.stderr)
-        sys.exit(1)
+        print("Port must be an integer", file=stderr)
+        exit(1)
     if (port < 0 or port > 65536):
-        print("Wrong port number", file=sys.stderr)
-        sys.exit(1)
+        print("Wrong port number", file=stderr)
+        exit(1)
     return 1
+
 
 def get_current_block(ep):
     return get_request(ep, "blockchain/current")

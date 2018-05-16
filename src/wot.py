@@ -1,10 +1,10 @@
-import os
+from os import system
 from tabulate import tabulate
 from collections import OrderedDict
 
 from network_tools import get_request
 from tools import message_exit, check_public_key
-from constants import *
+from constants import NO_MATCHING_ID
 
 
 def get_sent_certifications(certs):
@@ -31,7 +31,7 @@ def received_sent_certifications(ep, id):
             id_certs = certs_id
             break
     certifications = OrderedDict()
-    os.system("clear")
+    system("clear")
     for certs in id_certs["uids"]:
         if certs["uid"].lower() == id.lower():
             certifications["received"] = list()

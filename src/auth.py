@@ -1,11 +1,11 @@
-from tools import *
-import nacl.encoding
-import nacl.signing
+from tools import get_publickey_from_seed, b58_decode, xor_bytes, message_exit 
+from nacl import encoding
 import nacl.hash
-import scrypt
+from scrypt import hash
 import pyaes
-import getpass
-import os
+from getpass import getpass
+from os import path
+from re import compile, search
 
 
 def auth_method(cli_args):
@@ -37,20 +37,20 @@ def auth_by_auth_file(cli_args):
         file = cli_args.get_definition('file')
     else:
         file = "authfile"
-    if not os.path.isfile(file):
+    if not path.isfile(file):
         message_exit("Error: the file \"" + file + "\" does not exist")
     with open(file) as f:
         filetxt = f.read()
 
-    regex_seed = re.compile('^[0-9a-fA-F]{64}$')
-    regex_gannonce = re.compile('^pub: [1-9A-HJ-NP-Za-km-z]{43,44}\nsec: [1-9A-HJ-NP-Za-km-z]{88,90}.*$')
+    regex_seed = compile('^[0-9a-fA-F]{64}$')
+    regex_gannonce = compile('^pub: [1-9A-HJ-NP-Za-km-z]{43,44}\nsec: [1-9A-HJ-NP-Za-km-z]{88,90}.*$')
     # Seed Format
-    if re.search(regex_seed, filetxt):
+    if search(regex_seed, filetxt):
         seed = filetxt[0:64]
     # gannonce.duniter.org Format
-    elif re.search(regex_gannonce, filetxt):
+    elif search(regex_gannonce, filetxt):
         private_key = filetxt.split("sec: ")[1].split("\n")[0]
-        seed = nacl.encoding.HexEncoder.encode(b58_decode(private_key))[0:64].decode("utf-8")
+        seed = encoding.HexEncoder.encode(b58_decode(private_key))[0:64].decode("utf-8")
     else:
         message_exit("Error: the format of the file is invalid")
     return seed
@@ -58,15 +58,15 @@ def auth_by_auth_file(cli_args):
 
 def auth_by_seed():
     seed = input("Please enter your seed on hex format: ")
-    regex = re.compile('^[0-9a-fA-F]{64}$')
-    if not re.search(regex, seed):
+    regex = compile('^[0-9a-fA-F]{64}$')
+    if not search(regex, seed):
         message_exit("Error: the format of the seed is invalid")
     return seed
 
 
 def auth_by_scrypt(cli_args):
-    salt = getpass.getpass("Please enter your Scrypt Salt (Secret identifier): ")
-    password = getpass.getpass("Please enter your Scrypt password (masked): ")
+    salt = getpass("Please enter your Scrypt Salt (Secret identifier): ")
+    password = getpass("Please enter your Scrypt password (masked): ")
 
     if cli_args.contains_definitions('n') and cli_args.contains_definitions('r') and cli_args.contains_definitions('p'):
         n, r, p = cli_args.get_definition('n'), cli_args.get_definition('r'), cli_args.get_definition('p')
@@ -87,8 +87,8 @@ def auth_by_scrypt(cli_args):
 def auth_by_wif():
     wif = input("Please enter your WIF or Encrypted WIF address: ")
 
-    regex = re.compile('^[1-9A-HJ-NP-Za-km-z]*$')
-    if not re.search(regex, wif):
+    regex = compile('^[1-9A-HJ-NP-Za-km-z]*$')
+    if not search(regex, wif):
         message_exit("Error: the format of WIF is invalid")
 
     wif_bytes = b58_decode(wif)
@@ -97,7 +97,7 @@ def auth_by_wif():
     if fi == b'\x01':
         return get_seed_from_wifv1(wif)
     elif fi == b'\x02':
-        password = getpass.getpass("Please enter the " +
+        password = getpass("Please enter the " +
                                    "password of WIF (masked): ")
         return get_seed_from_ewifv1(wif, password)
 
@@ -105,14 +105,14 @@ def auth_by_wif():
 
 
 def get_seed_from_scrypt(salt, password, N=4096, r=16, p=1):
-    seed = scrypt.hash(password, salt, N, r, p, 32)
-    seedhex = nacl.encoding.HexEncoder.encode(seed).decode("utf-8")
+    seed = hash(password, salt, N, r, p, 32)
+    seedhex = encoding.HexEncoder.encode(seed).decode("utf-8")
     return seedhex
 
 
 def get_seed_from_wifv1(wif):
-    regex = re.compile('^[1-9A-HJ-NP-Za-km-z]*$')
-    if not re.search(regex, wif):
+    regex = compile('^[1-9A-HJ-NP-Za-km-z]*$')
+    if not search(regex, wif):
         message_exit("Error: the format of WIF is invalid")
 
     wif_bytes = b58_decode(wif)
@@ -129,18 +129,18 @@ def get_seed_from_wifv1(wif):
 
     # checksum control
     checksum = nacl.hash.sha256(
-                    nacl.hash.sha256(seed_fi, nacl.encoding.RawEncoder),
-                    nacl.encoding.RawEncoder)[0:2]
+                    nacl.hash.sha256(seed_fi, encoding.RawEncoder),
+                    encoding.RawEncoder)[0:2]
     if checksum_from_wif != checksum:
         message_exit("Error: bad checksum of the WIF")
 
-    seedhex = nacl.encoding.HexEncoder.encode(seed).decode("utf-8")
+    seedhex = encoding.HexEncoder.encode(seed).decode("utf-8")
     return seedhex
 
 
 def get_seed_from_ewifv1(ewif, password):
-    regex = re.compile('^[1-9A-HJ-NP-Za-km-z]*$')
-    if not re.search(regex, ewif):
+    regex = compile('^[1-9A-HJ-NP-Za-km-z]*$')
+    if not search(regex, ewif):
         message_exit("Error: the format of EWIF is invalid")
 
     wif_bytes = b58_decode(ewif)
@@ -159,14 +159,14 @@ def get_seed_from_ewifv1(ewif, password):
 
     # Checksum Control
     checksum = nacl.hash.sha256(
-                   nacl.hash.sha256(wif_no_checksum, nacl.encoding.RawEncoder),
-                   nacl.encoding.RawEncoder)[0:2]
+                   nacl.hash.sha256(wif_no_checksum, encoding.RawEncoder),
+                   encoding.RawEncoder)[0:2]
     if checksum_from_ewif != checksum:
         message_exit("Error: bad checksum of EWIF address")
 
     # SCRYPT
     password = password.encode("utf-8")
-    scrypt_seed = scrypt.hash(password, salt, 16384, 8, 8, 64)
+    scrypt_seed = hash(password, salt, 16384, 8, 8, 64)
     derivedhalf1 = scrypt_seed[0:32]
     derivedhalf2 = scrypt_seed[32:64]
 
@@ -179,14 +179,14 @@ def get_seed_from_ewifv1(ewif, password):
     seed1 = xor_bytes(decryptedhalf1, derivedhalf1[0:16])
     seed2 = xor_bytes(decryptedhalf2, derivedhalf1[16:32])
     seed = seed1+seed2
-    seedhex = nacl.encoding.HexEncoder.encode(seed).decode("utf-8")
+    seedhex = encoding.HexEncoder.encode(seed).decode("utf-8")
 
     # Password Control
     salt_from_seed = nacl.hash.sha256(
                         nacl.hash.sha256(
                             b58_decode(get_publickey_from_seed(seedhex)),
-                            nacl.encoding.RawEncoder),
-                        nacl.encoding.RawEncoder)[0:4]
+                            encoding.RawEncoder),
+                        encoding.RawEncoder)[0:4]
     if salt_from_seed != salt:
         message_exit("Error: bad Password of EWIF address")
 

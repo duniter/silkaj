@@ -1,14 +1,17 @@
-import re
+from re import compile, search
 import math
-import time
-import sys
+from time import sleep
+from sys import exit
+import urllib
 
 from tabulate import tabulate
-from network_tools import *
-from tools import *
+from network_tools import get_request, post_request, get_current_block
+from tools import get_currency_symbol, get_publickey_from_seed, sign_document_from_seed,\
+        check_public_key, message_exit
 from auth import auth_method
-from wot import *
+from wot import get_uid_from_pubkey
 from money import get_last_ud_value, get_amount_from_pubkey
+from constants import NO_MATCHING_ID
 
 
 def send_transaction(ep, cli_args):
@@ -60,7 +63,7 @@ def check_transaction_values(comment, output, outputBackChange):
     if outputBackChange:
         outputBackChange = check_public_key(outputBackChange, True)
     if output is False or outputBackChange is False:
-        sys.exit(1)
+        exit(1)
 
 
 def transaction_confirmation(ep, c, issuer_pubkey, amount, ud, output, comment):
@@ -100,9 +103,9 @@ def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAdd
             print("   - Amount:  " + str(totalAmountInput / 100))
             transaction = generate_transaction_document(ep, issuers, totalAmountInput, listinput_and_amount, issuers, "Change operation")
             transaction += sign_document_from_seed(transaction, seed) + "\n"
-            retour = post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
+            post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
             print("Change Transaction successfully sent.")
-            time.sleep(1)  # wait 1 second before sending a new transaction
+            sleep(1)  # wait 1 second before sending a new transaction
 
         else:
             print("Generate Transaction:")
@@ -115,13 +118,13 @@ def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAdd
             transaction = generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputAddr, Comment, OutputbackChange)
             transaction += sign_document_from_seed(transaction, seed) + "\n"
 
-            retour = post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
+            post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
             print("Transaction successfully sent.")
             break
 
 
 def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputaddr, Comment="", OutputbackChange=None):
-    outputAddr = check_public_key(outputaddr, True)
+    check_public_key(outputaddr, True)
     if OutputbackChange:
         OutputbackChange = check_public_key(OutputbackChange, True)
 
@@ -130,7 +133,6 @@ def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_a
 
     current_blk = get_current_block(ep)
     currency_name = current_blk["currency"]
-    currency_symbol = get_currency_symbol(currency_name)
     blockstamp_current = str(current_blk["number"]) + "-" + str(current_blk["hash"])
     curentUnitBase = current_blk["unitbase"]
 
@@ -257,8 +259,8 @@ def get_list_input_for_transaction(ep, pubkey, TXamount, allinput=False):
 def checkComment(Comment):
     if len(Comment) > 255:
         message_exit("Error: Comment is too long")
-    regex = re.compile('^[0-9a-zA-Z\ \-\_\:\/\;\*\[\]\(\)\?\!\^\+\=\@\&\~\#\{\}\|\\\<\>\%\.]*$')
-    if not re.search(regex, Comment):
+    regex = compile('^[0-9a-zA-Z\ \-\_\:\/\;\*\[\]\(\)\?\!\^\+\=\@\&\~\#\{\}\|\\\<\>\%\.]*$')
+    if not search(regex, Comment):
         message_exit("Error: the format of the comment is invalid")
 
 

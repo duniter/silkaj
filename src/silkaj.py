@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sys
-
+from sys import stderr
 from commandlines import Command
 from tx import send_transaction
 from money import cmd_amount
 from cert import send_certification
-from commands import *
-from tools import *
-from wot import *
-from constants import SILKAJ_VERSION
+from commands import currency_info, difficulties, set_network_sort_keys,\
+        network_info, argos_info, list_issuers
+from tools import message_exit
+from network_tools import check_port, best_node
+from wot import received_sent_certifications, id_pubkey_correspondence
+from auth import generate_auth_file
+from constants import SILKAJ_VERSION, G1_DEFAULT_ENDPOINT
 
 
 def usage():
@@ -81,7 +83,7 @@ def cli():
     try:
         ep["domain"], ep["port"] = cli_args.get_definition('p').rsplit(':', 1)
     except:
-        print("Requested default node: <{}:{}>".format(ep["domain"], ep["port"]), file=sys.stderr)
+        print("Requested default node: <{}:{}>".format(ep["domain"], ep["port"]), file=stderr)
     if ep["domain"].startswith('[') and ep["domain"].endswith(']'):
         ep["domain"] = ep["domain"][1:-1]
     return ep, cli_args

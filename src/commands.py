@@ -1,15 +1,14 @@
-import datetime
-import time
-import os
+from datetime import datetime
+from time import sleep
+from os import system, popen
 from collections import OrderedDict
 from tabulate import tabulate
 from operator import itemgetter
 
-from wot import *
-from network_tools import *
-from auth import *
-from tools import *
-from constants import *
+from wot import get_uid_from_pubkey
+from network_tools import discover_peers, get_request, best_node, get_current_block
+from tools import convert_time, get_currency_symbol, message_exit
+from constants import NO_MATCHING_ID
 
 
 def currency_info(ep):
@@ -19,7 +18,7 @@ def currency_info(ep):
             info_data[info_type[i]] = get_request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
             i += 1
     current = get_current_block(ep)
-    os.system("clear")
+    system("clear")
     print("Connected to node:", ep[best_node(ep, 1)], ep["port"],
     "\nCurrent block number:", current["number"],
     "\nCurrency name:", get_currency_symbol(current["currency"]),
@@ -71,11 +70,11 @@ def difficulties(ep):
             d["match"] = match_pattern(d["level"])[0][:20]
             d["Π diffi"] = power(match_pattern(d["level"])[1])
             d["Σ diffi"] = d.pop("level")
-        os.system("clear")
+        system("clear")
         print("Minimal Proof-of-Work: {0} to match `{1}`\nDifficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}"
         .format(current["powMin"], match_pattern(int(current["powMin"]))[0], diffi["block"], issuers, len(diffi["levels"]),
         tabulate(sorted_diffi, headers="keys", tablefmt="orgtbl", stralign="center")))
-        time.sleep(5)
+        sleep(5)
 
 
 network_sort_keys = ["block", "member", "diffi", "uid"]
@@ -99,7 +98,7 @@ def get_network_sort_key(endpoint):
 
 
 def network_info(ep, discover):
-    rows, columns = os.popen('stty size', 'r').read().split()
+    rows, columns = popen('stty size', 'r').read().split()
 #    print(rows, columns) # debug
     wide = int(columns)
     if wide < 146:
@@ -154,8 +153,8 @@ def network_info(ep, discover):
             else:
                 endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
         i += 1
-    os.system("clear")
-    print(len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members, "non-members at", datetime.datetime.now().strftime("%H:%M:%S"))
+    system("clear")
+    print(len(endpoints), "peers ups, with", members, "members and", len(endpoints) - members, "non-members at", datetime.now().strftime("%H:%M:%S"))
     endpoints = sorted(endpoints, key=get_network_sort_key)
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
@@ -187,7 +186,7 @@ def list_issuers(ep, nbr, last):
                 issuer2["pubkey"] == issuer["pubkey"]:
                 issuer2["uid"] = uid
                 issuer2.pop("pubkey")
-    os.system("clear")
+    system("clear")
     print("Issuers for last {0} blocks from block n°{1} to block n°{2}".format(nbr, current_nbr - nbr + 1, current_nbr), end=" ")
     if last or nbr <= 30:
         sorted_list = sorted(list_issuers, key=itemgetter("block"), reverse=True)

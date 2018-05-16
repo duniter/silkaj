@@ -3,6 +3,7 @@ from tools import get_currency_symbol, get_publickey_from_seed
 from auth import auth_method
 from wot import check_public_key
 
+
 def cmd_amount(ep, cli_args):
     if not cli_args.subsubcmd.startswith("--"):
         pubkeys = cli_args.subsubcmd.split(":")
@@ -71,7 +72,7 @@ def get_amount_from_pubkey(ep, pubkey):
     current_blk = get_current_block(ep)
     last_block_number = int(current_blk["number"])
 
-        # add pending output
+    # add pending output
     for pending in pendings:
         blockstamp = pending["blockstamp"]
         block_number = int(blockstamp.split("-")[0])
