@@ -11,13 +11,17 @@ from constants import *
 
 def convert_time(timestamp, kind):
     ts = int(timestamp)
+    date = "%Y-%m-%d"
+    hour = "%H:%M"
+    second = ":%S"
     if kind == "all":
-        pattern = "%Y-%m-%d %H:%M:%S"
+        pattern = date + " " + hour + second
+    elif kind == "date":
+        pattern = date
     elif kind == "hour":
+        pattern = hour
         if ts >= 3600:
-            pattern = "%H:%M:%S"
-        else:
-            pattern = "%M:%S"
+            pattern += second
     return datetime.datetime.fromtimestamp(ts).strftime(pattern)
 
 
