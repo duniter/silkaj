@@ -27,8 +27,8 @@ update_version() {
 }
 
 commit_tag() {
-	git commit src/constants.py -m "$VERSION"
-	git tag "$VERSION" -a -m "$VERSION"
+	git commit src/constants.py -m "v$VERSION"
+	git tag "v$VERSION" -a -m "$VERSION"
 }
 
 build() {
