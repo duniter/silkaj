@@ -8,14 +8,18 @@ from constants import G1_SYMBOL, GTEST_SYMBOL
 
 def convert_time(timestamp, kind):
     ts = int(timestamp)
+    date = "%Y-%m-%d"
+    hour = "%H:%M"
+    second = ":%S"
     if kind == "all":
-        pattern = "%Y-%m-%d %H:%M:%S"
+        pattern = date + " " + hour + second
+    elif kind == "date":
+        pattern = date
     elif kind == "hour":
+        pattern = hour
         if ts >= 3600:
-            pattern = "%H:%M:%S"
-        else:
-            pattern = "%M:%S"
-    return datetime.fromtimestamp(ts).strftime(pattern)
+            pattern += second
+    return datetime.datetime.fromtimestamp(ts).strftime(pattern)
 
 
 def get_currency_symbol(currency):

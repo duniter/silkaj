@@ -3,16 +3,18 @@ from tabulate import tabulate
 from collections import OrderedDict
 
 from network_tools import get_request
-from tools import message_exit, check_public_key
+from tools import message_exit, check_public_key, convert_time
 from constants import NO_MATCHING_ID
 
 
-def get_sent_certifications(certs):
+def get_sent_certifications(certs, time_first_block, params):
     sent = list()
+    expire = list()
     if certs["signed"]:
         for cert in certs["signed"]:
             sent.append(cert["uid"])
-    return sent
+            expire.append(expiration_date_from_block_id(cert["cert_time"]["block"], time_first_block, params))
+    return sent, expire
 
 
 def received_sent_certifications(ep, id):
@@ -23,6 +25,8 @@ def received_sent_certifications(ep, id):
     get id of received and sent certifications
     display on a chart the result with the numbers
     """
+    params = get_request(ep, "blockchain/parameters")
+    time_first_block = get_request(ep, "blockchain/block/1")["time"]
     if get_pubkeys_from_id(ep, id) == NO_MATCHING_ID:
         message_exit(NO_MATCHING_ID)
     certs_req = get_request(ep, "wot/lookup/" + id)["results"]
@@ -34,14 +38,24 @@ def received_sent_certifications(ep, id):
     system("clear")
     for certs in id_certs["uids"]:
         if certs["uid"].lower() == id.lower():
+            certifications["received_expire"] = list()
             certifications["received"] = list()
             for cert in certs["others"]:
+                certifications["received_expire"].append(expiration_date_from_block_id(cert["meta"]["block_number"], time_first_block, params))
                 certifications["received"].append(cert["uids"][0])
-            certifications["sent"] = get_sent_certifications(id_certs)
+                certifications["sent"], certifications["sent_expire"] = get_sent_certifications(id_certs, time_first_block, params)
             print("{0} ({1}) from block #{2}\nreceived {3} and sent {4} certifications:\n{5}\n"
                     .format(id, id_certs["pubkey"][:5] + "…", certs["meta"]["timestamp"][:15] + "…",
                         len(certifications["received"]), len(certifications["sent"]),
                         tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
+
+
+def expiration_date_from_block_id(block_id, time_first_block, params):
+    return convert_time(date_approximation(block_id, time_first_block, params["avgGenTime"]) + params["sigValidity"], "date")
+
+
+def date_approximation(block_id, time_first_block, avgentime):
+    return time_first_block + block_id * avgentime
 
 
 def id_pubkey_correspondence(ep, id_pubkey):
