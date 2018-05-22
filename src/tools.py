@@ -19,7 +19,7 @@ def convert_time(timestamp, kind):
         pattern = hour
         if ts >= 3600:
             pattern += second
-    return datetime.datetime.fromtimestamp(ts).strftime(pattern)
+    return datetime.fromtimestamp(ts).strftime(pattern)
 
 
 def get_currency_symbol(currency):
