@@ -9,15 +9,14 @@ from re import compile, search
 
 
 def auth_method(cli_args):
-    if cli_args.contains_switches('auth-scrypt'):
-        return auth_by_scrypt(cli_args)
     if cli_args.contains_switches('auth-seed'):
         return auth_by_seed()
     if cli_args.contains_switches('auth-file'):
         return auth_by_auth_file(cli_args)
     if cli_args.contains_switches('auth-wif'):
         return auth_by_wif()
-    message_exit("Error: no authentication method")
+    else:
+        return auth_by_scrypt(cli_args)
 
 
 def generate_auth_file(cli_args):

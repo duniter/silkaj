@@ -27,13 +27,10 @@ def usage():
     \n \
     \n - amount: Get amount of accounts \
     \n      pubkeys and/or ids separated with colon: <pubkey:id:pubkey>\
-    \n      --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
-    \n      --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
+    \n      - authentication: see below section\
     \n \
     \n - tx/transaction: Send transaction\
-    \n     - authentication:\
-    \n         --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
-    \n         --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
+    \n     - authentication: see below section\
     \n     - amount:\
     \n         --amountUD=<relative value> | --amount=<quantitative value>\
     \n         [--allSources] \
@@ -44,9 +41,7 @@ def usage():
     \n \
     \n - cert: Send certification\
     \n     - e.g.: silkaj cert <id> <auth>\
-    \n     - authentication:\
-    \n         --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
-    \n         --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
+    \n     - authentication: see below section\
     \n \
     \n - net/network: Display current network with many information \
     \n      [--discover]     Discover all network (could take a while), optional \
@@ -62,13 +57,20 @@ def usage():
     \n - argos: display currency information formated for Argos or BitBar\
     \n \
     \n - generate_auth_file: Generate file to store the seed of the account\
-    \n      --auth-scrypt [script parameters -n <N> -r <r> -p <p>] (default: 4096,16,1)\
-    \n      --auth-seed | --auth-file [--file=<path file>] | --auth-wif\
+    \n     - authentication: see below section\
     \n \
     \n - id/identities <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
     \n      it could autocomplete the pubkey corresponding to an identity with three or four following characters.\
     \n \
-    \n - wot <pubkey> or <identity>: display received and sent certifications for an account.")
+    \n - wot <pubkey> or <identity>: display received and sent certifications for an account.\
+    \n\
+    \nAuthentication:\
+    \n for amount, transaction, certification, and generate_auth_file commands\
+    \n - Scrypt is the default authentication method with 4096,16,1 as default values\
+    \n    you can specify others values specifying following parameters: -n <N> -r <r> -p <p>\
+    \n - Seed: --auth-seed\
+    \n - File: --auth-file [--file=<path file>]\
+    \n - WIF: --auth-wif")
 
 
 def cli():
