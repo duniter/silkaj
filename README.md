@@ -17,8 +17,6 @@ chmod a+x silkaj
 ```
 
 ### Manually
-- [Install inside a Python environemnt](doc/install_pyenv.md)
-- [Install without Python environment](doc/install_on_the_system.md)
 - [Build an executable with Pyinstaller](doc/build_with_pyinstaller.md)
 - [Install as a drop-down for GNOME Shell with Argos](doc/argos.md)
 
