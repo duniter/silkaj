@@ -17,6 +17,7 @@ chmod a+x silkaj
 ```
 
 ### Manually
+- [Install with pipenv](doc/install_pipenv.md)
 - [Build an executable with Pyinstaller](doc/build_with_pyinstaller.md)
 - [Install as a drop-down for GNOME Shell with Argos](doc/argos.md)
 
