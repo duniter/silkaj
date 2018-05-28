@@ -34,6 +34,10 @@ def send_certification(ep, cli_args):
     if not is_member(ep, issuer_pubkey, issuer_id):
         message_exit("Current identity is not member.")
 
+    # Check whether issuer and certified identities are different
+    if issuer_pubkey == certified_pubkey:
+        message_exit("You can’t certify yourself!")
+
     # Check if this certification is already present on the network
     id_lookup = get_pubkeys_from_id(ep, certified_uid)[0]
     for certifiers in id_lookup["uids"][0]["others"]:
