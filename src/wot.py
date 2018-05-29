@@ -44,9 +44,9 @@ def received_sent_certifications(ep, id):
                 certifications["received_expire"].append(expiration_date_from_block_id(cert["meta"]["block_number"], time_first_block, params))
                 certifications["received"].append(cert["uids"][0])
                 certifications["sent"], certifications["sent_expire"] = get_sent_certifications(id_certs, time_first_block, params)
-            print("{0} ({1}) from block #{2}\nreceived {3} and sent {4} certifications:\n{5}\n"
+            print("{0} ({1}) from block #{2}\nreceived {3} and sent {4}/{5} certifications:\n{6}\n"
                     .format(id, id_certs["pubkey"][:5] + "…", certs["meta"]["timestamp"][:15] + "…",
-                        len(certifications["received"]), len(certifications["sent"]),
+                        len(certifications["received"]), len(certifications["sent"]), params["sigStock"],
                         tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
 
 
