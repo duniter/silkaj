@@ -24,10 +24,9 @@ def send_transaction(ep, cli_args):
     seed = auth_method(cli_args)
     issuer_pubkey = get_publickey_from_seed(seed)
 
-    tx_confirmation = transaction_confirmation(ep, cli_args, issuer_pubkey, amount, ud, output, comment)
     if cli_args.contains_switches('yes') or cli_args.contains_switches('y') or \
-        input(tabulate(tx_confirmation, tablefmt="fancy_grid") +
-            "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
+        input(tabulate(transaction_confirmation(ep, issuer_pubkey, amount, ud, output, comment),
+        tablefmt="fancy_grid") + "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
         generate_and_send_transaction(ep, seed, issuer_pubkey, amount, output, comment, allSources, outputBackChange)
 
 
@@ -66,7 +65,7 @@ def check_transaction_values(comment, output, outputBackChange):
         exit(1)
 
 
-def transaction_confirmation(ep, c, issuer_pubkey, amount, ud, output, comment):
+def transaction_confirmation(ep, issuer_pubkey, amount, ud, output, comment):
     """
     Generate transaction confirmation
     """
