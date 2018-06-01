@@ -20,9 +20,11 @@ def send_transaction(ep, cli_args):
     """
     ud = get_last_ud_value(ep)
     amount, output, comment, allSources, outputBackChange = cmd_transaction(cli_args, ud)
-    check_transaction_values(comment, output, outputBackChange)
     seed = auth_method(cli_args)
     issuer_pubkey = get_publickey_from_seed(seed)
+
+    pubkey_amount = get_amount_from_pubkey(ep, issuer_pubkey)[0]
+    check_transaction_values(comment, output, outputBackChange, pubkey_amount < amount, issuer_pubkey)
 
     if cli_args.contains_switches('yes') or cli_args.contains_switches('y') or \
         input(tabulate(transaction_confirmation(ep, issuer_pubkey, amount, ud, output, comment),
@@ -55,7 +57,7 @@ def cmd_transaction(cli_args, ud):
     return amount, output, comment, allSources, outputBackChange
 
 
-def check_transaction_values(comment, output, outputBackChange):
+def check_transaction_values(comment, output, outputBackChange, enough_source, issuer_pubkey):
     checkComment(comment)
 
     output = check_public_key(output, True)
@@ -63,6 +65,8 @@ def check_transaction_values(comment, output, outputBackChange):
         outputBackChange = check_public_key(outputBackChange, True)
     if output is False or outputBackChange is False:
         exit(1)
+    if enough_source:
+        message_exit(issuer_pubkey + " pubkey don’t have enough money for this transaction.")
 
 
 def transaction_confirmation(ep, issuer_pubkey, amount, ud, output, comment):
@@ -86,10 +90,6 @@ def transaction_confirmation(ep, issuer_pubkey, amount, ud, output, comment):
 
 
 def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAddr, Comment="", all_input=False, OutputbackChange=None):
-    totalamount = get_amount_from_pubkey(ep, issuers)[0]
-    if totalamount < AmountTransfered:
-        message_exit("the account: " + issuers + " don't have enough money for this transaction")
-
     while True:
         listinput_and_amount = get_list_input_for_transaction(ep, issuers, AmountTransfered, all_input)
         intermediatetransaction = listinput_and_amount[2]
