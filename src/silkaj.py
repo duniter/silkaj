@@ -12,15 +12,18 @@ from tools import message_exit
 from network_tools import check_port, best_node
 from wot import received_sent_certifications, id_pubkey_correspondence
 from auth import generate_auth_file
-from constants import SILKAJ_VERSION, G1_DEFAULT_ENDPOINT
+from constants import SILKAJ_VERSION, G1_SYMBOL, GTEST_SYMBOL, G1_DEFAULT_ENDPOINT, G1_TEST_DEFAULT_ENDPOINT
 
 
 def usage():
-    message_exit("Silkaj: command line Duniter client \
+    message_exit("Silkaj: command line client for Duniter currencies\
     \n\nhelp: -h, --help, --usage \
     \nversion: -v, --version \
     \n \
-    \nCustom endpoint with option `-p` and <domain>:<port>\
+    \nEndpoint:\
+    \nDefault endpoint will reach " + G1_SYMBOL + " currency with `https://" + G1_DEFAULT_ENDPOINT[0] + "` endpoint\
+    \n - `--gtest` to reach " + GTEST_SYMBOL + " currency with `https://" + G1_TEST_DEFAULT_ENDPOINT[0] + "` endpoint\
+    \n - custom endpoint can be specified with `-p` option followed by <domain>:<port>\
     \n \
     \nCommands: \
     \n - info: Display information about currency \
@@ -81,7 +84,7 @@ def cli():
         message_exit(SILKAJ_VERSION)
     if cli_args.is_help_request() or cli_args.is_usage_request() or cli_args.subcmd not in subcmd:
         usage()
-    ep["domain"], ep["port"] = G1_DEFAULT_ENDPOINT
+    ep["domain"], ep["port"] = G1_TEST_DEFAULT_ENDPOINT if cli_args.contains_switches("gtest") else G1_DEFAULT_ENDPOINT
     try:
         ep["domain"], ep["port"] = cli_args.get_definition('p').rsplit(':', 1)
     except:
