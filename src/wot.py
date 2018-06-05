@@ -1,4 +1,5 @@
 from os import system
+from time import time
 from tabulate import tabulate
 from collections import OrderedDict
 
@@ -51,6 +52,7 @@ def received_sent_certifications(ep, id):
                     .format(id, pubkey[:5] + "…", certs["meta"]["timestamp"][:15] + "…",
                         len(certifications["received"]), nbr_sent_certs, params["sigStock"],
                         tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
+            membership_status(ep, params, certifications, certs, pubkey, req)
 
 
 def cert_written_in_the_blockchain(written_certs, certifieur):
@@ -58,6 +60,19 @@ def cert_written_in_the_blockchain(written_certs, certifieur):
         if cert["from"] == certifieur["pubkey"]:
             return certifieur["uids"][0] + " ✔"
     return certifieur["uids"][0]
+
+
+def membership_status(ep, params, certifications, certs, pubkey, req):
+    if len(certifications["received"]) >= params["sigQty"]:
+        print("Membership expiration due to certifications expirations: " + certifications["received_expire"][len(certifications["received"]) - params["sigQty"]])
+    member = is_member(ep, pubkey, certs["uid"])
+    print("member:", member)
+    if not member and req["wasMember"]:
+        print("revoked:", req["revoked"], "\nrevoked on:", req["revoked_on"], "\nexpired:", req["expired"], "\nwasMember:", req["wasMember"])
+    elif member:
+        print("Membership document expiration: " + convert_time(time() + req["membershipExpiresIn"], "date"))
+        print("Sentry:", req["isSentry"])
+    print("outdistanced:", req["outdistanced"])
 
 
 def expiration_date_from_block_id(block_id, time_first_block, params):
