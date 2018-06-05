@@ -38,17 +38,26 @@ def received_sent_certifications(ep, id):
     system("clear")
     for certs in id_certs["uids"]:
         if certs["uid"].lower() == id.lower():
+            pubkey = id_certs["pubkey"]
+            req = get_request(ep, "wot/requirements/" + pubkey)["identities"][0]
             certifications["received_expire"] = list()
             certifications["received"] = list()
             for cert in certs["others"]:
                 certifications["received_expire"].append(expiration_date_from_block_id(cert["meta"]["block_number"], time_first_block, params))
-                certifications["received"].append(cert["uids"][0])
+                certifications["received"].append(cert_written_in_the_blockchain(req["certifications"], cert))
                 certifications["sent"], certifications["sent_expire"] = get_sent_certifications(id_certs, time_first_block, params)
             nbr_sent_certs = len(certifications["sent"]) if "sent" in certifications else 0
             print("{0} ({1}) from block #{2}\nreceived {3} and sent {4}/{5} certifications:\n{6}\n"
-                    .format(id, id_certs["pubkey"][:5] + "…", certs["meta"]["timestamp"][:15] + "…",
+                    .format(id, pubkey[:5] + "…", certs["meta"]["timestamp"][:15] + "…",
                         len(certifications["received"]), nbr_sent_certs, params["sigStock"],
                         tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
+
+
+def cert_written_in_the_blockchain(written_certs, certifieur):
+    for cert in written_certs:
+        if cert["from"] == certifieur["pubkey"]:
+            return certifieur["uids"][0] + " ✔"
+    return certifieur["uids"][0]
 
 
 def expiration_date_from_block_id(block_id, time_first_block, params):
