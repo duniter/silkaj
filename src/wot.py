@@ -131,6 +131,6 @@ def is_member(ep, pubkey, uid):
 def get_pubkey_from_id(ep, uid):
     members = get_request(ep, "wot/members")["results"]
     for member in members:
-        if (uid in member["uid"]):
+        if (uid == member["uid"]):
             return(member["pubkey"])
     return(NO_MATCHING_ID)
