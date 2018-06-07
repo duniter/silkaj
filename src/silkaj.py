@@ -18,7 +18,8 @@ from constants import SILKAJ_VERSION, G1_SYMBOL, GTEST_SYMBOL, G1_DEFAULT_ENDPOI
 def usage():
     message_exit("Silkaj: command line client for Duniter currencies\
     \n\nhelp: -h, --help, --usage \
-    \nversion: -v, --version \
+    \nnersion: -v, --version \
+    \nabout: display informations about the programm\
     \n \
     \nEndpoint:\
     \nDefault endpoint will reach " + G1_SYMBOL + " currency with `https://" + G1_DEFAULT_ENDPOINT[0] + "` endpoint\
@@ -79,7 +80,7 @@ def usage():
 def cli():
     # ep: endpoint, node's network interface
     ep, cli_args = dict(), Command()
-    subcmd = ["info", "diffi", "net", "network", "issuers", "argos", "amount", "tx", "transaction", "cert", "generate_auth_file", "id", "identities", "wot"]
+    subcmd = ["about", "info", "diffi", "net", "network", "issuers", "argos", "amount", "tx", "transaction", "cert", "generate_auth_file", "id", "identities", "wot"]
     if cli_args.is_version_request():
         message_exit(SILKAJ_VERSION)
     if cli_args.is_help_request() or cli_args.is_usage_request() or cli_args.subcmd not in subcmd:
@@ -95,7 +96,10 @@ def cli():
 
 
 def manage_cmd(ep, c):
-    if cli_args.subcmd == "info":
+
+    if cli_args.subcmd == "about":
+        about()
+    elif cli_args.subcmd == "info":
         currency_info(ep)
 
     elif cli_args.subcmd == "diffi":
@@ -131,6 +135,27 @@ def manage_cmd(ep, c):
 
     elif cli_args.subcmd == "wot":
         received_sent_certifications(ep, cli_args.subsubcmd)
+
+
+def about():
+    print("\
+\n             @@@@@@@@@@@@@\
+\n         @@@     @         @@@\
+\n      @@@   @@       @@@@@@   @@.\
+\n     @@  @@@       @@@@@@@@@@@  @@,        ", SILKAJ_VERSION, "\
+\n   @@  @@@       &@@@@@@@@@@@@@  @@@\
+\n  @@  @@@       @@@@@@@@@#   @@@@ @@(       Powerfull and lightweight command line client\
+\n  @@ @@@@      @@@@@@@@@      @@@  @@\
+\n @@  @@@      @@@@@@@@ @       @@@  @@      Built in Python for Duniter’s currencies: Ğ1 and Ğ1-Test\
+\n @@  @@@      @@@@@@ @@@@       @@  @@\
+\n @@  @@@@      @@@ @@@@@@@      @@  @@      Authors: Moul, Tortue, Jytou\
+\n  @@ @@@@*       @@@@@@@@@      @# @@\
+\n  @@  @@@@@    @@@@@@@@@@       @ ,@@       Website: https://silkaj.duniter.org\
+\n   @@  @@@@@ @@@@@@@@@@        @ ,@@\
+\n    @@@  @@@@@@@@@@@@        @  @@*         Repository: https://git.duniter.org/clients/python/silkaj\
+\n      @@@  @@@@@@@@        @  @@@\
+\n        @@@@   @@          @@@,\
+\n            @@@@@@@@@@@@@@@\n")
 
 
 if __name__ == '__main__':
