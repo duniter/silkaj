@@ -147,19 +147,19 @@ def about():
     print("\
 \n             @@@@@@@@@@@@@\
 \n         @@@     @         @@@\
-\n      @@@   @@       @@@@@@   @@.\
-\n     @@  @@@       @@@@@@@@@@@  @@,        ", SILKAJ_VERSION, "\
-\n   @@  @@@       &@@@@@@@@@@@@@  @@@\
-\n  @@  @@@       @@@@@@@@@#   @@@@ @@(       Powerfull and lightweight command line client\
-\n  @@ @@@@      @@@@@@@@@      @@@  @@\
-\n @@  @@@      @@@@@@@@ @       @@@  @@      Built in Python for Duniter’s currencies: Ğ1 and Ğ1-Test\
-\n @@  @@@      @@@@@@ @@@@       @@  @@\
-\n @@  @@@@      @@@ @@@@@@@      @@  @@      Authors: Moul, Tortue, Jytou\
-\n  @@ @@@@*       @@@@@@@@@      @# @@\
-\n  @@  @@@@@    @@@@@@@@@@       @ ,@@       Website: https://silkaj.duniter.org\
-\n   @@  @@@@@ @@@@@@@@@@        @ ,@@\
-\n    @@@  @@@@@@@@@@@@        @  @@*         Repository: https://git.duniter.org/clients/python/silkaj\
-\n      @@@  @@@@@@@@        @  @@@\
+\n      @@@   @@       @@@@@@   @@.           ", SILKAJ_VERSION, "\
+\n     @@  @@@       @@@@@@@@@@@  @@,\
+\n   @@  @@@       &@@@@@@@@@@@@@  @@@         Powerfull and lightweight command line client\
+\n  @@  @@@       @@@@@@@@@#   @@@@ @@(\
+\n  @@ @@@@      @@@@@@@@@      @@@  @@        Built in Python for Duniter’s currencies: Ğ1 and Ğ1-Test\
+\n @@  @@@      @@@@@@@@ @       @@@  @@\
+\n @@  @@@      @@@@@@ @@@@       @@  @@       Authors: Moul, Tortue, Jytou\
+\n @@  @@@@      @@@ @@@@@@@      @@  @@\
+\n  @@ @@@@*       @@@@@@@@@      @# @@        Website: https://silkaj.duniter.org\
+\n  @@  @@@@@    @@@@@@@@@@       @ ,@@\
+\n   @@  @@@@@ @@@@@@@@@@        @ ,@@         Repository: https://git.duniter.org/clients/python/silkaj\
+\n    @@@  @@@@@@@@@@@@        @  @@*\
+\n      @@@  @@@@@@@@        @  @@@            License: GNU AGPLv3\
 \n        @@@@   @@          @@@,\
 \n            @@@@@@@@@@@@@@@\n")
 
