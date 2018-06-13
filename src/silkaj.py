@@ -12,6 +12,7 @@ from tools import message_exit
 from network_tools import check_port, best_node
 from wot import received_sent_certifications, id_pubkey_correspondence
 from auth import generate_auth_file
+from license import display_license
 from constants import SILKAJ_VERSION, G1_SYMBOL, GTEST_SYMBOL, G1_DEFAULT_ENDPOINT, G1_TEST_DEFAULT_ENDPOINT
 
 
@@ -67,7 +68,9 @@ def usage():
     \n      it could autocomplete the pubkey corresponding to an identity with three or four following characters.\
     \n \
     \n - wot <pubkey> or <identity>: display received and sent certifications for an account.\
-    \n\
+    \n \
+    \n - license: display Ğ1 currency license.\
+    \n \
     \nAuthentication:\
     \n for amount, transaction, certification, and generate_auth_file commands\
     \n - Scrypt is the default authentication method with 4096,16,1 as default values\
@@ -80,7 +83,7 @@ def usage():
 def cli():
     # ep: endpoint, node's network interface
     ep, cli_args = dict(), Command()
-    subcmd = ["about", "info", "diffi", "net", "network", "issuers", "argos", "amount", "tx", "transaction", "cert", "generate_auth_file", "id", "identities", "wot"]
+    subcmd = ["license", "about", "info", "diffi", "net", "network", "issuers", "argos", "amount", "tx", "transaction", "cert", "generate_auth_file", "id", "identities", "wot"]
     if cli_args.is_version_request():
         message_exit(SILKAJ_VERSION)
     if cli_args.is_help_request() or cli_args.is_usage_request() or cli_args.subcmd not in subcmd:
@@ -135,6 +138,9 @@ def manage_cmd(ep, c):
 
     elif cli_args.subcmd == "wot":
         received_sent_certifications(ep, cli_args.subsubcmd)
+
+    elif cli_args.subcmd == "license":
+        display_license()
 
 
 def about():
