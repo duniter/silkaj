@@ -14,7 +14,7 @@ def license_approval(currency):
 def display_license():
     language = input("In which language would you like to display Ğ1 license [en/fr]? ")
     if (language == "en"):
-        if not webbrowser.open("https://duniter.org/en/get-g1/"):
+        if not webbrowser.open("https://duniter.org/en/wiki/g1-license/"):
             pager(open("licence-G1/license/license_g1-en.rst").read())
     else:
         if not webbrowser.open("https://duniter.org/fr/wiki/licence-g1/"):
