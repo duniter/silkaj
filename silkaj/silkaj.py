@@ -8,6 +8,7 @@ from silkaj.cert import send_certification
 from silkaj.commands import currency_info, difficulties, set_network_sort_keys,\
         network_info, argos_info, list_issuers
 from silkaj.tools import message_exit
+from silkaj.network_tools import get_request, get_current_block
 from silkaj.wot import received_sent_certifications, id_pubkey_correspondence
 from silkaj.auth import generate_auth_file
 from silkaj.license import display_license
@@ -96,9 +97,14 @@ def cli():
         ep["domain"] = ep["domain"][1:-1]
     return ep, cli_args
 
+def get_parameters(ep):
+    head_block = get_current_block(ep)
+    params = get_request(ep, "blockchain/parameters")
+    return params, head_block
 
 def manage_cmd(ep, cli_args):
 
+    params, head_block = get_parameters(ep)
     if cli_args.subcmd == "about":
         about()
     elif cli_args.subcmd == "info":
