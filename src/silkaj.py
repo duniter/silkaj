@@ -39,7 +39,7 @@ def usage():
     \n     - amount:\
     \n         --amountUD=<relative value> | --amount=<quantitative value>\
     \n         [--allSources] \
-    \n     --output=<public key>[:checksum] \
+    \n     --output=<public key>[:checksum][,<public key>[:checksum]] \
     \n     [--comment=<comment>] \
     \n     [--outputBackChange=<public key[:checksum]>] \
     \n     [-y | --yes], don't ask for prompt confirmation \

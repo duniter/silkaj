@@ -60,7 +60,10 @@ def cmd_transaction(cli_args, ud):
 def check_transaction_values(comment, output, outputBackChange, enough_source, issuer_pubkey):
     checkComment(comment)
 
-    output = check_public_key(output, True)
+    outputAddrs = output.split(',')
+    for outputAddress in outputAddrs:
+        check_public_key(outputAddress, True)
+
     if outputBackChange:
         outputBackChange = check_public_key(outputBackChange, True)
     if output is False or outputBackChange is False:
@@ -73,15 +76,21 @@ def transaction_confirmation(ep, issuer_pubkey, amount, ud, output, comment):
     """
     Generate transaction confirmation
     """
+
+    outputAddrs = output.split(',')
+    for outputAddress in outputAddrs:
+        check_public_key(outputAddress, True)
+
     tx = list()
     currency_symbol = get_currency_symbol(get_current_block(ep)["currency"])
-    tx.append(["amount (" + currency_symbol + ")", amount / 100])
+    tx.append(["amount (" + currency_symbol + ")", amount / 100 * len(outputAddrs)])
     tx.append(["amount (UD " + currency_symbol + ")", amount / ud])
     tx.append(["from", issuer_pubkey])
     id_from = get_uid_from_pubkey(ep, issuer_pubkey)
     if id_from is not NO_MATCHING_ID:
         tx.append(["from (id)", id_from])
-    tx.append(["to", output])
+    for outputAddress in outputAddrs:
+        tx.append(["to", outputAddress])
     id_to = get_uid_from_pubkey(ep, output)
     if id_to is not NO_MATCHING_ID:
         tx.append(["to (id)", id_to])
@@ -90,8 +99,11 @@ def transaction_confirmation(ep, issuer_pubkey, amount, ud, output, comment):
 
 
 def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAddr, Comment="", all_input=False, OutputbackChange=None):
+
+    outputAddrs = outputAddr.split(',')
+
     while True:
-        listinput_and_amount = get_list_input_for_transaction(ep, issuers, AmountTransfered, all_input)
+        listinput_and_amount = get_list_input_for_transaction(ep, issuers, AmountTransfered * len(outputAddrs), all_input)
         intermediatetransaction = listinput_and_amount[2]
 
         if intermediatetransaction:
@@ -109,11 +121,12 @@ def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAdd
         else:
             print("Generate Transaction:")
             print("   - From:    " + issuers)
-            print("   - To:      " + outputAddr)
+            for outputAddress in outputAddrs:
+                print("   - To:      " + outputAddress)
             if all_input:
                 print("   - Amount:  " + str(listinput_and_amount[1] / 100))
             else:
-                print("   - Amount:  " + str(AmountTransfered / 100))
+                print("   - Amount:  " + str(AmountTransfered / 100 * len(outputAddrs)))
             transaction = generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputAddr, Comment, OutputbackChange)
             transaction += sign_document_from_seed(transaction, seed) + "\n"
 
@@ -123,7 +136,13 @@ def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAdd
 
 
 def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputaddr, Comment="", OutputbackChange=None):
-    check_public_key(outputaddr, True)
+
+    outputAddrs = outputaddr.split(',')
+    for outputAddress in outputAddrs:
+        check_public_key(outputAddress, True)
+
+    totalAmountTransfered = AmountTransfered * len(outputAddrs)
+
     if OutputbackChange:
         OutputbackChange = check_public_key(OutputbackChange, True)
 
@@ -140,25 +159,28 @@ def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_a
 
     # if it's not a foreign exchange transaction, we remove units after 2 digits after the decimal point.
     if issuers != outputaddr:
-        AmountTransfered = (AmountTransfered // 10 ** curentUnitBase) * 10 ** curentUnitBase
+        totalAmountTransfered = (totalAmountTransfered // 10 ** curentUnitBase) * 10 ** curentUnitBase
 
     # Generate output
     ################
     listoutput = []
     # Outputs to receiver (if not himself)
-    rest = AmountTransfered
-    unitbase = curentUnitBase
-    while rest > 0:
-        outputAmount = truncBase(rest, unitbase)
-        rest -= outputAmount
-        if outputAmount > 0:
-            outputAmount = int(outputAmount / math.pow(10, unitbase))
-            listoutput.append(str(outputAmount) + ":" + str(unitbase) + ":SIG(" + outputaddr + ")")
-        unitbase = unitbase - 1
+    for outputAddress in outputAddrs:
+        rest = AmountTransfered
+        unitbase = curentUnitBase
+        while rest > 0:
+            outputAmount = truncBase(rest, unitbase)
+            rest -= outputAmount
+            if outputAmount > 0:
+                outputAmount = int(outputAmount / math.pow(10, unitbase))
+                listoutput.append(str(outputAmount) + ":" + str(unitbase) + ":SIG(" + outputAddress + ")")
+            unitbase = unitbase - 1
 
     # Outputs to himself
     unitbase = curentUnitBase
-    rest = totalAmountInput - AmountTransfered
+    rest = totalAmountInput - totalAmountTransfered
+    if rest < 0:
+        message_exit("Not enough money")
     while rest > 0:
         outputAmount = truncBase(rest, unitbase)
         rest -= outputAmount
