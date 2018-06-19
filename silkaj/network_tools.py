@@ -3,6 +3,7 @@ from ipaddress import ip_address
 from json import loads
 import socket
 import urllib.request
+import logging
 from sys import exit, stderr
 
 CONNECTION_TIMEOUT = 10
@@ -133,15 +134,15 @@ def post_request(ep, path, postdata):
 def best_node(ep, main):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(CONNECTION_TIMEOUT)
-    addresses, port = {"ip6", "ip4", "domain"}, int(ep["port"])
+    addresses, port = ("domain", "ip6", "ip4"), int(ep["port"])
     for address in addresses:
         if address in ep:
             try:
                 s.connect((ep[address], port))
                 s.close()
                 return address
-            except:
-                pass
+            except Exception as e:
+                logging.warn("Connecion to endpoint %s (%s) failled (%s)" % (ep, address, e))
     if main:
         print("Wrong node given as argument", file=stderr)
         exit(1)
