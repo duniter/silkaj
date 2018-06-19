@@ -5,6 +5,7 @@ import socket
 import urllib.request
 from sys import exit, stderr
 
+CONNECTION_TIMEOUT = 10
 
 def discover_peers(ep, discover):
     """
@@ -107,7 +108,7 @@ def get_request(ep, path):
     if ep["port"] == "443":
         url = "https://" + ep[address] + "/" + path
     request = urllib.request.Request(url)
-    response = urllib.request.urlopen(request)
+    response = urllib.request.urlopen(request, timeout=CONNECTION_TIMEOUT)
     encoding = response.info().get_content_charset('utf8')
     return loads(response.read().decode(encoding))
 
@@ -119,7 +120,7 @@ def post_request(ep, path, postdata):
     url = "http://" + ep[address] + ":" + ep["port"] + "/" + path
     if ep["port"] == "443":
         url = "https://" + ep[address] + "/" + path
-    request = urllib.request.Request(url, bytes(postdata, 'utf-8'))
+    request = urllib.request.Request(url, bytes(postdata, 'utf-8'), timeout=CONNECTION_TIMEOUT)
     try:
         response = urllib.request.urlopen(request)
     except urllib.error.URLError as e:
@@ -131,6 +132,7 @@ def post_request(ep, path, postdata):
 
 def best_node(ep, main):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(CONNECTION_TIMEOUT)
     addresses, port = {"ip6", "ip4", "domain"}, int(ep["port"])
     for address in addresses:
         if address in ep:
