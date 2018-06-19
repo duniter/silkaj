@@ -142,7 +142,7 @@ def best_node(ep, main):
                 s.close()
                 return address
             except Exception as e:
-                logging.warn("Connecion to endpoint %s (%s) failled (%s)" % (ep, address, e))
+                logging.debug("Connection to endpoint %s (%s) failled (%s)" % (ep, address, e))
     if main:
         print("Wrong node given as argument", file=stderr)
         exit(1)
