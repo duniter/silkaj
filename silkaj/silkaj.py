@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 from sys import stderr
@@ -97,7 +96,7 @@ def cli():
     return ep, cli_args
 
 
-def manage_cmd(ep, c):
+def manage_cmd(ep, cli_args):
 
     if cli_args.subcmd == "about":
         about()
@@ -127,7 +126,7 @@ def manage_cmd(ep, c):
         send_transaction(ep, cli_args)
 
     elif cli_args.subcmd == "cert":
-        send_certification(ep, c)
+        send_certification(ep, cli_args)
 
     elif cli_args.subcmd == "generate_auth_file":
         generate_auth_file(cli_args)
@@ -163,8 +162,3 @@ def about():
 \n            @@@@@@@@@@@@@@@\n")
 
 
-if __name__ == '__main__':
-    ep, cli_args = cli()
-    check_port(ep["port"])
-    best_node(ep, 1)
-    manage_cmd(ep, cli_args)
