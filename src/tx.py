@@ -24,12 +24,13 @@ def send_transaction(ep, cli_args):
     issuer_pubkey = get_publickey_from_seed(seed)
 
     pubkey_amount = get_amount_from_pubkey(ep, issuer_pubkey)[0]
-    check_transaction_values(comment, output, outputBackChange, pubkey_amount < amount, issuer_pubkey)
+    outputAddresses = output.split(',')
+    check_transaction_values(comment, outputAddresses, outputBackChange, pubkey_amount < amount, issuer_pubkey)
 
     if cli_args.contains_switches('yes') or cli_args.contains_switches('y') or \
-        input(tabulate(transaction_confirmation(ep, issuer_pubkey, amount, ud, output, comment),
+        input(tabulate(transaction_confirmation(ep, issuer_pubkey, amount, ud, outputAddresses, comment),
         tablefmt="fancy_grid") + "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
-        generate_and_send_transaction(ep, seed, issuer_pubkey, amount, output, comment, allSources, outputBackChange)
+        generate_and_send_transaction(ep, seed, issuer_pubkey, amount, outputAddresses, comment, allSources, outputBackChange)
 
 
 def cmd_transaction(cli_args, ud):
@@ -57,53 +58,44 @@ def cmd_transaction(cli_args, ud):
     return amount, output, comment, allSources, outputBackChange
 
 
-def check_transaction_values(comment, output, outputBackChange, enough_source, issuer_pubkey):
+def check_transaction_values(comment, outputAddresses, outputBackChange, enough_source, issuer_pubkey):
     checkComment(comment)
-
-    outputAddrs = output.split(',')
-    for outputAddress in outputAddrs:
+    for outputAddress in outputAddresses:
         check_public_key(outputAddress, True)
-
     if outputBackChange:
         outputBackChange = check_public_key(outputBackChange, True)
-    if output is False or outputBackChange is False:
+    if outputAddresses is False or outputBackChange is False:
         exit(1)
     if enough_source:
         message_exit(issuer_pubkey + " pubkey don’t have enough money for this transaction.")
 
 
-def transaction_confirmation(ep, issuer_pubkey, amount, ud, output, comment):
+def transaction_confirmation(ep, issuer_pubkey, amount, ud, outputAddresses, comment):
     """
     Generate transaction confirmation
     """
 
-    outputAddrs = output.split(',')
-    for outputAddress in outputAddrs:
-        check_public_key(outputAddress, True)
-
     tx = list()
     currency_symbol = get_currency_symbol(get_current_block(ep)["currency"])
-    tx.append(["amount (" + currency_symbol + ")", amount / 100 * len(outputAddrs)])
+    tx.append(["amount (" + currency_symbol + ")", amount / 100 * len(outputAddresses)])
     tx.append(["amount (UD " + currency_symbol + ")", amount / ud])
     tx.append(["from", issuer_pubkey])
     id_from = get_uid_from_pubkey(ep, issuer_pubkey)
     if id_from is not NO_MATCHING_ID:
         tx.append(["from (id)", id_from])
-    for outputAddress in outputAddrs:
+    for outputAddress in outputAddresses:
         tx.append(["to", outputAddress])
-    id_to = get_uid_from_pubkey(ep, output)
-    if id_to is not NO_MATCHING_ID:
-        tx.append(["to (id)", id_to])
+        id_to = get_uid_from_pubkey(ep, outputAddress)
+        if id_to is not NO_MATCHING_ID:
+            tx.append(["to (id)", id_to])
     tx.append(["comment", comment])
     return tx
 
 
-def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAddr, Comment="", all_input=False, OutputbackChange=None):
-
-    outputAddrs = outputAddr.split(',')
+def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAddresses, Comment="", all_input=False, OutputbackChange=None):
 
     while True:
-        listinput_and_amount = get_list_input_for_transaction(ep, issuers, AmountTransfered * len(outputAddrs), all_input)
+        listinput_and_amount = get_list_input_for_transaction(ep, issuers, AmountTransfered * len(outputAddresses), all_input)
         intermediatetransaction = listinput_and_amount[2]
 
         if intermediatetransaction:
@@ -112,7 +104,7 @@ def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAdd
             print("   - From:    " + issuers)
             print("   - To:      " + issuers)
             print("   - Amount:  " + str(totalAmountInput / 100))
-            transaction = generate_transaction_document(ep, issuers, totalAmountInput, listinput_and_amount, issuers, "Change operation")
+            transaction = generate_transaction_document(ep, issuers, totalAmountInput, listinput_and_amount, outputAddresses, "Change operation")
             transaction += sign_document_from_seed(transaction, seed) + "\n"
             post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
             print("Change Transaction successfully sent.")
@@ -121,13 +113,13 @@ def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAdd
         else:
             print("Generate Transaction:")
             print("   - From:    " + issuers)
-            for outputAddress in outputAddrs:
+            for outputAddress in outputAddresses:
                 print("   - To:      " + outputAddress)
             if all_input:
                 print("   - Amount:  " + str(listinput_and_amount[1] / 100))
             else:
-                print("   - Amount:  " + str(AmountTransfered / 100 * len(outputAddrs)))
-            transaction = generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputAddr, Comment, OutputbackChange)
+                print("   - Amount:  " + str(AmountTransfered / 100 * len(outputAddresses)))
+            transaction = generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputAddresses, Comment, OutputbackChange)
             transaction += sign_document_from_seed(transaction, seed) + "\n"
 
             post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
@@ -135,13 +127,9 @@ def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAdd
             break
 
 
-def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputaddr, Comment="", OutputbackChange=None):
+def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputAddresses, Comment="", OutputbackChange=None):
 
-    outputAddrs = outputaddr.split(',')
-    for outputAddress in outputAddrs:
-        check_public_key(outputAddress, True)
-
-    totalAmountTransfered = AmountTransfered * len(outputAddrs)
+    totalAmountTransfered = AmountTransfered * len(outputAddresses)
 
     if OutputbackChange:
         OutputbackChange = check_public_key(OutputbackChange, True)
@@ -158,14 +146,14 @@ def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_a
         OutputbackChange = issuers
 
     # if it's not a foreign exchange transaction, we remove units after 2 digits after the decimal point.
-    if issuers != outputaddr:
+    if issuers not in outputAddresses:
         totalAmountTransfered = (totalAmountTransfered // 10 ** curentUnitBase) * 10 ** curentUnitBase
 
     # Generate output
     ################
     listoutput = []
     # Outputs to receiver (if not himself)
-    for outputAddress in outputAddrs:
+    for outputAddress in outputAddresses:
         rest = AmountTransfered
         unitbase = curentUnitBase
         while rest > 0:
