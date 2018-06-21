@@ -1,7 +1,6 @@
 from re import compile, search
 import math
 from time import sleep
-from sys import exit
 import urllib
 
 from tabulate import tabulate
