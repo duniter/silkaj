@@ -131,9 +131,6 @@ def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_a
 
     totalAmountTransfered = AmountTransfered * len(outputAddresses)
 
-    if OutputbackChange:
-        OutputbackChange = check_public_key(OutputbackChange, True)
-
     listinput = listinput_and_amount[0]
     totalAmountInput = listinput_and_amount[1]
 
