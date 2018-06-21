@@ -61,13 +61,14 @@ def cmd_transaction(cli_args, ud):
 def check_transaction_values(comment, outputAddresses, outputBackChange, enough_source, issuer_pubkey):
     checkComment(comment)
     for outputAddress in outputAddresses:
-        check_public_key(outputAddress, True)
+        if check_public_key(outputAddress, True) is False:
+            message_exit(outputAddress)
     if outputBackChange:
         outputBackChange = check_public_key(outputBackChange, True)
-    if outputAddresses is False or outputBackChange is False:
-        exit(1)
+        if check_public_key(outputBackChange, True) is False:
+            message_exit(outputBackChange)
     if enough_source:
-        message_exit(issuer_pubkey + " pubkey don’t have enough money for this transaction.")
+        message_exit(issuer_pubkey + " pubkey doesn’t have enough money for this transaction.")
 
 
 def transaction_confirmation(ep, issuer_pubkey, amount, ud, outputAddresses, comment):

@@ -64,11 +64,11 @@ def check_public_key(pubkey, display_error):
         if checksum_calculed == checksum:
             return pubkey
         else:
-            print("error: bad checksum of the public key")
+            print("Error: bad checksum for following public key:")
             return False
 
     elif display_error:
-        print("Error: the format of the public key is invalid")
+        print("Error: bad format for following public key:")
     return False
 
 
