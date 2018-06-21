@@ -24,7 +24,7 @@ def send_transaction(ep, cli_args):
     issuer_pubkey = get_publickey_from_seed(seed)
 
     pubkey_amount = get_amount_from_pubkey(ep, issuer_pubkey)[0]
-    outputAddresses = output.split(',')
+    outputAddresses = output.split(':')
     check_transaction_values(comment, outputAddresses, outputBackChange, pubkey_amount < amount * len(outputAddresses), issuer_pubkey)
 
     if cli_args.contains_switches('yes') or cli_args.contains_switches('y') or \
