@@ -165,8 +165,6 @@ def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_a
     # Outputs to himself
     unitbase = curentUnitBase
     rest = totalAmountInput - totalAmountTransfered
-    if rest < 0:
-        message_exit("Not enough money")
     while rest > 0:
         outputAmount = truncBase(rest, unitbase)
         rest -= outputAmount
