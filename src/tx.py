@@ -25,7 +25,7 @@ def send_transaction(ep, cli_args):
 
     pubkey_amount = get_amount_from_pubkey(ep, issuer_pubkey)[0]
     outputAddresses = output.split(',')
-    check_transaction_values(comment, outputAddresses, outputBackChange, pubkey_amount < amount, issuer_pubkey)
+    check_transaction_values(comment, outputAddresses, outputBackChange, pubkey_amount < amount * len(outputAddresses), issuer_pubkey)
 
     if cli_args.contains_switches('yes') or cli_args.contains_switches('y') or \
         input(tabulate(transaction_confirmation(ep, issuer_pubkey, amount, ud, outputAddresses, comment),
