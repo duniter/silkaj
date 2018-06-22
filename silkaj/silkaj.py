@@ -17,7 +17,7 @@ from silkaj.constants import SILKAJ_VERSION, G1_SYMBOL, GTEST_SYMBOL, G1_DEFAULT
 def usage():
     message_exit("Silkaj: command line client for Duniter currencies\
     \n\nhelp: -h, --help, --usage \
-    \nnersion: -v, --version \
+    \nversion: -v, --version \
     \nabout: display informations about the programm\
     \n \
     \nEndpoint:\
