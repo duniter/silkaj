@@ -10,15 +10,17 @@ git clone https://git.duniter.org/clients/python/silkaj.git
 cd silkaj
 ```
 
-### Install dependencies
+### Install with dependencies
 ```bash
-pipenv install
+pipenv install "-e ."
 ```
+
+The double quotes are important, if you forget them, `pipenv` will install silkaj from pypi
 
 ### Activate pipenv and run silkaj
 ```bash
 pipenv shell
-./silkaj
+silkaj
 ```
 
 ## Manage Python versions with Pyenv
