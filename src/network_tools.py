@@ -141,7 +141,7 @@ def best_node(ep, main):
             except:
                 pass
     if main:
-        print("Wrong node gived as argument", file=stderr)
+        print("Wrong node given as argument", file=stderr)
         exit(1)
     return None
 
