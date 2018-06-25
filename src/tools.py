@@ -52,11 +52,11 @@ def check_public_key(pubkey, display_error):
     """
     regex = compile('^[1-9A-HJ-NP-Za-km-z]{43,44}$')
     regex_checksum = compile('^[1-9A-HJ-NP-Za-km-z]{43,44}' +
-                                ':[1-9A-HJ-NP-Za-km-z]{3}$')
+                                '![1-9A-HJ-NP-Za-km-z]{3}$')
     if search(regex, pubkey):
         return pubkey
     elif search(regex_checksum, pubkey):
-        pubkey, checksum = pubkey.split(":")
+        pubkey, checksum = pubkey.split("!")
         pubkey_byte = b58_decode(pubkey)
         checksum_calculed = b58_encode(hash.sha256(
                     hash.sha256(pubkey_byte, encoding.RawEncoder),
@@ -64,11 +64,11 @@ def check_public_key(pubkey, display_error):
         if checksum_calculed == checksum:
             return pubkey
         else:
-            print("error: bad checksum of the public key")
+            print("Error: bad checksum for following public key:")
             return False
 
     elif display_error:
-        print("Error: the format of the public key is invalid")
+        print("Error: bad format for following public key:")
     return False
 
 
