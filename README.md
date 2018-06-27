@@ -1,4 +1,5 @@
 # Silkaj
+[![Version](https://img.shields.io/pypi/v/silkaj.svg)](https://pypi.python.org/pypi/silkaj) [![License](https://img.shields.io/pypi/l/silkaj.svg)](https://pypi.python.org/pypi/silkaj) [![Python versions](https://img.shields.io/pypi/pyversions/silkaj.svg)](https://pypi.python.org/pypi/silkaj)
 
 - CLI Duniter client written with Python 3.
 - [Website](https://silkaj.duniter.org)
