@@ -4,20 +4,8 @@
 - [Website](https://silkaj.duniter.org)
 
 ## Install
-### With release
-Download [last release](https://git.duniter.org/clients/python/silkaj/tags) with `wget`.
-Check it's integrity comparing it to `silkaj_sha256sum`:
-```bash
-sha256sum silkaj
-```
-
-Add executable permissions:
-```bash
-chmod a+x silkaj
-```
-
-### Manually
 - [Install with pipenv](doc/install_pipenv.md)
+- [Install with the build](doc/install_build.md)
 - [Build an executable with Pyinstaller](doc/build_with_pyinstaller.md)
 - [Install as a drop-down for GNOME Shell with Argos](doc/argos.md)
 
