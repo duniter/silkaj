@@ -151,7 +151,7 @@ def about():
 \n  @@  @@@       @@@@@@@@@#   @@@@ @@(\
 \n  @@ @@@@      @@@@@@@@@      @@@  @@        Built in Python for Duniter’s currencies: Ğ1 and Ğ1-Test\
 \n @@  @@@      @@@@@@@@ @       @@@  @@\
-\n @@  @@@      @@@@@@ @@@@       @@  @@       Authors: Moul, Tortue, Jytou\
+\n @@  @@@      @@@@@@ @@@@       @@  @@       Authors: moul, tortue, jytou, cebash, cgeek\
 \n @@  @@@@      @@@ @@@@@@@      @@  @@\
 \n  @@ @@@@*       @@@@@@@@@      @# @@        Website: https://silkaj.duniter.org\
 \n  @@  @@@@@    @@@@@@@@@@       @ ,@@\
