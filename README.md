@@ -4,6 +4,16 @@
 - [Website](https://silkaj.duniter.org)
 
 ## Install
+
+### Install from Pypi
+
+```bash
+pip3 install silkaj
+```
+
+### Other installation methods
+
+- [Install with Pip](doc/install_pip.md)
 - [Install with pipenv](doc/install_pipenv.md)
 - [Install with the build](doc/install_build.md)
 - [Build an executable with Pyinstaller](doc/build_with_pyinstaller.md)
@@ -12,14 +22,14 @@
 ## Usage
 - Get help usage with `-h`, `--help` or `--usage` options, then run:
 ```bash
-./silkaj <sub-command>
+silkaj <sub-command>
 ```
 
 - Will automatically request and post data on `duniter.org 10901` main Ğ1 node.
 
 - Specify a custom node with `-p` option:
 ```bash
-./silkaj <sub-command> -p <address>:<port>
+silkaj <sub-command> -p <address>:<port>
 ```
 
 ## Features
@@ -38,7 +48,7 @@
 
 ## Example
 ```bash
-./silkaj network
+silkaj network
 
 ### 20 peers ups, with 15 members and 5 non-members
 
