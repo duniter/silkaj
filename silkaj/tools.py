@@ -3,7 +3,7 @@ from nacl import encoding, signing, hash, bindings
 from re import compile, search
 from sys import exit
 
-from constants import G1_SYMBOL, GTEST_SYMBOL
+from silkaj.constants import G1_SYMBOL, GTEST_SYMBOL
 
 
 def convert_time(timestamp, kind):

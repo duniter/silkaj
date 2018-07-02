@@ -1,12 +1,12 @@
 import urllib
 from tabulate import tabulate
 
-from auth import auth_method
-from tools import get_publickey_from_seed, message_exit, sign_document_from_seed
-from network_tools import get_current_block, post_request
-from license import license_approval
-from constants import NO_MATCHING_ID
-from wot import is_member, get_pubkey_from_id, get_pubkeys_from_id,\
+from silkaj.auth import auth_method
+from silkaj.tools import get_publickey_from_seed, message_exit, sign_document_from_seed
+from silkaj.network_tools import get_current_block, post_request
+from silkaj.license import license_approval
+from silkaj.constants import NO_MATCHING_ID
+from silkaj.wot import is_member, get_pubkey_from_id, get_pubkeys_from_id,\
         get_uid_from_pubkey
 
 

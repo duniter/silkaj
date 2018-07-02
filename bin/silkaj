@@ -1,0 +1,10 @@
+#!/usr/bin/env python3
+
+from silkaj.network_tools import check_port, best_node
+from silkaj.silkaj import cli, manage_cmd
+
+if __name__ == '__main__':
+    ep, cli_args = cli()
+    check_port(ep["port"])
+    best_node(ep, 1)
+    manage_cmd(ep, cli_args)

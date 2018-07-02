@@ -5,10 +5,10 @@ from collections import OrderedDict
 from tabulate import tabulate
 from operator import itemgetter
 
-from wot import get_uid_from_pubkey
-from network_tools import discover_peers, get_request, best_node, get_current_block
-from tools import convert_time, get_currency_symbol, message_exit
-from constants import NO_MATCHING_ID
+from silkaj.wot import get_uid_from_pubkey
+from silkaj.network_tools import discover_peers, get_request, best_node, get_current_block
+from silkaj.tools import convert_time, get_currency_symbol, message_exit
+from silkaj.constants import NO_MATCHING_ID
 
 
 def currency_info(ep):

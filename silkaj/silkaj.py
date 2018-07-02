@@ -1,25 +1,23 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 from sys import stderr
 from commandlines import Command
-from tx import send_transaction
-from money import cmd_amount
-from cert import send_certification
-from commands import currency_info, difficulties, set_network_sort_keys,\
+from silkaj.tx import send_transaction
+from silkaj.money import cmd_amount
+from silkaj.cert import send_certification
+from silkaj.commands import currency_info, difficulties, set_network_sort_keys,\
         network_info, argos_info, list_issuers
-from tools import message_exit
-from network_tools import check_port, best_node
-from wot import received_sent_certifications, id_pubkey_correspondence
-from auth import generate_auth_file
-from license import display_license
-from constants import SILKAJ_VERSION, G1_SYMBOL, GTEST_SYMBOL, G1_DEFAULT_ENDPOINT, G1_TEST_DEFAULT_ENDPOINT
+from silkaj.tools import message_exit
+from silkaj.wot import received_sent_certifications, id_pubkey_correspondence
+from silkaj.auth import generate_auth_file
+from silkaj.license import display_license
+from silkaj.constants import SILKAJ_VERSION, G1_SYMBOL, GTEST_SYMBOL, G1_DEFAULT_ENDPOINT, G1_TEST_DEFAULT_ENDPOINT
 
 
 def usage():
     message_exit("Silkaj: command line client for Duniter currencies\
     \n\nhelp: -h, --help, --usage \
-    \nnersion: -v, --version \
+    \nversion: -v, --version \
     \nabout: display informations about the programm\
     \n \
     \nEndpoint:\
@@ -98,7 +96,7 @@ def cli():
     return ep, cli_args
 
 
-def manage_cmd(ep, c):
+def manage_cmd(ep, cli_args):
 
     if cli_args.subcmd == "about":
         about()
@@ -128,7 +126,7 @@ def manage_cmd(ep, c):
         send_transaction(ep, cli_args)
 
     elif cli_args.subcmd == "cert":
-        send_certification(ep, c)
+        send_certification(ep, cli_args)
 
     elif cli_args.subcmd == "generate_auth_file":
         generate_auth_file(cli_args)
@@ -153,7 +151,7 @@ def about():
 \n  @@  @@@       @@@@@@@@@#   @@@@ @@(\
 \n  @@ @@@@      @@@@@@@@@      @@@  @@        Built in Python for Duniter’s currencies: Ğ1 and Ğ1-Test\
 \n @@  @@@      @@@@@@@@ @       @@@  @@\
-\n @@  @@@      @@@@@@ @@@@       @@  @@       Authors: Moul, Tortue, Jytou\
+\n @@  @@@      @@@@@@ @@@@       @@  @@       Authors: moul, tortue, jytou, cebash, cgeek\
 \n @@  @@@@      @@@ @@@@@@@      @@  @@\
 \n  @@ @@@@*       @@@@@@@@@      @# @@        Website: https://silkaj.duniter.org\
 \n  @@  @@@@@    @@@@@@@@@@       @ ,@@\
@@ -164,8 +162,3 @@ def about():
 \n            @@@@@@@@@@@@@@@\n")
 
 
-if __name__ == '__main__':
-    ep, cli_args = cli()
-    check_port(ep["port"])
-    best_node(ep, 1)
-    manage_cmd(ep, cli_args)

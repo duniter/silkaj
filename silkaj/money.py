@@ -1,7 +1,7 @@
-from network_tools import get_request, get_current_block
-from tools import get_currency_symbol, get_publickey_from_seed
-from auth import auth_method
-from wot import check_public_key
+from silkaj.network_tools import get_request, get_current_block
+from silkaj.tools import get_currency_symbol, get_publickey_from_seed
+from silkaj.auth import auth_method
+from silkaj.wot import check_public_key
 
 
 def cmd_amount(ep, cli_args):

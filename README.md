@@ -1,37 +1,36 @@
 # Silkaj
+[![Version](https://img.shields.io/pypi/v/silkaj.svg)](https://pypi.python.org/pypi/silkaj) [![License](https://img.shields.io/pypi/l/silkaj.svg)](https://pypi.python.org/pypi/silkaj) [![Python versions](https://img.shields.io/pypi/pyversions/silkaj.svg)](https://pypi.python.org/pypi/silkaj)
 
 - CLI Duniter client written with Python 3.
 - [Website](https://silkaj.duniter.org)
 
 ## Install
-### With release
-Download [last release](https://git.duniter.org/clients/python/silkaj/tags) with `wget`.
-Check it's integrity comparing it to `silkaj_sha256sum`:
+
+### Install from Pypi
+
 ```bash
-sha256sum silkaj
+pip3 install silkaj
 ```
 
-Add executable permissions:
-```bash
-chmod a+x silkaj
-```
+### Other installation methods
 
-### Manually
+- [Install with Pip](doc/install_pip.md)
 - [Install with pipenv](doc/install_pipenv.md)
+- [Install with the build](doc/install_build.md)
 - [Build an executable with Pyinstaller](doc/build_with_pyinstaller.md)
 - [Install as a drop-down for GNOME Shell with Argos](doc/argos.md)
 
 ## Usage
 - Get help usage with `-h`, `--help` or `--usage` options, then run:
 ```bash
-./silkaj <sub-command>
+silkaj <sub-command>
 ```
 
 - Will automatically request and post data on `duniter.org 10901` main Ğ1 node.
 
 - Specify a custom node with `-p` option:
 ```bash
-./silkaj <sub-command> -p <address>:<port>
+silkaj <sub-command> -p <address>:<port>
 ```
 
 ## Features
@@ -50,7 +49,7 @@ chmod a+x silkaj
 
 ## Example
 ```bash
-./silkaj network
+silkaj network
 
 ### 20 peers ups, with 15 members and 5 non-members
 

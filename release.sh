@@ -22,12 +22,13 @@ check_branch() {
 }
 
 update_version() {
-	sed -i "s/SILKAJ_VERSION = \"silkaj.*\"/SILKAJ_VERSION = \"silkaj $VERSION\"/" src/constants.py
+	sed -i "s/SILKAJ_VERSION = \"silkaj.*\"/SILKAJ_VERSION = \"silkaj $VERSION\"/" silkaj/constants.py
+	sed -i "s/version=\".*\",/version=\"$VERSION\",/" setup.py
 	git diff
 }
 
 commit_tag() {
-	git commit src/constants.py -m "v$VERSION"
+	git commit silkaj/constants.py setup.py -m "v$VERSION"
 	git tag "v$VERSION" -a -m "$VERSION"
 }
 
@@ -36,7 +37,7 @@ build() {
 		error_message "Activate silkaj-env"
 	fi
 	exec_installed pyinstaller
-	pyinstaller src/silkaj.py --hidden-import=_cffi_backend --hidden-import=_scrypt --onefile
+	pyinstaller bin/silkaj --hidden-import=_cffi_backend --hidden-import=_scrypt --onefile
 }
 
 checksum() {

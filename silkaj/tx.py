@@ -4,13 +4,13 @@ from time import sleep
 import urllib
 
 from tabulate import tabulate
-from network_tools import get_request, post_request, get_current_block
-from tools import get_currency_symbol, get_publickey_from_seed, sign_document_from_seed,\
+from silkaj.network_tools import get_request, post_request, get_current_block
+from silkaj.tools import get_currency_symbol, get_publickey_from_seed, sign_document_from_seed,\
         check_public_key, message_exit
-from auth import auth_method
-from wot import get_uid_from_pubkey
-from money import get_last_ud_value, get_amount_from_pubkey
-from constants import NO_MATCHING_ID
+from silkaj.auth import auth_method
+from silkaj.wot import get_uid_from_pubkey
+from silkaj.money import get_last_ud_value, get_amount_from_pubkey
+from silkaj.constants import NO_MATCHING_ID
 
 
 def send_transaction(ep, cli_args):

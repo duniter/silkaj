@@ -12,7 +12,7 @@ pyenv rehash
 
 ## Build
 ```bash
-pyinstaller src/silkaj.py --hidden-import=_cffi_backend --hidden-import=_scrypt --onefile
+pyinstaller bin/silkaj --hidden-import=_cffi_backend --hidden-import=_scrypt --onefile
 ```
 
-You will found the exetuable file on `silkaj/dist` folder.
+You will found the exetuable file on `dist` folder.

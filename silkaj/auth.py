@@ -1,4 +1,4 @@
-from tools import get_publickey_from_seed, b58_decode, xor_bytes, message_exit 
+from silkaj.tools import get_publickey_from_seed, b58_decode, xor_bytes, message_exit
 from nacl import encoding
 import nacl.hash
 from scrypt import hash
