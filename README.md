@@ -9,7 +9,7 @@
 ### Install from Pypi
 
 ```bash
-pip3 install silkaj
+pip3 install silkaj --user
 ```
 
 ### Other installation methods

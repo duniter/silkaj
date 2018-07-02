@@ -14,7 +14,7 @@ sudo apt install libffi-dev
 ## Install from Pypi
 
 ```bash
-pip3 install silkaj
+pip3 install silkaj --user
 ```
 
 ## Install from sources
