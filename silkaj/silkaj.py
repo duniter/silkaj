@@ -74,7 +74,7 @@ def usage():
     \n - Scrypt is the default authentication method with 4096,16,1 as default values\
     \n    you can specify others values specifying following parameters: -n <N> -r <r> -p <p>\
     \n - Seed: --auth-seed\
-    \n - File: --auth-file [--file=<path file>]\
+    \n - File: --auth-file [--file=<path file>], './authfile' will be taken if there is no path specified\
     \n - WIF: --auth-wif")
 
 
