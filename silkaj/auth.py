@@ -27,8 +27,8 @@ def generate_auth_file(cli_args):
     seed = auth_method(cli_args)
     with open(file, "w") as f:
         f.write(seed)
-    print("Authfile generated for the public key: ",
-          get_publickey_from_seed(seed))
+    print("Authentication file 'authfile' generated and stored in current\
+ folder for following public key:", get_publickey_from_seed(seed))
 
 
 def auth_by_auth_file(cli_args):
