@@ -151,11 +151,11 @@ def check_port(port):
         port = int(port)
     except:
         print("Port must be an integer", file=stderr)
-        exit(1)
+        return False
     if (port < 0 or port > 65536):
         print("Wrong port number", file=stderr)
-        exit(1)
-    return 1
+        return False
+    return True
 
 
 def get_current_block(ep):
