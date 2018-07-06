@@ -110,7 +110,7 @@ def network_info(ep, discover):
     print("Getting informations about nodes:")
     while (i < len(endpoints)):
         print("{0:.0f}%".format(i/len(endpoints) * 100, 1), end=" ")
-        best_ep = best_node(endpoints[i], 0)
+        best_ep = best_node(endpoints[i], False)
         print(best_ep if best_ep is None else endpoints[i][best_ep], end=" ")
         print(endpoints[i]["port"])
         try:

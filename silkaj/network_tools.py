@@ -19,7 +19,7 @@ def discover_peers(ep, discover):
     for i, ep in enumerate(endpoints):
         if discover:
             print("{0:.0f}%".format(i / len(endpoints) * 100))
-        if best_node(ep, 0) is None:
+        if best_node(ep, False) is None:
             endpoints.remove(ep)
         elif discover:
             endpoints = recursive_discovering(endpoints, ep)
@@ -33,7 +33,7 @@ def recursive_discovering(endpoints, ep):
     """
     news = parse_endpoints(get_request(ep, "network/peers")["peers"])
     for new in news:
-        if best_node(new, 0) is not None and new not in endpoints:
+        if best_node(new, False) is not None and new not in endpoints:
             endpoints.append(new)
             recursive_discovering(endpoints, new)
     return endpoints
@@ -100,7 +100,7 @@ def check_ip(address):
 
 
 def get_request(ep, path):
-    address = best_node(ep, 0)
+    address = best_node(ep, False)
     if address is None:
         return address
     url = "http://" + ep[address] + ":" + ep["port"] + "/" + path
@@ -113,7 +113,7 @@ def get_request(ep, path):
 
 
 def post_request(ep, path, postdata):
-    address = best_node(ep, 0)
+    address = best_node(ep, False)
     if address is None:
         return address
     url = "http://" + ep[address] + ":" + ep["port"] + "/" + path

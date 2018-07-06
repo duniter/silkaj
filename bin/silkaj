@@ -9,5 +9,5 @@ if __name__ == '__main__':
     ep, cli_args = cli()
     if not check_port(ep["port"]):
         exit(1)
-    best_node(ep, 1)
+    best_node(ep, True)
     manage_cmd(ep, cli_args)
