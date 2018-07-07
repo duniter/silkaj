@@ -20,21 +20,13 @@ def get_sent_certifications(certs, time_first_block, params):
 
 def received_sent_certifications(ep, id):
     """
-    check id exist
-    many identities could exist
-    retrieve the one searched
+    get searched id
     get id of received and sent certifications
     display on a chart the result with the numbers
     """
     params = get_request(ep, "blockchain/parameters")
     time_first_block = get_request(ep, "blockchain/block/1")["time"]
-    certs_req = get_pubkeys_from_id(ep, id)
-    if certs_req == NO_MATCHING_ID:
-        message_exit(NO_MATCHING_ID)
-    for certs_id in certs_req:
-        if certs_id['uids'][0]['uid'].lower() == id.lower():
-            id_certs = certs_id
-            break
+    id_certs = get_searched_id(ep, id)
     certifications = OrderedDict()
     system("clear")
     for certs in id_certs["uids"]:
@@ -100,6 +92,20 @@ def id_pubkey_correspondence(ep, id_pubkey):
                     print("")
 
 
+def get_searched_id(ep, id):
+    """
+    many identities could match
+    return the one searched
+    """
+    certs_req = get_pubkeys_from_id(ep, id)
+    if certs_req == NO_MATCHING_ID:
+        message_exit(NO_MATCHING_ID)
+    for certs_id in certs_req:
+        if certs_id['uids'][0]['uid'].lower() == id.lower():
+            return certs_id
+    message_exit(NO_MATCHING_ID)
+
+
 def get_uid_from_pubkey(ep, pubkey):
     try:
         results = get_request(ep, "wot/lookup/" + pubkey)
@@ -113,6 +119,9 @@ def get_uid_from_pubkey(ep, pubkey):
 
 
 def get_pubkeys_from_id(ep, uid):
+    """
+    check id exist
+    """
     try:
         results = get_request(ep, "wot/lookup/" + uid)
     except:
