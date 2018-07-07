@@ -6,17 +6,17 @@ from silkaj.tools import get_publickey_from_seed, message_exit, sign_document_fr
 from silkaj.network_tools import get_current_block, post_request
 from silkaj.license import license_approval
 from silkaj.constants import NO_MATCHING_ID
-from silkaj.wot import is_member, get_pubkey_from_id, get_pubkeys_from_id,\
-        get_uid_from_pubkey
+from silkaj.wot import is_member, get_pubkeys_from_id,\
+        get_uid_from_pubkey, get_searched_id
 
 
 def send_certification(ep, cli_args):
     current_blk = get_current_block(ep)
     certified_uid = cli_args.subsubcmd
-    certified_pubkey = get_pubkey_from_id(ep, certified_uid)
+    certified = get_searched_id(ep, certified_uid)
 
     # Check that the id is present on the network
-    if (certified_pubkey is NO_MATCHING_ID):
+    if (certified["pubkey"] is NO_MATCHING_ID):
         message_exit(NO_MATCHING_ID)
 
     # Display license and ask for confirmation
@@ -32,7 +32,7 @@ def send_certification(ep, cli_args):
         message_exit("Current identity is not member.")
 
     # Check whether issuer and certified identities are different
-    if issuer_pubkey == certified_pubkey:
+    if issuer_pubkey == certified["pubkey"]:
         message_exit("You can’t certify yourself!")
 
     # Check if this certification is already present on the network
@@ -42,7 +42,7 @@ def send_certification(ep, cli_args):
             message_exit("Identity already certified by " + issuer_id)
 
     # Certification confirmation
-    if not certification_confirmation(issuer_id, issuer_pubkey, certified_uid, certified_pubkey):
+    if not certification_confirmation(issuer_id, issuer_pubkey, certified_uid, certified["pubkey"]):
         return
     cert_doc = generate_certification_document(id_lookup, current_blk, issuer_pubkey, certified_uid)
     cert_doc += sign_document_from_seed(cert_doc, seed) + "\n"
