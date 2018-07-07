@@ -28,9 +28,9 @@ def received_sent_certifications(ep, id):
     """
     params = get_request(ep, "blockchain/parameters")
     time_first_block = get_request(ep, "blockchain/block/1")["time"]
-    if get_pubkeys_from_id(ep, id) == NO_MATCHING_ID:
+    certs_req = get_pubkeys_from_id(ep, id)
+    if certs_req == NO_MATCHING_ID:
         message_exit(NO_MATCHING_ID)
-    certs_req = get_request(ep, "wot/lookup/" + id)["results"]
     for certs_id in certs_req:
         if certs_id['uids'][0]['uid'].lower() == id.lower():
             id_certs = certs_id
