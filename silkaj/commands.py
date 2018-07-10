@@ -11,22 +11,21 @@ from silkaj.tools import convert_time, get_currency_symbol, message_exit
 from silkaj.constants import NO_MATCHING_ID
 
 
-def currency_info(ep):
+def currency_info(ep, head_block):
     info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
     i, info_data = 0, dict()
     while (i < len(info_type)):
             info_data[info_type[i]] = get_request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
             i += 1
-    current = get_current_block(ep)
     system("clear")
-    print("Connected to node:", ep[best_node(ep, 1)], ep["port"],
-    "\nCurrent block number:", current["number"],
-    "\nCurrency name:", get_currency_symbol(current["currency"]),
-    "\nNumber of members:", current["membersCount"],
-    "\nMinimal Proof-of-Work:", current["powMin"],
-    "\nCurrent time:", convert_time(current["time"], "all"),
-    "\nMedian time:", convert_time(current["medianTime"], "all"),
-    "\nDifference time:", convert_time(current["time"] - current["medianTime"], "hour"),
+    print("Connected to node:", ep[best_node(ep, False)], ep["port"],
+    "\nCurrent block number:", head_block["number"],
+    "\nCurrency name:", get_currency_symbol(head_block["currency"]),
+    "\nNumber of members:", head_block["membersCount"],
+    "\nMinimal Proof-of-Work:", head_block["powMin"],
+    "\nCurrent time:", convert_time(head_block["time"], "all"),
+    "\nMedian time:", convert_time(head_block["medianTime"], "all"),
+    "\nDifference time:", convert_time(head_block["time"] - head_block["medianTime"], "hour"),
     "\nNumber of blocks containing: \
      \n- new comers:", len(info_data["newcomers"]),
     "\n- Certifications:", len(info_data["certs"]),
@@ -159,11 +158,10 @@ def network_info(ep, discover):
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 
-def list_issuers(ep, nbr, last):
-    current_blk = get_current_block(ep)
-    current_nbr = current_blk["number"]
+def list_issuers(ep, head_block, nbr, last):
+    current_nbr = head_block["number"]
     if nbr == 0:
-        nbr = current_blk["issuersFrame"]
+        nbr = head_block["issuersFrame"]
     url = "blockchain/blocks/" + str(nbr) + "/" + str(current_nbr - nbr + 1)
     blocks, list_issuers, j = get_request(ep, url), list(), 0
     issuers_dict = dict()
@@ -217,28 +215,27 @@ def list_issuers(ep, nbr, last):
         tabulate(sorted_list, headers="keys", tablefmt="orgtbl", floatfmt=".1f", stralign="center")))
 
 
-def argos_info(ep):
+def argos_info(ep, head_block):
     info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
     pretty_names = {'g1': 'Ğ1', 'gtest': 'Ğtest'}
     i, info_data = 0, dict()
     while (i < len(info_type)):
             info_data[info_type[i]] = get_request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
             i += 1
-    current = get_current_block(ep)
-    pretty = current["currency"]
-    if current["currency"] in pretty_names:
-        pretty = pretty_names[current["currency"]]
+    pretty = head_block["currency"]
+    if head_block["currency"] in pretty_names:
+        pretty = pretty_names[head_block["currency"]]
     print(pretty, "|")
     print("---")
-    href = 'href=http://%s:%s/' % (ep[best_node(ep, 1)], ep["port"])
-    print("Connected to node:", ep[best_node(ep, 1)], ep["port"], "|", href,
-    "\nCurrent block number:", current["number"],
-    "\nCurrency name:", get_currency_symbol(current["currency"]),
-    "\nNumber of members:", current["membersCount"],
-    "\nMinimal Proof-of-Work:", current["powMin"],
-    "\nCurrent time:", convert_time(current["time"], "all"),
-    "\nMedian time:", convert_time(current["medianTime"], "all"),
-    "\nDifference time:", convert_time(current["time"] - current["medianTime"], "hour"),
+    href = 'href=http://%s:%s/' % (ep[best_node(ep, False)], ep["port"])
+    print("Connected to node:", ep[best_node(ep, False)], ep["port"], "|", href,
+    "\nCurrent block number:", head_block["number"],
+    "\nCurrency name:", get_currency_symbol(head_block["currency"]),
+    "\nNumber of members:", head_block["membersCount"],
+    "\nMinimal Proof-of-Work:", head_block["powMin"],
+    "\nCurrent time:", convert_time(head_block["time"], "all"),
+    "\nMedian time:", convert_time(head_block["medianTime"], "all"),
+    "\nDifference time:", convert_time(head_block["time"] - head_block["medianTime"], "hour"),
     "\nNumber of blocks containing… \
      \n-- new comers:", len(info_data["newcomers"]),
     "\n-- Certifications:", len(info_data["certs"]),

@@ -3,19 +3,18 @@ from tabulate import tabulate
 
 from silkaj.auth import auth_method
 from silkaj.tools import get_publickey_from_seed, message_exit, sign_document_from_seed
-from silkaj.network_tools import get_current_block, post_request
+from silkaj.network_tools import post_request
 from silkaj.license import license_approval
 from silkaj.wot import is_member,\
         get_uid_from_pubkey, get_informations_for_identity
 
 
-def send_certification(ep, cli_args):
-    current_blk = get_current_block(ep)
+def send_certification(ep, head_block, cli_args):
     id_to_certify = get_informations_for_identity(ep, cli_args.subsubcmd)
     main_id_to_certify = id_to_certify["uids"][0]
 
     # Display license and ask for confirmation
-    license_approval(current_blk["currency"])
+    license_approval(head_block["currency"])
 
     # Authentication
     seed = auth_method(cli_args)
@@ -36,7 +35,7 @@ def send_certification(ep, cli_args):
     # Certification confirmation
     if not certification_confirmation(issuer_id, issuer_pubkey, id_to_certify, main_id_to_certify):
         return
-    cert_doc = generate_certification_document(current_blk, issuer_pubkey, id_to_certify, main_id_to_certify)
+    cert_doc = generate_certification_document(head_block, issuer_pubkey, id_to_certify, main_id_to_certify)
     cert_doc += sign_document_from_seed(cert_doc, seed) + "\n"
 
     # Send certification document
@@ -54,13 +53,13 @@ def certification_confirmation(issuer_id, issuer_pubkey, id_to_certify, main_id_
         return True
 
 
-def generate_certification_document(current_blk, issuer_pubkey, id_to_certify, main_id_to_certify):
+def generate_certification_document(head_block, issuer_pubkey, id_to_certify, main_id_to_certify):
     return "Version: 10\n\
 Type: Certification\n\
-Currency: " + current_blk["currency"] + "\n\
+Currency: " + head_block["currency"] + "\n\
 Issuer: " + issuer_pubkey + "\n\
 IdtyIssuer: " + id_to_certify["pubkey"] + "\n\
 IdtyUniqueID: " + main_id_to_certify["uid"] + "\n\
 IdtyTimestamp: " + main_id_to_certify["meta"]["timestamp"] + "\n\
 IdtySignature: " + main_id_to_certify["self"] + "\n\
-CertTimestamp: " + str(current_blk["number"]) + "-" + current_blk["hash"] + "\n"
+CertTimestamp: " + str(head_block["number"]) + "-" + head_block["hash"] + "\n"

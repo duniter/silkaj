@@ -18,13 +18,12 @@ def get_sent_certifications(certs, time_first_block, params):
     return sent, expire
 
 
-def received_sent_certifications(ep, id):
+def received_sent_certifications(ep, params, id):
     """
     get searched id
     get id of received and sent certifications
     display on a chart the result with the numbers
     """
-    params = get_request(ep, "blockchain/parameters")
     time_first_block = get_request(ep, "blockchain/block/1")["time"]
     id_certs = get_informations_for_identity(ep, id)
     certifications = OrderedDict()

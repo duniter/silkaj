@@ -4,8 +4,8 @@ from time import sleep
 import urllib
 
 from tabulate import tabulate
-from silkaj.network_tools import get_request, post_request, get_current_block
-from silkaj.tools import get_currency_symbol, get_publickey_from_seed, sign_document_from_seed,\
+from silkaj.network_tools import get_request, post_request
+from silkaj.tools import get_publickey_from_seed, sign_document_from_seed,\
         check_public_key, message_exit
 from silkaj.auth import auth_method
 from silkaj.wot import get_uid_from_pubkey
@@ -13,7 +13,7 @@ from silkaj.money import get_last_ud_value, get_amount_from_pubkey
 from silkaj.constants import NO_MATCHING_ID
 
 
-def send_transaction(ep, cli_args):
+def send_transaction(ep, cli_args, head_block, ud_value, currency_symbol):
     """
     Main function
     """
@@ -22,14 +22,14 @@ def send_transaction(ep, cli_args):
     seed = auth_method(cli_args)
     issuer_pubkey = get_publickey_from_seed(seed)
 
-    pubkey_amount = get_amount_from_pubkey(ep, issuer_pubkey)[0]
+    pubkey_amount = get_amount_from_pubkey(ep, head_block, issuer_pubkey)[0]
     outputAddresses = output.split(':')
     check_transaction_values(comment, outputAddresses, outputBackChange, pubkey_amount < amount * len(outputAddresses), issuer_pubkey)
 
     if cli_args.contains_switches('yes') or cli_args.contains_switches('y') or \
         input(tabulate(transaction_confirmation(ep, issuer_pubkey, amount, ud, outputAddresses, comment),
         tablefmt="fancy_grid") + "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
-        generate_and_send_transaction(ep, seed, issuer_pubkey, amount, outputAddresses, comment, allSources, outputBackChange)
+        generate_and_send_transaction(ep, head_block, seed, issuer_pubkey, amount, outputAddresses, comment, allSources, outputBackChange)
 
 
 def cmd_transaction(cli_args, ud):
@@ -92,10 +92,10 @@ def transaction_confirmation(ep, issuer_pubkey, amount, ud, outputAddresses, com
     return tx
 
 
-def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAddresses, Comment="", all_input=False, OutputbackChange=None):
+def generate_and_send_transaction(ep, head_block, seed, issuers, AmountTransfered, outputAddresses, Comment="", all_input=False, OutputbackChange=None):
 
     while True:
-        listinput_and_amount = get_list_input_for_transaction(ep, issuers, AmountTransfered * len(outputAddresses), all_input)
+        listinput_and_amount = get_list_input_for_transaction(ep, head_block, issuers, AmountTransfered * len(outputAddresses), all_input)
         intermediatetransaction = listinput_and_amount[2]
 
         if intermediatetransaction:
@@ -104,7 +104,7 @@ def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAdd
             print("   - From:    " + issuers)
             print("   - To:      " + issuers)
             print("   - Amount:  " + str(totalAmountInput / 100))
-            transaction = generate_transaction_document(ep, issuers, totalAmountInput, listinput_and_amount, outputAddresses, "Change operation")
+            transaction = generate_transaction_document(ep, head_block, issuers, totalAmountInput, listinput_and_amount, outputAddresses, "Change operation")
             transaction += sign_document_from_seed(transaction, seed) + "\n"
             post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
             print("Change Transaction successfully sent.")
@@ -119,7 +119,7 @@ def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAdd
                 print("   - Amount:  " + str(listinput_and_amount[1] / 100))
             else:
                 print("   - Amount:  " + str(AmountTransfered / 100 * len(outputAddresses)))
-            transaction = generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputAddresses, Comment, OutputbackChange)
+            transaction = generate_transaction_document(ep, head_block, issuers, AmountTransfered, listinput_and_amount, outputAddresses, Comment, OutputbackChange)
             transaction += sign_document_from_seed(transaction, seed) + "\n"
 
             post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
@@ -127,17 +127,16 @@ def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAdd
             break
 
 
-def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputAddresses, Comment="", OutputbackChange=None):
+def generate_transaction_document(ep, head_block, issuers, AmountTransfered, listinput_and_amount, outputAddresses, Comment="", OutputbackChange=None):
 
     totalAmountTransfered = AmountTransfered * len(outputAddresses)
 
     listinput = listinput_and_amount[0]
     totalAmountInput = listinput_and_amount[1]
 
-    current_blk = get_current_block(ep)
-    currency_name = current_blk["currency"]
-    blockstamp_current = str(current_blk["number"]) + "-" + str(current_blk["hash"])
-    curentUnitBase = current_blk["unitbase"]
+    currency_name = head_block["currency"]
+    blockstamp_current = str(head_block["number"]) + "-" + str(head_block["hash"])
+    curentUnitBase = head_block["unitbase"]
 
     if not OutputbackChange:
         OutputbackChange = issuers
@@ -196,7 +195,7 @@ def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_a
     return transaction_document
 
 
-def get_list_input_for_transaction(ep, pubkey, TXamount, allinput=False):
+def get_list_input_for_transaction(ep, head_block, pubkey, TXamount, allinput=False):
     # real source in blockchain
     sources = get_request(ep, "tx/sources/" + pubkey)["sources"]
     if sources is None:
@@ -211,8 +210,7 @@ def get_list_input_for_transaction(ep, pubkey, TXamount, allinput=False):
     history = get_request(ep, "tx/history/" + pubkey + "/pending")["history"]
     pendings = history["sending"] + history["receiving"] + history["pending"]
 
-    current_blk = get_current_block(ep)
-    last_block_number = int(current_blk["number"])
+    last_block_number = int(head_block["number"])
 
     # add pending output
     for pending in pendings:

@@ -108,7 +108,7 @@ def manage_cmd(ep, cli_args):
     if cli_args.subcmd == "about":
         about()
     elif cli_args.subcmd == "info":
-        currency_info(ep)
+        currency_info(ep, head_block)
 
     elif cli_args.subcmd == "diffi":
         difficulties(ep)
@@ -121,19 +121,19 @@ def manage_cmd(ep, cli_args):
         network_info(ep, cli_args.contains_switches("discover"))
 
     elif cli_args.subcmd == "issuers" and cli_args.subsubcmd and int(cli_args.subsubcmd) >= 0:
-        list_issuers(ep, int(cli_args.subsubcmd), cli_args.contains_switches('last'))
+        list_issuers(ep, head_block, int(cli_args.subsubcmd), cli_args.contains_switches('last'))
 
     elif cli_args.subcmd == "argos":
-        argos_info(ep)
+        argos_info(ep, head_block)
 
-    elif cli_args.subcmd == "amount" and cli_args.subsubcmd:
-        cmd_amount(ep, cli_args)
+    elif cli_args.subcmd == "amount":
+        cmd_amount(ep, cli_args, currency_config, head_block, ud_value, currency_symbol)
 
     elif cli_args.subcmd == "tx" or cli_args.subcmd == "transaction":
-        send_transaction(ep, cli_args)
+        send_transaction(ep, cli_args, head_block, ud_value, currency_symbol)
 
     elif cli_args.subcmd == "cert":
-        send_certification(ep, cli_args)
+        send_certification(ep, head_block, cli_args)
 
     elif cli_args.subcmd == "generate_auth_file":
         generate_auth_file(cli_args)
@@ -142,7 +142,7 @@ def manage_cmd(ep, cli_args):
         id_pubkey_correspondence(ep, cli_args.subsubcmd)
 
     elif cli_args.subcmd == "wot":
-        received_sent_certifications(ep, cli_args.subsubcmd)
+        received_sent_certifications(ep, params, cli_args.subsubcmd)
 
     elif cli_args.subcmd == "license":
         display_license()
