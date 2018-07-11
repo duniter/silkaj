@@ -24,3 +24,14 @@ def test_id():
 
     output = check_output(["silkaj", "id", "elois", "--gtest"]).decode()
     assert "D7CYHJXjaH4j7zRdWngUbsURPnSnjsCYtvo6f8dvW3C" in output
+
+
+def test_amount():
+    """tests 'silkaj amount' command on gtest"""
+
+    output = check_output(["silkaj", "amount", "3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj", "--gtest"]).decode()
+    assert "Total amount of: 3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj" in output
+    assert "Total Relative     =" in output
+    assert "UD ĞTest" in output
+    assert "Total Quantitative =" in output
+
