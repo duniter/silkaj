@@ -17,3 +17,10 @@ def test_wot():
     assert "received" in output
     assert "sent" in output
     assert "sent_expire" in output
+
+
+def test_id():
+    """tests 'silkaj id' certification on gtest"""
+
+    output = check_output(["silkaj", "id", "elois", "--gtest"]).decode()
+    assert "D7CYHJXjaH4j7zRdWngUbsURPnSnjsCYtvo6f8dvW3C" in output
