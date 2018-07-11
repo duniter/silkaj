@@ -35,8 +35,8 @@ def send_certification(ep, cli_args):
         message_exit("You can’t certify yourself!")
 
     # Check if this certification is already present on the network
-    for certifiers in certified["uids"][0]["others"]:
-        if certifiers["pubkey"] == issuer_pubkey:
+    for certifier in certified["uids"][0]["others"]:
+        if certifier["pubkey"] == issuer_pubkey:
             message_exit("Identity already certified by " + issuer_id)
 
     # Certification confirmation
