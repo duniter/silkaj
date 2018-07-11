@@ -7,12 +7,12 @@ from silkaj.network_tools import get_current_block, post_request
 from silkaj.license import license_approval
 from silkaj.constants import NO_MATCHING_ID
 from silkaj.wot import is_member,\
-        get_uid_from_pubkey, get_searched_id
+        get_uid_from_pubkey, get_informations_for_identity
 
 
 def send_certification(ep, cli_args):
     current_blk = get_current_block(ep)
-    certified = get_searched_id(ep, cli_args.subsubcmd)
+    certified = get_informations_for_identity(ep, cli_args.subsubcmd)
 
     # Check that the id is present on the network
     if certified["pubkey"] is NO_MATCHING_ID:

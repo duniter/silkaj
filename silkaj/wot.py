@@ -26,7 +26,7 @@ def received_sent_certifications(ep, id):
     """
     params = get_request(ep, "blockchain/parameters")
     time_first_block = get_request(ep, "blockchain/block/1")["time"]
-    id_certs = get_searched_id(ep, id)
+    id_certs = get_informations_for_identity(ep, id)
     certifications = OrderedDict()
     system("clear")
     for certs in id_certs["uids"]:
@@ -92,7 +92,7 @@ def id_pubkey_correspondence(ep, id_pubkey):
                     print("")
 
 
-def get_searched_id(ep, id):
+def get_informations_for_identity(ep, id):
     """
     many identities could match
     return the one searched
