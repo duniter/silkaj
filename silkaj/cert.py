@@ -6,7 +6,7 @@ from silkaj.tools import get_publickey_from_seed, message_exit, sign_document_fr
 from silkaj.network_tools import get_current_block, post_request
 from silkaj.license import license_approval
 from silkaj.constants import NO_MATCHING_ID
-from silkaj.wot import is_member, get_pubkeys_from_id,\
+from silkaj.wot import is_member,\
         get_uid_from_pubkey, get_searched_id
 
 

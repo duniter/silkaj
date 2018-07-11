@@ -79,7 +79,7 @@ def id_pubkey_correspondence(ep, id_pubkey):
     if check_public_key(id_pubkey, False):
         print("{} public key corresponds to identity: {}".format(id_pubkey, get_uid_from_pubkey(ep, id_pubkey)))
     else:
-        pubkeys = get_pubkeys_from_id(ep, id_pubkey)
+        pubkeys = get_informations_for_identities(ep, id_pubkey)
         if pubkeys == NO_MATCHING_ID:
             print(NO_MATCHING_ID)
         else:
@@ -97,7 +97,7 @@ def get_searched_id(ep, id):
     many identities could match
     return the one searched
     """
-    certs_req = get_pubkeys_from_id(ep, id)
+    certs_req = get_informations_for_identities(ep, id)
     if certs_req == NO_MATCHING_ID:
         message_exit(NO_MATCHING_ID)
     for certs_id in certs_req:
@@ -118,12 +118,14 @@ def get_uid_from_pubkey(ep, pubkey):
         i += 1
 
 
-def get_pubkeys_from_id(ep, uid):
+def get_informations_for_identities(ep, identifier):
     """
-    check id exist
+    :identifier: identity or pubkey in part or whole
+    Return received and sent certifications lists of matching identities
+    if one identity found
     """
     try:
-        results = get_request(ep, "wot/lookup/" + uid)
+        results = get_request(ep, "wot/lookup/" + identifier)
     except:
         return NO_MATCHING_ID
     return results["results"]
