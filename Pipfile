@@ -18,6 +18,9 @@ black = "*"
 setuptools = "*"
 wheel = "*"
 twine = "*"
+pytest = "*"
+coverage = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.7"
