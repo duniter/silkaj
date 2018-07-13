@@ -5,7 +5,6 @@ from silkaj.auth import auth_method
 from silkaj.tools import get_publickey_from_seed, message_exit, sign_document_from_seed
 from silkaj.network_tools import get_current_block, post_request
 from silkaj.license import license_approval
-from silkaj.constants import NO_MATCHING_ID
 from silkaj.wot import is_member,\
         get_uid_from_pubkey, get_informations_for_identity
 
@@ -14,10 +13,6 @@ def send_certification(ep, cli_args):
     current_blk = get_current_block(ep)
     id_to_certify = get_informations_for_identity(ep, cli_args.subsubcmd)
     main_id_to_certify = id_to_certify["uids"][0]
-
-    # Check that the id is present on the network
-    if id_to_certify["pubkey"] is NO_MATCHING_ID:
-        message_exit(NO_MATCHING_ID)
 
     # Display license and ask for confirmation
     license_approval(current_blk["currency"])

@@ -94,6 +94,7 @@ def id_pubkey_correspondence(ep, id_pubkey):
 
 def get_informations_for_identity(ep, id):
     """
+    Check that the id is present on the network
     many identities could match
     return the one searched
     """
