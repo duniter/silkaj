@@ -26,11 +26,9 @@ def send_certification(ep, cli_args):
     if not is_member(ep, issuer_pubkey, issuer_id):
         message_exit("Current identity is not member.")
 
-    # Check whether issuer and id_to_certify identities are different
     if issuer_pubkey == id_to_certify["pubkey"]:
         message_exit("You can’t certify yourself!")
 
-    # Check if this certification is already present on the network
     for certifier in main_id_to_certify["others"]:
         if certifier["pubkey"] == issuer_pubkey:
             message_exit("Identity already certified by " + issuer_id)
