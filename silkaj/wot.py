@@ -20,21 +20,13 @@ def get_sent_certifications(certs, time_first_block, params):
 
 def received_sent_certifications(ep, id):
     """
-    check id exist
-    many identities could exist
-    retrieve the one searched
+    get searched id
     get id of received and sent certifications
     display on a chart the result with the numbers
     """
     params = get_request(ep, "blockchain/parameters")
     time_first_block = get_request(ep, "blockchain/block/1")["time"]
-    if get_pubkeys_from_id(ep, id) == NO_MATCHING_ID:
-        message_exit(NO_MATCHING_ID)
-    certs_req = get_request(ep, "wot/lookup/" + id)["results"]
-    for certs_id in certs_req:
-        if certs_id['uids'][0]['uid'].lower() == id.lower():
-            id_certs = certs_id
-            break
+    id_certs = get_informations_for_identity(ep, id)
     certifications = OrderedDict()
     system("clear")
     for certs in id_certs["uids"]:
@@ -87,7 +79,7 @@ def id_pubkey_correspondence(ep, id_pubkey):
     if check_public_key(id_pubkey, False):
         print("{} public key corresponds to identity: {}".format(id_pubkey, get_uid_from_pubkey(ep, id_pubkey)))
     else:
-        pubkeys = get_pubkeys_from_id(ep, id_pubkey)
+        pubkeys = get_informations_for_identities(ep, id_pubkey)
         if pubkeys == NO_MATCHING_ID:
             print(NO_MATCHING_ID)
         else:
@@ -98,6 +90,21 @@ def id_pubkey_correspondence(ep, id_pubkey):
                     print("↔ " + get_request(ep, "wot/identity-of/" + pubkey["pubkey"])["uid"])
                 except:
                     print("")
+
+
+def get_informations_for_identity(ep, id):
+    """
+    Check that the id is present on the network
+    many identities could match
+    return the one searched
+    """
+    certs_req = get_informations_for_identities(ep, id)
+    if certs_req == NO_MATCHING_ID:
+        message_exit(NO_MATCHING_ID)
+    for certs_id in certs_req:
+        if certs_id['uids'][0]['uid'].lower() == id.lower():
+            return certs_id
+    message_exit(NO_MATCHING_ID)
 
 
 def get_uid_from_pubkey(ep, pubkey):
@@ -112,9 +119,14 @@ def get_uid_from_pubkey(ep, pubkey):
         i += 1
 
 
-def get_pubkeys_from_id(ep, uid):
+def get_informations_for_identities(ep, identifier):
+    """
+    :identifier: identity or pubkey in part or whole
+    Return received and sent certifications lists of matching identities
+    if one identity found
+    """
     try:
-        results = get_request(ep, "wot/lookup/" + uid)
+        results = get_request(ep, "wot/lookup/" + identifier)
     except:
         return NO_MATCHING_ID
     return results["results"]
