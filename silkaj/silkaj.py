@@ -21,7 +21,8 @@ def usage():
     \nabout: display informations about the programm\
     \n \
     \nEndpoint:\
-    \nDefault endpoint will reach " + G1_SYMBOL + " currency with `https://" + G1_DEFAULT_ENDPOINT[0] + "` endpoint\
+    \nDefault endpoint will reach " + G1_SYMBOL + " currency with `https://" + G1_DEFAULT_ENDPOINT[0] + "` endpoint.\
+    \nUse one of these options at the end of the command:\
     \n - `--gtest` to reach " + GTEST_SYMBOL + " currency with `https://" + G1_TEST_DEFAULT_ENDPOINT[0] + "` endpoint\
     \n - custom endpoint can be specified with `-p` option followed by <domain>:<port>\
     \n \
