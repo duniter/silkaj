@@ -3,7 +3,7 @@
 from sys import stderr
 from commandlines import Command
 from silkaj.tx import send_transaction
-from silkaj.money import cmd_amount
+from silkaj.money import cmd_amount, get_last_ud_value
 from silkaj.cert import send_certification
 from silkaj.commands import currency_info, difficulties, set_network_sort_keys,\
         network_info, argos_info, list_issuers

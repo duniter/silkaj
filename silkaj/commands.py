@@ -19,7 +19,7 @@ def currency_info(ep):
     system("clear")
     print("Connected to node:", ep[best_node(ep, False)], ep["port"],
     "\nCurrent block number:", head_block["number"],
-    "\nCurrency name:", get_currency_symbol(head_block["currency"]),
+    "\nCurrency name:", currency_symbol,
     "\nNumber of members:", head_block["membersCount"],
     "\nMinimal Proof-of-Work:", head_block["powMin"],
     "\nCurrent time:", convert_time(head_block["time"], "all"),
@@ -231,7 +231,7 @@ def argos_info(ep):
     href = 'href=http://%s:%s/' % (ep[best_node(ep, False)], ep["port"])
     print("Connected to node:", ep[best_node(ep, False)], ep["port"], "|", href,
     "\nCurrent block number:", head_block["number"],
-    "\nCurrency name:", get_currency_symbol(head_block["currency"]),
+    "\nCurrency name:", currency_symbol,
     "\nNumber of members:", head_block["membersCount"],
     "\nMinimal Proof-of-Work:", head_block["powMin"],
     "\nCurrent time:", convert_time(head_block["time"], "all"),

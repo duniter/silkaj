@@ -18,35 +18,32 @@ def cmd_amount(ep, cli_args):
             total[0] += value[0]
             total[1] += value[1]
         if (len(pubkeys) > 1):
-            show_amount_from_pubkey(ep, "Total", total)
+            show_amount_from_pubkey("Total", total, ud_value, currency_symbol)
     else:
         seed = auth_method(cli_args)
         pubkey = get_publickey_from_seed(seed)
         show_amount_from_pubkey(ep, pubkey, get_amount_from_pubkey(ep, pubkey))
 
 
-def show_amount_from_pubkey(ep, pubkey, value):
+def show_amount_from_pubkey(pubkey, value, ud_value, currency_symbol):
     totalAmountInput = value[0]
     amount = value[1]
     # output
-    UDvalue = get_last_ud_value(ep)
-    current_blk = get_current_block(ep)
-    currency_symbol = get_currency_symbol(current_blk["currency"])
 
     if totalAmountInput - amount != 0:
         print("Blockchain:")
         print("-----------")
-        print("Relative     =", round(amount / UDvalue, 2), "UD", currency_symbol)
+        print("Relative     =", round(amount / ud_value, 2), "UD", currency_symbol)
         print("Quantitative =",  round(amount / 100, 2), currency_symbol + "\n")
 
         print("Pending Transaction:")
         print("--------------------")
-        print("Relative     =",  round((totalAmountInput - amount) / UDvalue, 2), "UD", currency_symbol)
+        print("Relative     =",  round((totalAmountInput - amount) / ud_value, 2), "UD", currency_symbol)
         print("Quantitative =",  round((totalAmountInput - amount) / 100, 2), currency_symbol + "\n")
 
     print("Total amount of: " + pubkey)
     print("----------------------------------------------------------------")
-    print("Total Relative     =",  round(totalAmountInput / UDvalue, 2), "UD", currency_symbol)
+    print("Total Relative     =",  round(totalAmountInput / ud_value, 2), "UD", currency_symbol)
     print("Total Quantitative =",  round(totalAmountInput / 100, 2), currency_symbol + "\n")
 
 

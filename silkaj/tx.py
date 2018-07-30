@@ -9,7 +9,7 @@ from silkaj.tools import get_publickey_from_seed, sign_document_from_seed,\
         check_public_key, message_exit
 from silkaj.auth import auth_method
 from silkaj.wot import get_uid_from_pubkey
-from silkaj.money import get_last_ud_value, get_amount_from_pubkey
+from silkaj.money import get_amount_from_pubkey
 from silkaj.constants import NO_MATCHING_ID
 
 
@@ -17,8 +17,7 @@ def send_transaction(ep, cli_args):
     """
     Main function
     """
-    ud = get_last_ud_value(ep)
-    amount, output, comment, allSources, outputBackChange = cmd_transaction(cli_args, ud)
+    amount, output, comment, allSources, outputBackChange = cmd_transaction(cli_args, ud_value)
     seed = auth_method(cli_args)
     issuer_pubkey = get_publickey_from_seed(seed)
 
@@ -27,7 +26,7 @@ def send_transaction(ep, cli_args):
     check_transaction_values(comment, outputAddresses, outputBackChange, pubkey_amount < amount * len(outputAddresses), issuer_pubkey)
 
     if cli_args.contains_switches('yes') or cli_args.contains_switches('y') or \
-        input(tabulate(transaction_confirmation(ep, issuer_pubkey, amount, ud, outputAddresses, comment),
+        input(tabulate(transaction_confirmation(ep, issuer_pubkey, amount, ud_value, currency_symbol, outputAddresses, comment),
         tablefmt="fancy_grid") + "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
         generate_and_send_transaction(ep, seed, issuer_pubkey, amount, outputAddresses, comment, allSources, outputBackChange)
 
@@ -70,13 +69,12 @@ def check_transaction_values(comment, outputAddresses, outputBackChange, enough_
         message_exit(issuer_pubkey + " pubkey doesn’t have enough money for this transaction.")
 
 
-def transaction_confirmation(ep, issuer_pubkey, amount, ud, outputAddresses, comment):
+def transaction_confirmation(ep, issuer_pubkey, amount, ud, currency_symbol, outputAddresses, comment):
     """
     Generate transaction confirmation
     """
 
     tx = list()
-    currency_symbol = get_currency_symbol(get_current_block(ep)["currency"])
     tx.append(["amount (" + currency_symbol + ")", amount / 100 * len(outputAddresses)])
     tx.append(["amount (UD " + currency_symbol + ")", round(amount / ud, 4)])
     tx.append(["from", issuer_pubkey])
