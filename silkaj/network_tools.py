@@ -3,8 +3,10 @@ from ipaddress import ip_address
 from json import loads
 import socket
 import urllib.request
+import logging
 from sys import exit, stderr
 
+CONNECTION_TIMEOUT = 10
 
 def discover_peers(ep, discover):
     """
@@ -107,7 +109,7 @@ def get_request(ep, path):
     if ep["port"] == "443":
         url = "https://" + ep[address] + "/" + path
     request = urllib.request.Request(url)
-    response = urllib.request.urlopen(request)
+    response = urllib.request.urlopen(request, timeout=CONNECTION_TIMEOUT)
     encoding = response.info().get_content_charset('utf8')
     return loads(response.read().decode(encoding))
 
@@ -119,7 +121,7 @@ def post_request(ep, path, postdata):
     url = "http://" + ep[address] + ":" + ep["port"] + "/" + path
     if ep["port"] == "443":
         url = "https://" + ep[address] + "/" + path
-    request = urllib.request.Request(url, bytes(postdata, 'utf-8'))
+    request = urllib.request.Request(url, bytes(postdata, 'utf-8'), timeout=CONNECTION_TIMEOUT)
     try:
         response = urllib.request.urlopen(request)
     except urllib.error.URLError as e:
@@ -131,15 +133,16 @@ def post_request(ep, path, postdata):
 
 def best_node(ep, main):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    addresses, port = {"ip6", "ip4", "domain"}, int(ep["port"])
+    s.settimeout(CONNECTION_TIMEOUT)
+    addresses, port = ("domain", "ip6", "ip4"), int(ep["port"])
     for address in addresses:
         if address in ep:
             try:
                 s.connect((ep[address], port))
                 s.close()
                 return address
-            except:
-                pass
+            except Exception as e:
+                logging.debug("Connection to endpoint %s (%s) failled (%s)" % (ep, address, e))
     if main:
         print("Wrong node given as argument", file=stderr)
         exit(1)
