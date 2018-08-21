@@ -6,7 +6,7 @@ import urllib
 from tabulate import tabulate
 from silkaj.network_tools import get_request, post_request, HeadBlock
 from silkaj.tools import get_publickey_from_seed, sign_document_from_seed,\
-        check_public_key, message_exit
+        check_public_key, message_exit, CurrencySymbol
 from silkaj.auth import auth_method
 from silkaj.wot import get_uid_from_pubkey
 from silkaj.money import get_amount_from_pubkey, UDValue
@@ -26,7 +26,7 @@ def send_transaction(ep, cli_args):
     check_transaction_values(comment, outputAddresses, outputBackChange, pubkey_amount < amount * len(outputAddresses), issuer_pubkey)
 
     if cli_args.contains_switches('yes') or cli_args.contains_switches('y') or \
-        input(tabulate(transaction_confirmation(ep, issuer_pubkey, amount, currency_symbol, outputAddresses, comment),
+        input(tabulate(transaction_confirmation(ep, issuer_pubkey, amount, outputAddresses, comment),
         tablefmt="fancy_grid") + "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
         generate_and_send_transaction(ep, seed, issuer_pubkey, amount, outputAddresses, comment, allSources, outputBackChange)
 
@@ -69,11 +69,12 @@ def check_transaction_values(comment, outputAddresses, outputBackChange, enough_
         message_exit(issuer_pubkey + " pubkey doesn’t have enough money for this transaction.")
 
 
-def transaction_confirmation(ep, issuer_pubkey, amount, currency_symbol, outputAddresses, comment):
+def transaction_confirmation(ep, issuer_pubkey, amount, outputAddresses, comment):
     """
     Generate transaction confirmation
     """
 
+    currency_symbol = CurrencySymbol(ep).symbol
     tx = list()
     tx.append(["amount (" + currency_symbol + ")", amount / 100 * len(outputAddresses)])
     tx.append(["amount (UD " + currency_symbol + ")", round(amount / UDValue(ep).ud_value, 4)])

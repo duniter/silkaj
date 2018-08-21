@@ -18,19 +18,19 @@ def cmd_amount(ep, cli_args):
             total[0] += value[0]
             total[1] += value[1]
         if (len(pubkeys) > 1):
-            show_amount_from_pubkey(ep, "Total", total, currency_symbol)
+            show_amount_from_pubkey(ep, "Total", total)
     else:
         seed = auth_method(cli_args)
         pubkey = get_publickey_from_seed(seed)
         show_amount_from_pubkey(ep, pubkey, get_amount_from_pubkey(ep, pubkey))
 
 
-def show_amount_from_pubkey(ep, pubkey, value, currency_symbol):
+def show_amount_from_pubkey(ep, pubkey, value):
     totalAmountInput = value[0]
     amount = value[1]
     # output
 
-    currency_symbol = CurrencySymbol().symbol
+    currency_symbol = CurrencySymbol(ep).symbol
     ud_value = UDValue(ep).ud_value
     if totalAmountInput - amount != 0:
         print("Blockchain:")
