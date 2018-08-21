@@ -18,18 +18,20 @@ def cmd_amount(ep, cli_args):
             total[0] += value[0]
             total[1] += value[1]
         if (len(pubkeys) > 1):
-            show_amount_from_pubkey("Total", total, ud_value, currency_symbol)
+            show_amount_from_pubkey(ep, "Total", total, currency_symbol)
     else:
         seed = auth_method(cli_args)
         pubkey = get_publickey_from_seed(seed)
         show_amount_from_pubkey(ep, pubkey, get_amount_from_pubkey(ep, pubkey))
 
 
-def show_amount_from_pubkey(pubkey, value, ud_value, currency_symbol):
+def show_amount_from_pubkey(ep, pubkey, value, currency_symbol):
     totalAmountInput = value[0]
     amount = value[1]
     # output
 
+    currency_symbol = CurrencySymbol().symbol
+    ud_value = UDValue(ep).ud_value
     if totalAmountInput - amount != 0:
         print("Blockchain:")
         print("-----------")
@@ -106,8 +108,16 @@ def get_amount_from_pubkey(ep, pubkey):
     return int(totalAmountInput), int(amount)
 
 
-def get_last_ud_value(ep):
-    blockswithud = get_request(ep, "blockchain/with/ud")["result"]
-    NBlastUDblock = blockswithud["blocks"][-1]
-    lastUDblock = get_request(ep, "blockchain/block/" + str(NBlastUDblock))
-    return lastUDblock["dividend"] * 10 ** lastUDblock["unitbase"]
+class UDValue(object):
+    __instance = None
+
+    def __new__(cls, ep):
+        if UDValue.__instance is None:
+            UDValue.__instance = object.__new__(cls)
+        return UDValue.__instance
+
+    def __init__(self, ep):
+        blockswithud = get_request(ep, "blockchain/with/ud")["result"]
+        NBlastUDblock = blockswithud["blocks"][-1]
+        lastUDblock = get_request(ep, "blockchain/block/" + str(NBlastUDblock))
+        self.ud_value = lastUDblock["dividend"] * 10 ** lastUDblock["unitbase"]
