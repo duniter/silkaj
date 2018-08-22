@@ -6,17 +6,16 @@ from tabulate import tabulate
 from operator import itemgetter
 
 from silkaj.wot import get_uid_from_pubkey
-from silkaj.network_tools import discover_peers, get_request, best_node, get_current_block
-from silkaj.tools import convert_time, get_currency_symbol, message_exit
+from silkaj.network_tools import discover_peers, get_request, best_node, get_current_block, HeadBlock
+from silkaj.tools import convert_time, message_exit, CurrencySymbol
 from silkaj.constants import NO_MATCHING_ID
 
 
-def currency_info(ep, head_block):
-    info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
-    i, info_data = 0, dict()
-    while (i < len(info_type)):
-            info_data[info_type[i]] = get_request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
-            i += 1
+def currency_info(ep):
+    info_data = dict()
+    for info_type in ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]:
+            info_data[info_type] = get_request(ep, "blockchain/with/" + info_type)["result"]["blocks"]
+    head_block = HeadBlock(ep).head_block
     system("clear")
     print("Connected to node:", ep[best_node(ep, False)], ep["port"],
     "\nCurrent block number:", head_block["number"],
@@ -158,7 +157,8 @@ def network_info(ep, discover):
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 
-def list_issuers(ep, head_block, nbr, last):
+def list_issuers(ep, nbr, last):
+    head_block = HeadBlock(ep).head_block
     current_nbr = head_block["number"]
     if nbr == 0:
         nbr = head_block["issuersFrame"]
@@ -215,13 +215,14 @@ def list_issuers(ep, head_block, nbr, last):
         tabulate(sorted_list, headers="keys", tablefmt="orgtbl", floatfmt=".1f", stralign="center")))
 
 
-def argos_info(ep, head_block):
+def argos_info(ep):
     info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
     pretty_names = {'g1': 'Ğ1', 'gtest': 'Ğtest'}
     i, info_data = 0, dict()
     while (i < len(info_type)):
             info_data[info_type[i]] = get_request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
             i += 1
+    head_block = HeadBlock(ep).head_block
     pretty = head_block["currency"]
     if head_block["currency"] in pretty_names:
         pretty = pretty_names[head_block["currency"]]

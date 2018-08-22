@@ -160,3 +160,15 @@ def check_port(port):
 
 def get_current_block(ep):
     return get_request(ep, "blockchain/current")
+
+
+class HeadBlock(object):
+    __instance = None
+
+    def __new__(cls, ep):
+        if HeadBlock.__instance is None:
+            HeadBlock.__instance = object.__new__(cls)
+        return HeadBlock.__instance
+
+    def __init__(self, ep):
+        self.head_block = get_request(ep, "blockchain/current")

@@ -1,10 +1,10 @@
-from silkaj.network_tools import get_request
-from silkaj.tools import get_currency_symbol, get_publickey_from_seed
+from silkaj.network_tools import get_request, HeadBlock
+from silkaj.tools import get_publickey_from_seed, CurrencySymbol
 from silkaj.auth import auth_method
 from silkaj.wot import check_public_key
 
 
-def cmd_amount(ep, cli_args, config, head_block, ud_value, currency_symbol):
+def cmd_amount(ep, cli_args):
     if not cli_args.subsubcmd.startswith("--"):
         pubkeys = cli_args.subsubcmd.split(":")
         for pubkey in pubkeys:
@@ -13,8 +13,8 @@ def cmd_amount(ep, cli_args, config, head_block, ud_value, currency_symbol):
                 return
         total = [0, 0]
         for pubkey in pubkeys:
-            value = get_amount_from_pubkey(ep, head_block, pubkey)
-            show_amount_from_pubkey(pubkey, value, ud_value, currency_symbol)
+            value = get_amount_from_pubkey(ep, pubkey)
+            show_amount_from_pubkey(ep, pubkey, value)
             total[0] += value[0]
             total[1] += value[1]
         if (len(pubkeys) > 1):
@@ -22,7 +22,7 @@ def cmd_amount(ep, cli_args, config, head_block, ud_value, currency_symbol):
     else:
         seed = auth_method(cli_args)
         pubkey = get_publickey_from_seed(seed)
-        show_amount_from_pubkey(pubkey, get_amount_from_pubkey(ep, head_block, pubkey), ud_value, currency_symbol)
+        show_amount_from_pubkey(ep, pubkey, get_amount_from_pubkey(ep, pubkey))
 
 
 def show_amount_from_pubkey(ep, pubkey, value):
@@ -50,7 +50,7 @@ def show_amount_from_pubkey(ep, pubkey, value):
     print("Total Quantitative =",  round(totalAmountInput / 100, 2), currency_symbol + "\n")
 
 
-def get_amount_from_pubkey(ep, head_block, pubkey):
+def get_amount_from_pubkey(ep, pubkey):
     sources = get_request(ep, "tx/sources/" + pubkey)["sources"]
 
     listinput = []
@@ -69,7 +69,7 @@ def get_amount_from_pubkey(ep, head_block, pubkey):
     pendings = history["sending"] + history["receiving"] + history["pending"]
     # print(pendings)
 
-    last_block_number = int(head_block["number"])
+    last_block_number = int(HeadBlock(ep).head_block["number"])
 
     # add pending output
     for pending in pendings:
