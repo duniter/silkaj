@@ -4,6 +4,7 @@ from re import compile, search
 from sys import exit
 
 from silkaj.constants import G1_SYMBOL, GTEST_SYMBOL
+from silkaj.blockchain_tools import BlockchainParams
 
 
 def convert_time(timestamp, kind):

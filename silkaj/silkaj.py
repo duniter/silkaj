@@ -97,14 +97,8 @@ def cli():
         ep["domain"] = ep["domain"][1:-1]
     return ep, cli_args
 
-def get_parameters(ep):
-    head_block = get_current_block(ep)
-    params = get_request(ep, "blockchain/parameters")
-    return params, head_block
 
 def manage_cmd(ep, cli_args):
-
-    params, head_block = get_parameters(ep)
     if cli_args.subcmd == "about":
         about()
     elif cli_args.subcmd == "info":
@@ -142,7 +136,7 @@ def manage_cmd(ep, cli_args):
         id_pubkey_correspondence(ep, cli_args.subsubcmd)
 
     elif cli_args.subcmd == "wot":
-        received_sent_certifications(ep, params, cli_args.subsubcmd)
+        received_sent_certifications(ep, cli_args.subsubcmd)
 
     elif cli_args.subcmd == "license":
         display_license()

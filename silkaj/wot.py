@@ -5,6 +5,7 @@ from collections import OrderedDict
 
 from silkaj.network_tools import get_request
 from silkaj.tools import message_exit, check_public_key, convert_time
+from silkaj.blockchain_tools import BlockchainParams
 from silkaj.constants import NO_MATCHING_ID
 
 
@@ -18,7 +19,7 @@ def get_sent_certifications(certs, time_first_block, params):
     return sent, expire
 
 
-def received_sent_certifications(ep, params, id):
+def received_sent_certifications(ep, id):
     """
     get searched id
     get id of received and sent certifications
@@ -28,6 +29,7 @@ def received_sent_certifications(ep, params, id):
     id_certs = get_informations_for_identity(ep, id)
     certifications = OrderedDict()
     system("clear")
+    params = BlockchainParams(ep).params
     for certs in id_certs["uids"]:
         if certs["uid"].lower() == id.lower():
             pubkey = id_certs["pubkey"]
@@ -37,13 +39,13 @@ def received_sent_certifications(ep, params, id):
             for cert in certs["others"]:
                 certifications["received_expire"].append(expiration_date_from_block_id(cert["meta"]["block_number"], time_first_block, params))
                 certifications["received"].append(cert_written_in_the_blockchain(req["certifications"], cert))
-                certifications["sent"], certifications["sent_expire"] = get_sent_certifications(id_certs, time_first_block, params)
+                certifications["sent"], certifications["sent_expire"] = get_sent_certifications(id_certs, time_first_block,params)
             nbr_sent_certs = len(certifications["sent"]) if "sent" in certifications else 0
             print("{0} ({1}) from block #{2}\nreceived {3} and sent {4}/{5} certifications:\n{6}\n"
                     .format(id, pubkey[:5] + "…", certs["meta"]["timestamp"][:15] + "…",
                         len(certifications["received"]), nbr_sent_certs, params["sigStock"],
                         tabulate(certifications, headers="keys", tablefmt="orgtbl", stralign="center")))
-            membership_status(ep, params, certifications, certs, pubkey, req)
+            membership_status(ep, certifications, certs, pubkey, req)
 
 
 def cert_written_in_the_blockchain(written_certs, certifieur):
@@ -53,7 +55,8 @@ def cert_written_in_the_blockchain(written_certs, certifieur):
     return certifieur["uids"][0]
 
 
-def membership_status(ep, params, certifications, certs, pubkey, req):
+def membership_status(ep, certifications, certs, pubkey, req):
+    params = BlockchainParams(ep).params
     if len(certifications["received"]) >= params["sigQty"]:
         print("Membership expiration due to certifications expirations: " + certifications["received_expire"][len(certifications["received"]) - params["sigQty"]])
     member = is_member(ep, pubkey, certs["uid"])
