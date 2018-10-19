@@ -76,7 +76,10 @@ class EndPoint(object):
     def __init__(self):
         cli_args = Command()
         ep = dict()
-        ep["domain"], ep["port"] = G1_TEST_DEFAULT_ENDPOINT if cli_args.contains_switches("gtest") else G1_DEFAULT_ENDPOINT
+        if cli_args.contains_switches('p'):
+            ep["domain"], ep["port"] = cli_args.get_definition('p').rsplit(':', 1)
+        else:
+            ep["domain"], ep["port"] = G1_TEST_DEFAULT_ENDPOINT if cli_args.contains_switches("gtest") else G1_DEFAULT_ENDPOINT
         self.ep = ep
 
 
