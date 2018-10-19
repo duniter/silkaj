@@ -13,25 +13,25 @@ from silkaj.money import get_amount_from_pubkey, UDValue
 from silkaj.constants import NO_MATCHING_ID
 
 
-def send_transaction(ep, cli_args):
+def send_transaction(cli_args):
     """
     Main function
     """
-    amount, output, comment, allSources, outputBackChange = cmd_transaction(ep, cli_args)
+    amount, output, comment, allSources, outputBackChange = cmd_transaction(cli_args)
     seed = auth_method(cli_args)
     issuer_pubkey = get_publickey_from_seed(seed)
 
-    pubkey_amount = get_amount_from_pubkey(ep, issuer_pubkey)[0]
+    pubkey_amount = get_amount_from_pubkey(issuer_pubkey)[0]
     outputAddresses = output.split(':')
     check_transaction_values(comment, outputAddresses, outputBackChange, pubkey_amount < amount * len(outputAddresses), issuer_pubkey)
 
     if cli_args.contains_switches('yes') or cli_args.contains_switches('y') or \
-        input(tabulate(transaction_confirmation(ep, issuer_pubkey, amount, outputAddresses, comment),
+        input(tabulate(transaction_confirmation(issuer_pubkey, amount, outputAddresses, comment),
         tablefmt="fancy_grid") + "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
-        generate_and_send_transaction(ep, seed, issuer_pubkey, amount, outputAddresses, comment, allSources, outputBackChange)
+        generate_and_send_transaction(seed, issuer_pubkey, amount, outputAddresses, comment, allSources, outputBackChange)
 
 
-def cmd_transaction(ep, cli_args):
+def cmd_transaction(cli_args):
     """
     Retrieve values from command line interface
     """
@@ -43,7 +43,7 @@ def cmd_transaction(ep, cli_args):
     if cli_args.contains_definitions('amount'):
         amount = int(float(cli_args.get_definition('amount')) * 100)
     if cli_args.contains_definitions('amountUD'):
-        amount = int(float(cli_args.get_definition('amountUD')) * UDValue(ep).ud_value)
+        amount = int(float(cli_args.get_definition('amountUD')) * UDValue().ud_value)
 
     output = cli_args.get_definition('output')
     comment = cli_args.get_definition('comment') if cli_args.contains_definitions('comment') else ""
@@ -69,32 +69,32 @@ def check_transaction_values(comment, outputAddresses, outputBackChange, enough_
         message_exit(issuer_pubkey + " pubkey doesn’t have enough money for this transaction.")
 
 
-def transaction_confirmation(ep, issuer_pubkey, amount, outputAddresses, comment):
+def transaction_confirmation(issuer_pubkey, amount, outputAddresses, comment):
     """
     Generate transaction confirmation
     """
 
-    currency_symbol = CurrencySymbol(ep).symbol
+    currency_symbol = CurrencySymbol().symbol
     tx = list()
     tx.append(["amount (" + currency_symbol + ")", amount / 100 * len(outputAddresses)])
-    tx.append(["amount (UD " + currency_symbol + ")", round(amount / UDValue(ep).ud_value, 4)])
+    tx.append(["amount (UD " + currency_symbol + ")", round(amount / UDValue().ud_value, 4)])
     tx.append(["from", issuer_pubkey])
-    id_from = get_uid_from_pubkey(ep, issuer_pubkey)
+    id_from = get_uid_from_pubkey(issuer_pubkey)
     if id_from is not NO_MATCHING_ID:
         tx.append(["from (id)", id_from])
     for outputAddress in outputAddresses:
         tx.append(["to", outputAddress])
-        id_to = get_uid_from_pubkey(ep, outputAddress)
+        id_to = get_uid_from_pubkey(outputAddress)
         if id_to is not NO_MATCHING_ID:
             tx.append(["to (id)", id_to])
     tx.append(["comment", comment])
     return tx
 
 
-def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAddresses, Comment="", all_input=False, OutputbackChange=None):
+def generate_and_send_transaction(seed, issuers, AmountTransfered, outputAddresses, Comment="", all_input=False, OutputbackChange=None):
 
     while True:
-        listinput_and_amount = get_list_input_for_transaction(ep, issuers, AmountTransfered * len(outputAddresses), all_input)
+        listinput_and_amount = get_list_input_for_transaction(issuers, AmountTransfered * len(outputAddresses), all_input)
         intermediatetransaction = listinput_and_amount[2]
 
         if intermediatetransaction:
@@ -103,9 +103,9 @@ def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAdd
             print("   - From:    " + issuers)
             print("   - To:      " + issuers)
             print("   - Amount:  " + str(totalAmountInput / 100))
-            transaction = generate_transaction_document(ep, issuers, totalAmountInput, listinput_and_amount, outputAddresses, "Change operation")
+            transaction = generate_transaction_document(issuers, totalAmountInput, listinput_and_amount, outputAddresses, "Change operation")
             transaction += sign_document_from_seed(transaction, seed) + "\n"
-            post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
+            post_request("tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
             print("Change Transaction successfully sent.")
             sleep(1)  # wait 1 second before sending a new transaction
 
@@ -118,22 +118,22 @@ def generate_and_send_transaction(ep, seed, issuers, AmountTransfered, outputAdd
                 print("   - Amount:  " + str(listinput_and_amount[1] / 100))
             else:
                 print("   - Amount:  " + str(AmountTransfered / 100 * len(outputAddresses)))
-            transaction = generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputAddresses, Comment, OutputbackChange)
+            transaction = generate_transaction_document(issuers, AmountTransfered, listinput_and_amount, outputAddresses, Comment, OutputbackChange)
             transaction += sign_document_from_seed(transaction, seed) + "\n"
 
-            post_request(ep, "tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
+            post_request("tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
             print("Transaction successfully sent.")
             break
 
 
-def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_amount, outputAddresses, Comment="", OutputbackChange=None):
+def generate_transaction_document(issuers, AmountTransfered, listinput_and_amount, outputAddresses, Comment="", OutputbackChange=None):
 
     totalAmountTransfered = AmountTransfered * len(outputAddresses)
 
     listinput = listinput_and_amount[0]
     totalAmountInput = listinput_and_amount[1]
 
-    head_block = HeadBlock(ep).head_block
+    head_block = HeadBlock().head_block
     currency_name = head_block["currency"]
     blockstamp_current = str(head_block["number"]) + "-" + str(head_block["hash"])
     curentUnitBase = head_block["unitbase"]
@@ -195,9 +195,9 @@ def generate_transaction_document(ep, issuers, AmountTransfered, listinput_and_a
     return transaction_document
 
 
-def get_list_input_for_transaction(ep, pubkey, TXamount, allinput=False):
+def get_list_input_for_transaction(pubkey, TXamount, allinput=False):
     # real source in blockchain
-    sources = get_request(ep, "tx/sources/" + pubkey)["sources"]
+    sources = get_request("tx/sources/" + pubkey)["sources"]
     if sources is None:
         return None
     listinput = []
@@ -207,10 +207,10 @@ def get_list_input_for_transaction(ep, pubkey, TXamount, allinput=False):
             listinput.append(str(source["amount"]) + ":" + str(source["base"]) + ":" + str(source["type"]) + ":" + str(source["identifier"]) + ":" + str(source["noffset"]))
 
     # pending source
-    history = get_request(ep, "tx/history/" + pubkey + "/pending")["history"]
+    history = get_request("tx/history/" + pubkey + "/pending")["history"]
     pendings = history["sending"] + history["receiving"] + history["pending"]
 
-    last_block_number = int(HeadBlock(ep).head_block["number"])
+    last_block_number = int(HeadBlock().head_block["number"])
 
     # add pending output
     for pending in pendings:

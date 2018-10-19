@@ -81,62 +81,54 @@ def usage():
 
 
 def cli():
-    # ep: endpoint, node's network interface
-    ep, cli_args = dict(), Command()
+    cli_args = Command()
     subcmd = ["license", "about", "info", "diffi", "net", "network", "issuers", "argos", "amount", "tx", "transaction", "cert", "generate_auth_file", "id", "identities", "wot"]
     if cli_args.is_version_request():
         message_exit(SILKAJ_VERSION)
     if cli_args.is_help_request() or cli_args.is_usage_request() or cli_args.subcmd not in subcmd:
         usage()
-    ep["domain"], ep["port"] = G1_TEST_DEFAULT_ENDPOINT if cli_args.contains_switches("gtest") else G1_DEFAULT_ENDPOINT
-    try:
-        ep["domain"], ep["port"] = cli_args.get_definition('p').rsplit(':', 1)
-    except:
-        print("Requested default node: <{}:{}>".format(ep["domain"], ep["port"]), file=stderr)
-    if ep["domain"].startswith('[') and ep["domain"].endswith(']'):
-        ep["domain"] = ep["domain"][1:-1]
-    return ep, cli_args
+    return cli_args
 
 
-def manage_cmd(ep, cli_args):
+def manage_cmd(cli_args):
     if cli_args.subcmd == "about":
         about()
     elif cli_args.subcmd == "info":
-        currency_info(ep)
+        currency_info()
 
     elif cli_args.subcmd == "diffi":
-        difficulties(ep)
+        difficulties()
 
     elif cli_args.subcmd == "net" or cli_args.subcmd == "network":
         if cli_args.contains_switches("sort"):
             set_network_sort_keys(cli_args.get_definition("sort"))
         if cli_args.contains_switches("s"):
             set_network_sort_keys(cli_args.get_definition("s"))
-        network_info(ep, cli_args.contains_switches("discover"))
+        network_info(cli_args.contains_switches("discover"))
 
     elif cli_args.subcmd == "issuers" and cli_args.subsubcmd and int(cli_args.subsubcmd) >= 0:
-        list_issuers(ep, int(cli_args.subsubcmd), cli_args.contains_switches('last'))
+        list_issuers(int(cli_args.subsubcmd), cli_args.contains_switches('last'))
 
     elif cli_args.subcmd == "argos":
-        argos_info(ep)
+        argos_info()
 
     elif cli_args.subcmd == "amount":
-        cmd_amount(ep, cli_args)
+        cmd_amount(cli_args)
 
     elif cli_args.subcmd == "tx" or cli_args.subcmd == "transaction":
-        send_transaction(ep, cli_args)
+        send_transaction(cli_args)
 
     elif cli_args.subcmd == "cert":
-        send_certification(ep, cli_args)
+        send_certification(cli_args)
 
     elif cli_args.subcmd == "generate_auth_file":
         generate_auth_file(cli_args)
 
     elif cli_args.subcmd == "id" or cli_args.subcmd == "identities":
-        id_pubkey_correspondence(ep, cli_args.subsubcmd)
+        id_pubkey_correspondence(cli_args.subsubcmd)
 
     elif cli_args.subcmd == "wot":
-        received_sent_certifications(ep, cli_args.subsubcmd)
+        received_sent_certifications(cli_args.subsubcmd)
 
     elif cli_args.subcmd == "license":
         display_license()

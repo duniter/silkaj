@@ -4,34 +4,36 @@ from json import loads
 import socket
 import urllib.request
 from sys import exit, stderr
+from commandlines import Command
 
+from silkaj.constants import G1_DEFAULT_ENDPOINT, G1_TEST_DEFAULT_ENDPOINT
 
-def discover_peers(ep, discover):
+def discover_peers(discover):
     """
     From first node, discover his known nodes.
     Remove from know nodes if nodes are down.
     If discover option: scan all network to know all nodes.
         display percentage discovering.
     """
-    endpoints = parse_endpoints(get_request(ep, "network/peers")["peers"])
+    endpoints = parse_endpoints(get_request("network/peers")["peers"])
     if discover:
         print("Discovering network")
-    for i, ep in enumerate(endpoints):
+    for i, endpoint in enumerate(endpoints):
         if discover:
             print("{0:.0f}%".format(i / len(endpoints) * 100))
-        if best_node(ep, False) is None:
-            endpoints.remove(ep)
+        if best_node(endpoint, False) is None:
+            endpoints.remove(endpoint)
         elif discover:
-            endpoints = recursive_discovering(endpoints, ep)
+            endpoints = recursive_discovering(endpoints, endpoint)
     return endpoints
 
 
-def recursive_discovering(endpoints, ep):
+def recursive_discovering(endpoints):
     """
     Discover recursively new nodes.
     If new node found add it and try to found new node from his known nodes.
     """
-    news = parse_endpoints(get_request(ep, "network/peers")["peers"])
+    news = parse_endpoints(get_request("network/peers")["peers"])
     for new in news:
         if best_node(new, False) is not None and new not in endpoints:
             endpoints.append(new)
@@ -58,6 +60,22 @@ def parse_endpoints(rep):
         i += 1
         j = 0
     return endpoints
+
+
+class EndPoint(object):
+    __instance = None
+
+    # Try to inheritate this part for all singleton classes
+    def __new__(cls):
+        if EndPoint.__instance is None:
+            EndPoint.__instance = object.__new__(cls)
+        return EndPoint.__instance
+
+    def __init__(self):
+        cli_args = Command()
+        ep = dict()
+        ep["domain"], ep["port"] = G1_TEST_DEFAULT_ENDPOINT if cli_args.contains_switches("gtest") else G1_DEFAULT_ENDPOINT
+        self.ep = ep
 
 
 def parse_endpoint(rep):
@@ -99,7 +117,7 @@ def check_ip(address):
         return 0
 
 
-def get_request(ep, path):
+def get_request(path, ep=EndPoint().ep):
     address = best_node(ep, False)
     if address is None:
         return address
@@ -112,7 +130,8 @@ def get_request(ep, path):
     return loads(response.read().decode(encoding))
 
 
-def post_request(ep, path, postdata):
+def post_request(path, postdata):
+    ep = EndPoint().ep
     address = best_node(ep, False)
     if address is None:
         return address
@@ -158,17 +177,13 @@ def check_port(port):
     return True
 
 
-def get_current_block(ep):
-    return get_request(ep, "blockchain/current")
-
-
 class HeadBlock(object):
     __instance = None
 
-    def __new__(cls, ep):
+    def __new__(cls):
         if HeadBlock.__instance is None:
             HeadBlock.__instance = object.__new__(cls)
         return HeadBlock.__instance
 
-    def __init__(self, ep):
-        self.head_block = get_request(ep, "blockchain/current")
+    def __init__(self):
+        self.head_block = get_request("blockchain/current")

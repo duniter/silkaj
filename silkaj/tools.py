@@ -26,13 +26,13 @@ def convert_time(timestamp, kind):
 class CurrencySymbol(object):
     __instance = None
 
-    def __new__(cls, ep):
+    def __new__(cls):
         if CurrencySymbol.__instance is None:
             CurrencySymbol.__instance = object.__new__(cls)
         return CurrencySymbol.__instance
 
-    def __init__(self, ep):
-        currency = BlockchainParams(ep).params["currency"]
+    def __init__(self):
+        currency = BlockchainParams().params["currency"]
         if currency == "g1":
             self.symbol = G1_SYMBOL
         elif currency == "g1-test":

@@ -6,16 +6,17 @@ from tabulate import tabulate
 from operator import itemgetter
 
 from silkaj.wot import get_uid_from_pubkey
-from silkaj.network_tools import discover_peers, get_request, best_node, get_current_block, HeadBlock
+from silkaj.network_tools import discover_peers, get_request, best_node, EndPoint, HeadBlock
 from silkaj.tools import convert_time, message_exit, CurrencySymbol
 from silkaj.constants import NO_MATCHING_ID
 
 
-def currency_info(ep):
+def currency_info():
     info_data = dict()
     for info_type in ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]:
-            info_data[info_type] = get_request(ep, "blockchain/with/" + info_type)["result"]["blocks"]
-    head_block = HeadBlock(ep).head_block
+            info_data[info_type] = get_request("blockchain/with/" + info_type)["result"]["blocks"]
+    head_block = HeadBlock().head_block
+    ep = EndPoint().ep
     system("clear")
     print("Connected to node:", ep[best_node(ep, False)], ep["port"],
     "\nCurrent block number:", head_block["number"],
@@ -55,12 +56,12 @@ def power(nbr, pow=0):
     return "{0:.1f} × 10^{1}".format(nbr, pow)
 
 
-def difficulties(ep):
+def difficulties():
     while True:
-        diffi = get_request(ep, "blockchain/difficulties")
+        diffi = get_request("blockchain/difficulties")
         levels = [OrderedDict((i, d[i]) for i in ("uid", "level")) for d in diffi["levels"]]
         diffi["levels"] = levels
-        current = get_current_block(ep)
+        current = get_request("blockchain/current")
         issuers, sorted_diffi = 0, sorted(diffi["levels"], key=itemgetter("level"), reverse=True)
         for d in diffi["levels"]:
             if d["level"] / 2 < current["powMin"]:
@@ -95,7 +96,7 @@ def get_network_sort_key(endpoint):
     return tuple(t)
 
 
-def network_info(ep, discover):
+def network_info(discover):
     rows, columns = popen('stty size', 'r').read().split()
 #    print(rows, columns) # debug
     wide = int(columns)
@@ -103,9 +104,9 @@ def network_info(ep, discover):
         message_exit("Wide screen need to be larger than 146. Current wide: " + wide)
     # discover peers
     # and make sure fields are always ordered the same
-    endpoints = [OrderedDict((i, p.get(i, None)) for i in ("domain", "port", "ip4", "ip6", "pubkey")) for p in discover_peers(ep, discover)]
+    endpoints = [OrderedDict((i, p.get(i, None)) for i in ("domain", "port", "ip4", "ip6", "pubkey")) for p in discover_peers(discover)]
     # Todo : renommer endpoints en info
-    diffi = get_request(ep, "blockchain/difficulties")
+    diffi = get_request("blockchain/difficulties")
     i, members = 0, 0
     print("Getting informations about nodes:")
     while (i < len(endpoints)):
@@ -133,7 +134,7 @@ def network_info(ep, discover):
                     endpoints[i]["diffi"] = d["level"]
                 if len(endpoints[i]["uid"]) > 10:
                     endpoints[i]["uid"] = endpoints[i]["uid"][:9] + "…"
-        current_blk = get_current_block(endpoints[i])
+        current_blk = get_request("blockchain/current", endpoints[i])
         if current_blk is not None:
             endpoints[i]["gen_time"] = convert_time(current_blk["time"], "hour")
             if wide > 171:
@@ -142,7 +143,7 @@ def network_info(ep, discover):
                 endpoints[i]["difftime"] = convert_time(current_blk["time"] - current_blk["medianTime"], "hour")
             endpoints[i]["block"] = current_blk["number"]
             endpoints[i]["hash"] = current_blk["hash"][:10] + "…"
-            endpoints[i]["version"] = get_request(endpoints[i], "node/summary")["duniter"]["version"]
+            endpoints[i]["version"] = get_request("node/summary", endpoints[i])["duniter"]["version"]
         if endpoints[i].get("domain") is not None and len(endpoints[i]["domain"]) > 20:
             endpoints[i]["domain"] = "…" + endpoints[i]["domain"][-20:]
         if endpoints[i].get("ip6") is not None:
@@ -157,13 +158,13 @@ def network_info(ep, discover):
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 
-def list_issuers(ep, nbr, last):
-    head_block = HeadBlock(ep).head_block
+def list_issuers(nbr, last):
+    head_block = HeadBlock().head_block
     current_nbr = head_block["number"]
     if nbr == 0:
         nbr = head_block["issuersFrame"]
     url = "blockchain/blocks/" + str(nbr) + "/" + str(current_nbr - nbr + 1)
-    blocks, list_issuers, j = get_request(ep, url), list(), 0
+    blocks, list_issuers, j = get_request(url), list(), 0
     issuers_dict = dict()
     while j < len(blocks):
         issuer = OrderedDict()
@@ -178,7 +179,7 @@ def list_issuers(ep, nbr, last):
         j += 1
     for pubkey in issuers_dict.keys():
         issuer = issuers_dict[pubkey]
-        uid = get_uid_from_pubkey(ep, issuer["pubkey"])
+        uid = get_uid_from_pubkey(issuer["pubkey"])
         for issuer2 in list_issuers:
             if issuer2.get("pubkey") is not None and issuer.get("pubkey") is not None and \
                 issuer2["pubkey"] == issuer["pubkey"]:
@@ -215,19 +216,20 @@ def list_issuers(ep, nbr, last):
         tabulate(sorted_list, headers="keys", tablefmt="orgtbl", floatfmt=".1f", stralign="center")))
 
 
-def argos_info(ep):
+def argos_info():
     info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
     pretty_names = {'g1': 'Ğ1', 'gtest': 'Ğtest'}
     i, info_data = 0, dict()
     while (i < len(info_type)):
-            info_data[info_type[i]] = get_request(ep, "blockchain/with/" + info_type[i])["result"]["blocks"]
+            info_data[info_type[i]] = get_request("blockchain/with/" + info_type[i])["result"]["blocks"]
             i += 1
-    head_block = HeadBlock(ep).head_block
+    head_block = HeadBlock().head_block
     pretty = head_block["currency"]
     if head_block["currency"] in pretty_names:
         pretty = pretty_names[head_block["currency"]]
     print(pretty, "|")
     print("---")
+    ep = EndPoint().ep
     href = 'href=http://%s:%s/' % (ep[best_node(ep, False)], ep["port"])
     print("Connected to node:", ep[best_node(ep, False)], ep["port"], "|", href,
     "\nCurrent block number:", head_block["number"],
