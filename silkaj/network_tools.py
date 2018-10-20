@@ -7,8 +7,7 @@ import logging
 from sys import exit, stderr
 from commandlines import Command
 
-from silkaj.constants import G1_DEFAULT_ENDPOINT, G1_TEST_DEFAULT_ENDPOINT
-CONNECTION_TIMEOUT = 10
+from silkaj.constants import G1_DEFAULT_ENDPOINT, G1_TEST_DEFAULT_ENDPOINT, CONNECTION_TIMEOUT
 
 def discover_peers(discover):
     """
