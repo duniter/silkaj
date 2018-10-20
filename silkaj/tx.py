@@ -41,9 +41,9 @@ def cmd_transaction(cli_args):
         message_exit("--output is not set")
 
     if cli_args.contains_definitions('amount'):
-        amount = int(float(cli_args.get_definition('amount')) * 100)
+        amount = float(cli_args.get_definition('amount')) * 100
     if cli_args.contains_definitions('amountUD'):
-        amount = int(float(cli_args.get_definition('amountUD')) * UDValue().ud_value)
+        amount = float(cli_args.get_definition('amountUD')) * UDValue().ud_value
 
     output = cli_args.get_definition('output')
     comment = cli_args.get_definition('comment') if cli_args.contains_definitions('comment') else ""
