@@ -121,9 +121,9 @@ def post_request(ep, path, postdata):
     url = "http://" + ep[address] + ":" + ep["port"] + "/" + path
     if ep["port"] == "443":
         url = "https://" + ep[address] + "/" + path
-    request = urllib.request.Request(url, bytes(postdata, 'utf-8'), timeout=CONNECTION_TIMEOUT)
+    request = urllib.request.Request(url, bytes(postdata, 'utf-8'))
     try:
-        response = urllib.request.urlopen(request)
+        response = urllib.request.urlopen(request, timeout=CONNECTION_TIMEOUT)
     except urllib.error.URLError as e:
         print(e, file=stderr)
         exit(1)
