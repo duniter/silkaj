@@ -80,6 +80,8 @@ class EndPoint(object):
             ep["domain"], ep["port"] = cli_args.get_definition('p').rsplit(':', 1)
         else:
             ep["domain"], ep["port"] = G1_TEST_DEFAULT_ENDPOINT if cli_args.contains_switches("gtest") else G1_DEFAULT_ENDPOINT
+        if ep["domain"].startswith('[') and ep["domain"].endswith(']'):
+            ep["domain"] = ep["domain"][1:-1]
         self.ep = ep
 
 
