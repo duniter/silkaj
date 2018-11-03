@@ -4,6 +4,7 @@ from re import compile, search
 from sys import exit
 
 from silkaj.constants import G1_SYMBOL, GTEST_SYMBOL
+from silkaj.blockchain_tools import BlockchainParams
 
 
 def convert_time(timestamp, kind):
@@ -22,11 +23,20 @@ def convert_time(timestamp, kind):
     return datetime.fromtimestamp(ts).strftime(pattern)
 
 
-def get_currency_symbol(currency):
-    if currency == "g1":
-        return G1_SYMBOL
-    elif currency == "g1-test":
-        return GTEST_SYMBOL
+class CurrencySymbol(object):
+    __instance = None
+
+    def __new__(cls):
+        if CurrencySymbol.__instance is None:
+            CurrencySymbol.__instance = object.__new__(cls)
+        return CurrencySymbol.__instance
+
+    def __init__(self):
+        currency = BlockchainParams().params["currency"]
+        if currency == "g1":
+            self.symbol = G1_SYMBOL
+        elif currency == "g1-test":
+            self.symbol = GTEST_SYMBOL
 
 
 def sign_document_from_seed(document, seed):

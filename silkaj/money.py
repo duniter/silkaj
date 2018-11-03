@@ -1,10 +1,10 @@
-from silkaj.network_tools import get_request, get_current_block
-from silkaj.tools import get_currency_symbol, get_publickey_from_seed
+from silkaj.network_tools import get_request, HeadBlock
+from silkaj.tools import get_publickey_from_seed, CurrencySymbol
 from silkaj.auth import auth_method
 from silkaj.wot import check_public_key
 
 
-def cmd_amount(ep, cli_args):
+def cmd_amount(cli_args):
     if not cli_args.subsubcmd.startswith("--"):
         pubkeys = cli_args.subsubcmd.split(":")
         for pubkey in pubkeys:
@@ -13,45 +13,44 @@ def cmd_amount(ep, cli_args):
                 return
         total = [0, 0]
         for pubkey in pubkeys:
-            value = get_amount_from_pubkey(ep, pubkey)
-            show_amount_from_pubkey(ep, pubkey, value)
+            value = get_amount_from_pubkey(pubkey)
+            show_amount_from_pubkey(pubkey, value)
             total[0] += value[0]
             total[1] += value[1]
         if (len(pubkeys) > 1):
-            show_amount_from_pubkey(ep, "Total", total)
+            show_amount_from_pubkey("Total", total)
     else:
         seed = auth_method(cli_args)
         pubkey = get_publickey_from_seed(seed)
-        show_amount_from_pubkey(ep, pubkey, get_amount_from_pubkey(ep, pubkey))
+        show_amount_from_pubkey(pubkey, get_amount_from_pubkey(pubkey))
 
 
-def show_amount_from_pubkey(ep, pubkey, value):
+def show_amount_from_pubkey(pubkey, value):
     totalAmountInput = value[0]
     amount = value[1]
     # output
-    UDvalue = get_last_ud_value(ep)
-    current_blk = get_current_block(ep)
-    currency_symbol = get_currency_symbol(current_blk["currency"])
 
+    currency_symbol = CurrencySymbol().symbol
+    ud_value = UDValue().ud_value
     if totalAmountInput - amount != 0:
         print("Blockchain:")
         print("-----------")
-        print("Relative     =", round(amount / UDvalue, 2), "UD", currency_symbol)
+        print("Relative     =", round(amount / ud_value, 2), "UD", currency_symbol)
         print("Quantitative =",  round(amount / 100, 2), currency_symbol + "\n")
 
         print("Pending Transaction:")
         print("--------------------")
-        print("Relative     =",  round((totalAmountInput - amount) / UDvalue, 2), "UD", currency_symbol)
+        print("Relative     =",  round((totalAmountInput - amount) / ud_value, 2), "UD", currency_symbol)
         print("Quantitative =",  round((totalAmountInput - amount) / 100, 2), currency_symbol + "\n")
 
     print("Total amount of: " + pubkey)
     print("----------------------------------------------------------------")
-    print("Total Relative     =",  round(totalAmountInput / UDvalue, 2), "UD", currency_symbol)
+    print("Total Relative     =",  round(totalAmountInput / ud_value, 2), "UD", currency_symbol)
     print("Total Quantitative =",  round(totalAmountInput / 100, 2), currency_symbol + "\n")
 
 
-def get_amount_from_pubkey(ep, pubkey):
-    sources = get_request(ep, "tx/sources/" + pubkey)["sources"]
+def get_amount_from_pubkey(pubkey):
+    sources = get_request("tx/sources/" + pubkey)["sources"]
 
     listinput = []
     amount = 0
@@ -65,12 +64,11 @@ def get_amount_from_pubkey(ep, pubkey):
                              str(source["noffset"]))
 
     # pending source
-    history = get_request(ep, "tx/history/" + pubkey + "/pending")["history"]
+    history = get_request("tx/history/" + pubkey + "/pending")["history"]
     pendings = history["sending"] + history["receiving"] + history["pending"]
     # print(pendings)
 
-    current_blk = get_current_block(ep)
-    last_block_number = int(current_blk["number"])
+    last_block_number = int(HeadBlock().head_block["number"])
 
     # add pending output
     for pending in pendings:
@@ -110,8 +108,16 @@ def get_amount_from_pubkey(ep, pubkey):
     return int(totalAmountInput), int(amount)
 
 
-def get_last_ud_value(ep):
-    blockswithud = get_request(ep, "blockchain/with/ud")["result"]
-    NBlastUDblock = blockswithud["blocks"][-1]
-    lastUDblock = get_request(ep, "blockchain/block/" + str(NBlastUDblock))
-    return lastUDblock["dividend"] * 10 ** lastUDblock["unitbase"]
+class UDValue(object):
+    __instance = None
+
+    def __new__(cls):
+        if UDValue.__instance is None:
+            UDValue.__instance = object.__new__(cls)
+        return UDValue.__instance
+
+    def __init__(self):
+        blockswithud = get_request("blockchain/with/ud")["result"]
+        NBlastUDblock = blockswithud["blocks"][-1]
+        lastUDblock = get_request("blockchain/block/" + str(NBlastUDblock))
+        self.ud_value = lastUDblock["dividend"] * 10 ** lastUDblock["unitbase"]
