@@ -5,7 +5,7 @@ from silkaj.wot import check_public_key
 
 
 def cmd_amount(cli_args):
-    if not cli_args.subsubcmd.startswith("--"):
+    if not cli_args.subsubcmd.startswith("--auth-"):
         pubkeys = cli_args.subsubcmd.split(":")
         for pubkey in pubkeys:
             pubkey = check_public_key(pubkey, True)
