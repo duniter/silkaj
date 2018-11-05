@@ -136,8 +136,7 @@ def get_request(path, ep=EndPoint().ep):
     return loads(response.read().decode(encoding))
 
 
-def post_request(path, postdata):
-    ep = EndPoint().ep
+def post_request(path, postdata, ep=EndPoint().ep):
     address = best_node(ep, False)
     if address is None:
         return address
