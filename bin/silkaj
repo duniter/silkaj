@@ -3,12 +3,11 @@
 from sys import exit
 
 from silkaj.network_tools import check_port, best_node, EndPoint
-from silkaj.silkaj import cli, manage_cmd
+from silkaj.silkaj import manage_cmd
 
 if __name__ == '__main__':
-    cli_args = cli()
     ep = EndPoint().ep
     if not check_port(ep["port"]):
         exit(1)
     best_node(ep, True)
-    manage_cmd(cli_args)
+    manage_cmd()

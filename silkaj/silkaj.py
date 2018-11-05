@@ -80,17 +80,15 @@ def usage():
     \n - WIF: --auth-wif")
 
 
-def cli():
+def manage_cmd():
     cli_args = Command()
-    subcmd = ["license", "about", "info", "diffi", "net", "network", "issuers", "argos", "amount", "tx", "transaction", "cert", "generate_auth_file", "id", "identities", "wot"]
     if cli_args.is_version_request():
         message_exit(SILKAJ_VERSION)
+
+    subcmd = ["license", "about", "info", "diffi", "net", "network", "issuers", "argos", "amount", "tx", "transaction", "cert", "generate_auth_file", "id", "identities", "wot"]
     if cli_args.is_help_request() or cli_args.is_usage_request() or cli_args.subcmd not in subcmd:
         usage()
-    return cli_args
 
-
-def manage_cmd(cli_args):
     if cli_args.subcmd == "about":
         about()
     elif cli_args.subcmd == "info":
