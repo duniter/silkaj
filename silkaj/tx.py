@@ -5,8 +5,8 @@ import urllib
 
 from tabulate import tabulate
 from silkaj.network_tools import get_request, post_request, HeadBlock
-from silkaj.tools import get_publickey_from_seed, sign_document_from_seed,\
-        check_public_key, message_exit, CurrencySymbol
+from silkaj.crypto_tools import get_publickey_from_seed, sign_document_from_seed, check_public_key
+from silkaj.tools import message_exit, CurrencySymbol
 from silkaj.auth import auth_method
 from silkaj.wot import get_uid_from_pubkey
 from silkaj.money import get_amount_from_pubkey, UDValue

@@ -1,5 +1,6 @@
 from silkaj.network_tools import get_request, HeadBlock
-from silkaj.tools import get_publickey_from_seed, CurrencySymbol
+from silkaj.crypto_tools import get_publickey_from_seed
+from silkaj.tools import CurrencySymbol
 from silkaj.auth import auth_method
 from silkaj.wot import check_public_key
 

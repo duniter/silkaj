@@ -4,7 +4,8 @@ from tabulate import tabulate
 from collections import OrderedDict
 
 from silkaj.network_tools import get_request
-from silkaj.tools import message_exit, check_public_key, convert_time
+from silkaj.crypto_tools import check_public_key
+from silkaj.tools import message_exit, convert_time
 from silkaj.blockchain_tools import BlockchainParams
 from silkaj.constants import NO_MATCHING_ID
 

@@ -2,7 +2,8 @@ import urllib
 from tabulate import tabulate
 
 from silkaj.auth import auth_method
-from silkaj.tools import get_publickey_from_seed, message_exit, sign_document_from_seed
+from silkaj.crypto_tools import get_publickey_from_seed, sign_document_from_seed
+from silkaj.tools import message_exit
 from silkaj.network_tools import post_request, HeadBlock
 from silkaj.license import license_approval
 from silkaj.wot import is_member,\
