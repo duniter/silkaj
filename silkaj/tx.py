@@ -78,12 +78,12 @@ def transaction_confirmation(issuer_pubkey, tx_amount, outputAddresses, comment)
     tx = list()
     tx.append(["tx amount (unit)", str(tx_amount / 100 * len(outputAddresses)) + " " + currency_symbol])
     tx.append(["tx amount (relative)", str(round(tx_amount / UDValue().ud_value, 4)) + " UD " + currency_symbol])
-    tx.append(["from", issuer_pubkey])
+    tx.append(["from (pubkey)", issuer_pubkey])
     id_from = get_uid_from_pubkey(issuer_pubkey)
     if id_from is not NO_MATCHING_ID:
         tx.append(["from (id)", id_from])
     for outputAddress in outputAddresses:
-        tx.append(["to", outputAddress])
+        tx.append(["to (pubkey)", outputAddress])
         id_to = get_uid_from_pubkey(outputAddress)
         if id_to is not NO_MATCHING_ID:
             tx.append(["to (id)", id_to])
