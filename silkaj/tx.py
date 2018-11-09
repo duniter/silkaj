@@ -17,18 +17,18 @@ def send_transaction(cli_args):
     """
     Main function
     """
-    amount, output, comment, allSources, outputBackChange = cmd_transaction(cli_args)
+    tx_amount, output, comment, allSources, outputBackChange = cmd_transaction(cli_args)
     seed = auth_method(cli_args)
     issuer_pubkey = get_publickey_from_seed(seed)
 
     pubkey_amount = get_amount_from_pubkey(issuer_pubkey)[0]
     outputAddresses = output.split(':')
-    check_transaction_values(comment, outputAddresses, outputBackChange, pubkey_amount < amount * len(outputAddresses), issuer_pubkey)
+    check_transaction_values(comment, outputAddresses, outputBackChange, pubkey_amount < tx_amount * len(outputAddresses), issuer_pubkey)
 
     if cli_args.contains_switches('yes') or cli_args.contains_switches('y') or \
-        input(tabulate(transaction_confirmation(issuer_pubkey, amount, outputAddresses, comment),
+        input(tabulate(transaction_confirmation(issuer_pubkey, tx_amount, outputAddresses, comment),
         tablefmt="fancy_grid") + "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
-        generate_and_send_transaction(seed, issuer_pubkey, amount, outputAddresses, comment, allSources, outputBackChange)
+        generate_and_send_transaction(seed, issuer_pubkey, tx_amount, outputAddresses, comment, allSources, outputBackChange)
 
 
 def cmd_transaction(cli_args):
@@ -41,9 +41,9 @@ def cmd_transaction(cli_args):
         message_exit("--output is not set")
 
     if cli_args.contains_definitions('amount'):
-        amount = float(cli_args.get_definition('amount')) * 100
+        tx_amount = float(cli_args.get_definition('amount')) * 100
     if cli_args.contains_definitions('amountUD'):
-        amount = float(cli_args.get_definition('amountUD')) * UDValue().ud_value
+        tx_amount = float(cli_args.get_definition('amountUD')) * UDValue().ud_value
 
     output = cli_args.get_definition('output')
     comment = cli_args.get_definition('comment') if cli_args.contains_definitions('comment') else ""
@@ -53,7 +53,7 @@ def cmd_transaction(cli_args):
         outputBackChange = cli_args.get_definition('outputBackChange')
     else:
         outputBackChange = None
-    return amount, output, comment, allSources, outputBackChange
+    return tx_amount, output, comment, allSources, outputBackChange
 
 
 def check_transaction_values(comment, outputAddresses, outputBackChange, enough_source, issuer_pubkey):
@@ -69,15 +69,15 @@ def check_transaction_values(comment, outputAddresses, outputBackChange, enough_
         message_exit(issuer_pubkey + " pubkey doesn’t have enough money for this transaction.")
 
 
-def transaction_confirmation(issuer_pubkey, amount, outputAddresses, comment):
+def transaction_confirmation(issuer_pubkey, tx_amount, outputAddresses, comment):
     """
     Generate transaction confirmation
     """
 
     currency_symbol = CurrencySymbol().symbol
     tx = list()
-    tx.append(["amount (" + currency_symbol + ")", amount / 100 * len(outputAddresses)])
-    tx.append(["amount (UD " + currency_symbol + ")", round(amount / UDValue().ud_value, 4)])
+    tx.append(["amount (" + currency_symbol + ")", tx_amount / 100 * len(outputAddresses)])
+    tx.append(["amount (UD " + currency_symbol + ")", round(tx_amount / UDValue().ud_value, 4)])
     tx.append(["from", issuer_pubkey])
     id_from = get_uid_from_pubkey(issuer_pubkey)
     if id_from is not NO_MATCHING_ID:
