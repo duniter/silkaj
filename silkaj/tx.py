@@ -26,7 +26,7 @@ def send_transaction(cli_args):
     check_transaction_values(comment, outputAddresses, outputBackChange, pubkey_amount < tx_amount * len(outputAddresses), issuer_pubkey)
 
     if cli_args.contains_switches('yes') or cli_args.contains_switches('y') or \
-        input(tabulate(transaction_confirmation(issuer_pubkey, tx_amount, outputAddresses, comment),
+        input(tabulate(transaction_confirmation(issuer_pubkey, pubkey_amount, tx_amount, outputAddresses, comment),
         tablefmt="fancy_grid") + "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
         generate_and_send_transaction(seed, issuer_pubkey, tx_amount, outputAddresses, comment, allSources, outputBackChange)
 
@@ -69,15 +69,17 @@ def check_transaction_values(comment, outputAddresses, outputBackChange, enough_
         message_exit(issuer_pubkey + " pubkey doesn’t have enough money for this transaction.")
 
 
-def transaction_confirmation(issuer_pubkey, tx_amount, outputAddresses, comment):
+def transaction_confirmation(issuer_pubkey, pubkey_amount, tx_amount, outputAddresses, comment):
     """
     Generate transaction confirmation
     """
 
     currency_symbol = CurrencySymbol().symbol
     tx = list()
+    tx.append(["pubkey’s amount before tx", str(pubkey_amount / 100) + " " + currency_symbol])
     tx.append(["tx amount (unit)", str(tx_amount / 100 * len(outputAddresses)) + " " + currency_symbol])
     tx.append(["tx amount (relative)", str(round(tx_amount / UDValue().ud_value, 4)) + " UD " + currency_symbol])
+    tx.append(["pubkey’s amount after tx", str(((pubkey_amount - tx_amount * len(outputAddresses)) / 100)) + " " + currency_symbol])
     tx.append(["from (pubkey)", issuer_pubkey])
     id_from = get_uid_from_pubkey(issuer_pubkey)
     if id_from is not NO_MATCHING_ID:
