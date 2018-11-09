@@ -76,8 +76,8 @@ def transaction_confirmation(issuer_pubkey, tx_amount, outputAddresses, comment)
 
     currency_symbol = CurrencySymbol().symbol
     tx = list()
-    tx.append(["amount (" + currency_symbol + ")", tx_amount / 100 * len(outputAddresses)])
-    tx.append(["amount (UD " + currency_symbol + ")", round(tx_amount / UDValue().ud_value, 4)])
+    tx.append(["amount", str(tx_amount / 100 * len(outputAddresses)) + " " + currency_symbol])
+    tx.append(["amount", str(round(tx_amount / UDValue().ud_value, 4)) + " UD " + currency_symbol])
     tx.append(["from", issuer_pubkey])
     id_from = get_uid_from_pubkey(issuer_pubkey)
     if id_from is not NO_MATCHING_ID:
