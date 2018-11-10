@@ -51,6 +51,17 @@ def show_amount_from_pubkey(pubkey, value):
 
 
 def get_amount_from_pubkey(pubkey):
+    listinput, amount = get_sources(pubkey)
+
+    totalAmountInput = 0
+    for input in listinput:
+        inputsplit = input.split(":")
+        totalAmountInput += int(inputsplit[0]) * 10 ** int(inputsplit[1])
+
+    return totalAmountInput, amount
+
+
+def get_sources(pubkey):
     # Sources written into the blockchain
     sources = get_request("tx/sources/" + pubkey)["sources"]
 
@@ -101,12 +112,7 @@ def get_amount_from_pubkey(pubkey):
                 if input in listinput:
                     listinput.remove(input)
 
-    totalAmountInput = 0
-    for input in listinput:
-        inputsplit = input.split(":")
-        totalAmountInput += int(inputsplit[0]) * 10 ** int(inputsplit[1])
-
-    return int(totalAmountInput), int(amount)
+    return listinput, amount
 
 
 class UDValue(object):

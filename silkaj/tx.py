@@ -9,7 +9,7 @@ from silkaj.crypto_tools import get_publickey_from_seed, sign_document_from_seed
 from silkaj.tools import message_exit, CurrencySymbol
 from silkaj.auth import auth_method
 from silkaj.wot import get_uid_from_pubkey
-from silkaj.money import get_amount_from_pubkey, UDValue
+from silkaj.money import get_sources, get_amount_from_pubkey, UDValue
 from silkaj.constants import NO_MATCHING_ID
 
 
@@ -198,45 +198,7 @@ def generate_transaction_document(issuers, AmountTransfered, listinput_and_amoun
 
 
 def get_list_input_for_transaction(pubkey, TXamount, allinput=False):
-    # real source in blockchain
-    sources = get_request("tx/sources/" + pubkey)["sources"]
-    listinput = []
-
-    for source in sources:
-        if source["conditions"] == "SIG(" + pubkey + ")":
-            listinput.append(str(source["amount"]) + ":" + str(source["base"]) + ":" + str(source["type"]) + ":" + str(source["identifier"]) + ":" + str(source["noffset"]))
-
-    # pending source
-    history = get_request("tx/history/" + pubkey + "/pending")["history"]
-    pendings = history["sending"] + history["receiving"] + history["pending"]
-
-    last_block_number = HeadBlock().head_block["number"]
-
-    # add pending output
-    for pending in pendings:
-        blockstamp = pending["blockstamp"]
-        block_number = int(blockstamp.split("-")[0])
-        # if it's not an old transaction (bug in mirror node)
-        if block_number >= last_block_number - 3:
-            identifier = pending["hash"]
-            i = 0
-            for output in pending["outputs"]:
-                outputsplited = output.split(":")
-                if outputsplited[2] == "SIG("+pubkey+")":
-                    inputgenerated = str(outputsplited[0]) + ":" + str(outputsplited[1]) + ":T:" + identifier + ":" + str(i)
-                    if inputgenerated not in listinput:
-                        listinput.append(inputgenerated)
-                i += 1
-
-    # remove input already used
-    for pending in pendings:
-        blockstamp = pending["blockstamp"]
-        block_number = int(blockstamp.split("-")[0])
-        # if it's not an old transaction (bug in mirror node)
-        if block_number >= last_block_number - 3:
-            for input in pending["inputs"]:
-                if input in listinput:
-                    listinput.remove(input)
+    listinput, amount = get_sources(pubkey)
 
     # generate final list source
     listinputfinal = []
