@@ -51,6 +51,7 @@ def show_amount_from_pubkey(pubkey, value):
 
 
 def get_amount_from_pubkey(pubkey):
+    # Sources written into the blockchain
     sources = get_request("tx/sources/" + pubkey)["sources"]
 
     listinput = []
@@ -67,9 +68,8 @@ def get_amount_from_pubkey(pubkey):
     # pending source
     history = get_request("tx/history/" + pubkey + "/pending")["history"]
     pendings = history["sending"] + history["receiving"] + history["pending"]
-    # print(pendings)
 
-    last_block_number = int(HeadBlock().head_block["number"])
+    last_block_number = HeadBlock().head_block["number"]
 
     # add pending output
     for pending in pendings:

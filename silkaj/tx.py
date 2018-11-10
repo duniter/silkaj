@@ -200,8 +200,6 @@ def generate_transaction_document(issuers, AmountTransfered, listinput_and_amoun
 def get_list_input_for_transaction(pubkey, TXamount, allinput=False):
     # real source in blockchain
     sources = get_request("tx/sources/" + pubkey)["sources"]
-    if sources is None:
-        return None
     listinput = []
 
     for source in sources:
@@ -212,7 +210,7 @@ def get_list_input_for_transaction(pubkey, TXamount, allinput=False):
     history = get_request("tx/history/" + pubkey + "/pending")["history"]
     pendings = history["sending"] + history["receiving"] + history["pending"]
 
-    last_block_number = int(HeadBlock().head_block["number"])
+    last_block_number = HeadBlock().head_block["number"]
 
     # add pending output
     for pending in pendings:
