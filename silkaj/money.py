@@ -116,9 +116,9 @@ def get_sources(pubkey):
                 outputsplited = output.split(":")
                 if outputsplited[2] == "SIG(" + pubkey + ")":
                     inputgenerated = (
-                        str(outputsplited[0])
+                        outputsplited[0]
                         + ":"
-                        + str(outputsplited[1])
+                        + outputsplited[1]
                         + ":T:"
                         + identifier
                         + ":"
