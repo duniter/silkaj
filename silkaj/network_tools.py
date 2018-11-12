@@ -7,7 +7,12 @@ import logging
 from sys import exit, stderr
 from commandlines import Command
 
-from silkaj.constants import G1_DEFAULT_ENDPOINT, G1_TEST_DEFAULT_ENDPOINT, CONNECTION_TIMEOUT
+from silkaj.constants import (
+    G1_DEFAULT_ENDPOINT,
+    G1_TEST_DEFAULT_ENDPOINT,
+    CONNECTION_TIMEOUT,
+)
+
 
 def discover_peers(discover):
     """
@@ -49,8 +54,8 @@ def parse_endpoints(rep):
     reps: raw endpoints
     """
     i, j, endpoints = 0, 0, []
-    while (i < len(rep)):
-        if (rep[i]["status"] == "UP"):
+    while i < len(rep):
+        if rep[i]["status"] == "UP":
             while j < len(rep[i]["endpoints"]):
                 ep = parse_endpoint(rep[i]["endpoints"][j])
                 j += 1
@@ -75,11 +80,15 @@ class EndPoint(object):
     def __init__(self):
         cli_args = Command()
         ep = dict()
-        if cli_args.contains_switches('p'):
-            ep["domain"], ep["port"] = cli_args.get_definition('p').rsplit(':', 1)
+        if cli_args.contains_switches("p"):
+            ep["domain"], ep["port"] = cli_args.get_definition("p").rsplit(":", 1)
         else:
-            ep["domain"], ep["port"] = G1_TEST_DEFAULT_ENDPOINT if cli_args.contains_switches("gtest") else G1_DEFAULT_ENDPOINT
-        if ep["domain"].startswith('[') and ep["domain"].endswith(']'):
+            ep["domain"], ep["port"] = (
+                G1_TEST_DEFAULT_ENDPOINT
+                if cli_args.contains_switches("gtest")
+                else G1_DEFAULT_ENDPOINT
+            )
+        if ep["domain"].startswith("[") and ep["domain"].endswith("]"):
             ep["domain"] = ep["domain"][1:-1]
         self.ep = ep
 
@@ -93,7 +102,12 @@ def parse_endpoint(rep):
     if sep[0] == "BASIC_MERKLED_API":
         if check_port(sep[-1]):
             ep["port"] = sep[-1]
-        if len(sep) == 5 and check_ip(sep[1]) == 0 and check_ip(sep[2]) == 4 and check_ip(sep[3]) == 6:
+        if (
+            len(sep) == 5
+            and check_ip(sep[1]) == 0
+            and check_ip(sep[2]) == 4
+            and check_ip(sep[3]) == 6
+        ):
             ep["domain"], ep["ip4"], ep["ip6"] = sep[1], sep[2], sep[3]
         if len(sep) == 4:
             ep = endpoint_type(sep[1], ep)
@@ -132,7 +146,7 @@ def get_request(path, ep=EndPoint().ep):
         url = "https://" + ep[address] + "/" + path
     request = urllib.request.Request(url)
     response = urllib.request.urlopen(request, timeout=CONNECTION_TIMEOUT)
-    encoding = response.info().get_content_charset('utf8')
+    encoding = response.info().get_content_charset("utf8")
     return loads(response.read().decode(encoding))
 
 
@@ -143,13 +157,13 @@ def post_request(path, postdata, ep=EndPoint().ep):
     url = "http://" + ep[address] + ":" + ep["port"] + "/" + path
     if ep["port"] == "443":
         url = "https://" + ep[address] + "/" + path
-    request = urllib.request.Request(url, bytes(postdata, 'utf-8'))
+    request = urllib.request.Request(url, bytes(postdata, "utf-8"))
     try:
         response = urllib.request.urlopen(request, timeout=CONNECTION_TIMEOUT)
     except urllib.error.URLError as e:
         print(e, file=stderr)
         exit(1)
-    encoding = response.info().get_content_charset('utf8')
+    encoding = response.info().get_content_charset("utf8")
     return loads(response.read().decode(encoding))
 
 
@@ -164,7 +178,9 @@ def best_node(ep, main):
                 s.close()
                 return address
             except Exception as e:
-                logging.debug("Connection to endpoint %s (%s) failled (%s)" % (ep, address, e))
+                logging.debug(
+                    "Connection to endpoint %s (%s) failled (%s)" % (ep, address, e)
+                )
     if main:
         print("Wrong node given as argument", file=stderr)
         exit(1)
@@ -177,7 +193,7 @@ def check_port(port):
     except:
         print("Port must be an integer", file=stderr)
         return False
-    if (port < 0 or port > 65536):
+    if port < 0 or port > 65536:
         print("Wrong port number", file=stderr)
         return False
     return True

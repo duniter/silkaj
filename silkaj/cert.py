@@ -6,8 +6,7 @@ from silkaj.crypto_tools import get_publickey_from_seed, sign_document_from_seed
 from silkaj.tools import message_exit
 from silkaj.network_tools import post_request, HeadBlock
 from silkaj.license import license_approval
-from silkaj.wot import is_member,\
-        get_uid_from_pubkey, get_informations_for_identity
+from silkaj.wot import is_member, get_uid_from_pubkey, get_informations_for_identity
 
 
 def send_certification(cli_args):
@@ -34,9 +33,13 @@ def send_certification(cli_args):
             message_exit("Identity already certified by " + issuer_id)
 
     # Certification confirmation
-    if not certification_confirmation(issuer_id, issuer_pubkey, id_to_certify, main_id_to_certify):
+    if not certification_confirmation(
+        issuer_id, issuer_pubkey, id_to_certify, main_id_to_certify
+    ):
         return
-    cert_doc = generate_certification_document(issuer_pubkey, id_to_certify, main_id_to_certify)
+    cert_doc = generate_certification_document(
+        issuer_pubkey, id_to_certify, main_id_to_certify
+    )
     cert_doc += sign_document_from_seed(cert_doc, seed) + "\n"
 
     # Send certification document
@@ -44,24 +47,49 @@ def send_certification(cli_args):
     print("Certification successfully sent.")
 
 
-def certification_confirmation(issuer_id, issuer_pubkey, id_to_certify, main_id_to_certify):
+def certification_confirmation(
+    issuer_id, issuer_pubkey, id_to_certify, main_id_to_certify
+):
     cert = list()
     cert.append(["Cert", "From", "–>", "To"])
     cert.append(["ID", issuer_id, "–>", main_id_to_certify["uid"]])
     cert.append(["Pubkey", issuer_pubkey, "–>", id_to_certify["pubkey"]])
-    if input(tabulate(cert, tablefmt="fancy_grid") +
-       "\nDo you confirm sending this certification? [yes/no]: ") == "yes":
+    if (
+        input(
+            tabulate(cert, tablefmt="fancy_grid")
+            + "\nDo you confirm sending this certification? [yes/no]: "
+        )
+        == "yes"
+    ):
         return True
 
 
 def generate_certification_document(issuer_pubkey, id_to_certify, main_id_to_certify):
     head_block = HeadBlock().head_block
-    return "Version: 10\n\
+    return (
+        "Version: 10\n\
 Type: Certification\n\
-Currency: " + head_block["currency"] + "\n\
-Issuer: " + issuer_pubkey + "\n\
-IdtyIssuer: " + id_to_certify["pubkey"] + "\n\
-IdtyUniqueID: " + main_id_to_certify["uid"] + "\n\
-IdtyTimestamp: " + main_id_to_certify["meta"]["timestamp"] + "\n\
-IdtySignature: " + main_id_to_certify["self"] + "\n\
-CertTimestamp: " + str(head_block["number"]) + "-" + head_block["hash"] + "\n"
+Currency: "
+        + head_block["currency"]
+        + "\n\
+Issuer: "
+        + issuer_pubkey
+        + "\n\
+IdtyIssuer: "
+        + id_to_certify["pubkey"]
+        + "\n\
+IdtyUniqueID: "
+        + main_id_to_certify["uid"]
+        + "\n\
+IdtyTimestamp: "
+        + main_id_to_certify["meta"]["timestamp"]
+        + "\n\
+IdtySignature: "
+        + main_id_to_certify["self"]
+        + "\n\
+CertTimestamp: "
+        + str(head_block["number"])
+        + "-"
+        + head_block["hash"]
+        + "\n"
+    )

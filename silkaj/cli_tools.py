@@ -5,26 +5,47 @@ from commandlines import Command
 from silkaj.tx import send_transaction
 from silkaj.money import cmd_amount
 from silkaj.cert import send_certification
-from silkaj.commands import currency_info, difficulties, set_network_sort_keys,\
-        network_info, argos_info, list_issuers
+from silkaj.commands import (
+    currency_info,
+    difficulties,
+    set_network_sort_keys,
+    network_info,
+    argos_info,
+    list_issuers,
+)
 from silkaj.tools import message_exit
 from silkaj.network_tools import get_request
 from silkaj.wot import received_sent_certifications, id_pubkey_correspondence
 from silkaj.auth import generate_auth_file
 from silkaj.license import display_license
-from silkaj.constants import SILKAJ_VERSION, G1_SYMBOL, GTEST_SYMBOL, G1_DEFAULT_ENDPOINT, G1_TEST_DEFAULT_ENDPOINT
+from silkaj.constants import (
+    SILKAJ_VERSION,
+    G1_SYMBOL,
+    GTEST_SYMBOL,
+    G1_DEFAULT_ENDPOINT,
+    G1_TEST_DEFAULT_ENDPOINT,
+)
 
 
 def usage():
-    message_exit("Silkaj: command line client for Duniter currencies\
+    message_exit(
+        "Silkaj: command line client for Duniter currencies\
     \n\nhelp: -h, --help, --usage \
     \nversion: -v, --version \
     \nabout: display informations about the programm\
     \n \
     \nEndpoint:\
-    \nDefault endpoint will reach " + G1_SYMBOL + " currency with `https://" + G1_DEFAULT_ENDPOINT[0] + "` endpoint.\
+    \nDefault endpoint will reach "
+        + G1_SYMBOL
+        + " currency with `https://"
+        + G1_DEFAULT_ENDPOINT[0]
+        + "` endpoint.\
     \nUse one of these options at the end of the command:\
-    \n - `--gtest` to reach " + GTEST_SYMBOL + " currency with `https://" + G1_TEST_DEFAULT_ENDPOINT[0] + "` endpoint\
+    \n - `--gtest` to reach "
+        + GTEST_SYMBOL
+        + " currency with `https://"
+        + G1_TEST_DEFAULT_ENDPOINT[0]
+        + "` endpoint\
     \n - custom endpoint can be specified with `-p` option followed by <domain>:<port>\
     \n \
     \nCommands: \
@@ -77,7 +98,8 @@ def usage():
     \n    you can specify others values specifying following parameters: -n <N> -r <r> -p <p>\
     \n - Seed: --auth-seed\
     \n - File: --auth-file [--file=<path file>], './authfile' will be taken if there is no path specified\
-    \n - WIF: --auth-wif")
+    \n - WIF: --auth-wif"
+    )
 
 
 def manage_cmd():
@@ -85,8 +107,29 @@ def manage_cmd():
     if cli_args.is_version_request():
         message_exit(SILKAJ_VERSION)
 
-    subcmd = ["license", "about", "info", "diffi", "net", "network", "issuers", "argos", "amount", "tx", "transaction", "cert", "generate_auth_file", "id", "identities", "wot"]
-    if cli_args.is_help_request() or cli_args.is_usage_request() or cli_args.subcmd not in subcmd:
+    subcmd = [
+        "license",
+        "about",
+        "info",
+        "diffi",
+        "net",
+        "network",
+        "issuers",
+        "argos",
+        "amount",
+        "tx",
+        "transaction",
+        "cert",
+        "generate_auth_file",
+        "id",
+        "identities",
+        "wot",
+    ]
+    if (
+        cli_args.is_help_request()
+        or cli_args.is_usage_request()
+        or cli_args.subcmd not in subcmd
+    ):
         usage()
 
     if cli_args.subcmd == "about":
@@ -104,8 +147,12 @@ def manage_cmd():
             set_network_sort_keys(cli_args.get_definition("s"))
         network_info(cli_args.contains_switches("discover"))
 
-    elif cli_args.subcmd == "issuers" and cli_args.subsubcmd and int(cli_args.subsubcmd) >= 0:
-        list_issuers(int(cli_args.subsubcmd), cli_args.contains_switches('last'))
+    elif (
+        cli_args.subcmd == "issuers"
+        and cli_args.subsubcmd
+        and int(cli_args.subsubcmd) >= 0
+    ):
+        list_issuers(int(cli_args.subsubcmd), cli_args.contains_switches("last"))
 
     elif cli_args.subcmd == "argos":
         argos_info()
@@ -133,10 +180,13 @@ def manage_cmd():
 
 
 def about():
-    print("\
+    print(
+        "\
 \n             @@@@@@@@@@@@@\
 \n         @@@     @         @@@\
-\n      @@@   @@       @@@@@@   @@.           ", SILKAJ_VERSION, "\
+\n      @@@   @@       @@@@@@   @@.           ",
+        SILKAJ_VERSION,
+        "\
 \n     @@  @@@       @@@@@@@@@@@  @@,\
 \n   @@  @@@       &@@@@@@@@@@@@@  @@@         Powerfull and lightweight command line client\
 \n  @@  @@@       @@@@@@@@@#   @@@@ @@(\
@@ -150,6 +200,5 @@ def about():
 \n    @@@  @@@@@@@@@@@@        @  @@*\
 \n      @@@  @@@@@@@@        @  @@@            License: GNU AGPLv3\
 \n        @@@@   @@          @@@,\
-\n            @@@@@@@@@@@@@@@\n")
-
-
+\n            @@@@@@@@@@@@@@@\n",
+    )

@@ -5,7 +5,11 @@ import urllib
 
 from tabulate import tabulate
 from silkaj.network_tools import get_request, post_request, HeadBlock
-from silkaj.crypto_tools import get_publickey_from_seed, sign_document_from_seed, check_public_key
+from silkaj.crypto_tools import (
+    get_publickey_from_seed,
+    sign_document_from_seed,
+    check_public_key,
+)
 from silkaj.tools import message_exit, CurrencySymbol
 from silkaj.auth import auth_method
 from silkaj.wot import get_uid_from_pubkey
@@ -22,41 +26,75 @@ def send_transaction(cli_args):
     issuer_pubkey = get_publickey_from_seed(seed)
 
     pubkey_amount = get_amount_from_pubkey(issuer_pubkey)[0]
-    outputAddresses = output.split(':')
-    check_transaction_values(comment, outputAddresses, outputBackChange, pubkey_amount < tx_amount * len(outputAddresses), issuer_pubkey)
+    outputAddresses = output.split(":")
+    check_transaction_values(
+        comment,
+        outputAddresses,
+        outputBackChange,
+        pubkey_amount < tx_amount * len(outputAddresses),
+        issuer_pubkey,
+    )
 
-    if cli_args.contains_switches('yes') or cli_args.contains_switches('y') or \
-        input(tabulate(transaction_confirmation(issuer_pubkey, pubkey_amount, tx_amount, outputAddresses, comment),
-        tablefmt="fancy_grid") + "\nDo you confirm sending this transaction? [yes/no]: ") == "yes":
-        generate_and_send_transaction(seed, issuer_pubkey, tx_amount, outputAddresses, comment, allSources, outputBackChange)
+    if (
+        cli_args.contains_switches("yes")
+        or cli_args.contains_switches("y")
+        or input(
+            tabulate(
+                transaction_confirmation(
+                    issuer_pubkey, pubkey_amount, tx_amount, outputAddresses, comment
+                ),
+                tablefmt="fancy_grid",
+            )
+            + "\nDo you confirm sending this transaction? [yes/no]: "
+        )
+        == "yes"
+    ):
+        generate_and_send_transaction(
+            seed,
+            issuer_pubkey,
+            tx_amount,
+            outputAddresses,
+            comment,
+            allSources,
+            outputBackChange,
+        )
 
 
 def cmd_transaction(cli_args):
     """
     Retrieve values from command line interface
     """
-    if not (cli_args.contains_definitions('amount') or cli_args.contains_definitions('amountUD')):
+    if not (
+        cli_args.contains_definitions("amount")
+        or cli_args.contains_definitions("amountUD")
+    ):
         message_exit("--amount or --amountUD is not set")
-    if not cli_args.contains_definitions('output'):
+    if not cli_args.contains_definitions("output"):
         message_exit("--output is not set")
 
-    if cli_args.contains_definitions('amount'):
-        tx_amount = float(cli_args.get_definition('amount')) * 100
-    if cli_args.contains_definitions('amountUD'):
-        tx_amount = float(cli_args.get_definition('amountUD')) * UDValue().ud_value
+    if cli_args.contains_definitions("amount"):
+        tx_amount = float(cli_args.get_definition("amount")) * 100
+    if cli_args.contains_definitions("amountUD"):
+        tx_amount = float(cli_args.get_definition("amountUD")) * UDValue().ud_value
 
-    output = cli_args.get_definition('output')
-    comment = cli_args.get_definition('comment') if cli_args.contains_definitions('comment') else ""
-    allSources = cli_args.contains_switches('allSources')
+    output = cli_args.get_definition("output")
+    comment = (
+        cli_args.get_definition("comment")
+        if cli_args.contains_definitions("comment")
+        else ""
+    )
+    allSources = cli_args.contains_switches("allSources")
 
-    if cli_args.contains_definitions('outputBackChange'):
-        outputBackChange = cli_args.get_definition('outputBackChange')
+    if cli_args.contains_definitions("outputBackChange"):
+        outputBackChange = cli_args.get_definition("outputBackChange")
     else:
         outputBackChange = None
     return tx_amount, output, comment, allSources, outputBackChange
 
 
-def check_transaction_values(comment, outputAddresses, outputBackChange, enough_source, issuer_pubkey):
+def check_transaction_values(
+    comment, outputAddresses, outputBackChange, enough_source, issuer_pubkey
+):
     checkComment(comment)
     for outputAddress in outputAddresses:
         if check_public_key(outputAddress, True) is False:
@@ -66,20 +104,43 @@ def check_transaction_values(comment, outputAddresses, outputBackChange, enough_
         if check_public_key(outputBackChange, True) is False:
             message_exit(outputBackChange)
     if enough_source:
-        message_exit(issuer_pubkey + " pubkey doesn’t have enough money for this transaction.")
+        message_exit(
+            issuer_pubkey + " pubkey doesn’t have enough money for this transaction."
+        )
 
 
-def transaction_confirmation(issuer_pubkey, pubkey_amount, tx_amount, outputAddresses, comment):
+def transaction_confirmation(
+    issuer_pubkey, pubkey_amount, tx_amount, outputAddresses, comment
+):
     """
     Generate transaction confirmation
     """
 
     currency_symbol = CurrencySymbol().symbol
     tx = list()
-    tx.append(["pubkey’s amount before tx", str(pubkey_amount / 100) + " " + currency_symbol])
-    tx.append(["tx amount (unit)", str(tx_amount / 100 * len(outputAddresses)) + " " + currency_symbol])
-    tx.append(["tx amount (relative)", str(round(tx_amount / UDValue().ud_value, 4)) + " UD " + currency_symbol])
-    tx.append(["pubkey’s amount after tx", str(((pubkey_amount - tx_amount * len(outputAddresses)) / 100)) + " " + currency_symbol])
+    tx.append(
+        ["pubkey’s amount before tx", str(pubkey_amount / 100) + " " + currency_symbol]
+    )
+    tx.append(
+        [
+            "tx amount (unit)",
+            str(tx_amount / 100 * len(outputAddresses)) + " " + currency_symbol,
+        ]
+    )
+    tx.append(
+        [
+            "tx amount (relative)",
+            str(round(tx_amount / UDValue().ud_value, 4)) + " UD " + currency_symbol,
+        ]
+    )
+    tx.append(
+        [
+            "pubkey’s amount after tx",
+            str(((pubkey_amount - tx_amount * len(outputAddresses)) / 100))
+            + " "
+            + currency_symbol,
+        ]
+    )
     tx.append(["from (pubkey)", issuer_pubkey])
     id_from = get_uid_from_pubkey(issuer_pubkey)
     if id_from is not NO_MATCHING_ID:
@@ -93,10 +154,20 @@ def transaction_confirmation(issuer_pubkey, pubkey_amount, tx_amount, outputAddr
     return tx
 
 
-def generate_and_send_transaction(seed, issuers, AmountTransfered, outputAddresses, Comment="", all_input=False, OutputbackChange=None):
+def generate_and_send_transaction(
+    seed,
+    issuers,
+    AmountTransfered,
+    outputAddresses,
+    Comment="",
+    all_input=False,
+    OutputbackChange=None,
+):
 
     while True:
-        listinput_and_amount = get_list_input_for_transaction(issuers, AmountTransfered * len(outputAddresses), all_input)
+        listinput_and_amount = get_list_input_for_transaction(
+            issuers, AmountTransfered * len(outputAddresses), all_input
+        )
         intermediatetransaction = listinput_and_amount[2]
 
         if intermediatetransaction:
@@ -105,9 +176,17 @@ def generate_and_send_transaction(seed, issuers, AmountTransfered, outputAddress
             print("   - From:    " + issuers)
             print("   - To:      " + issuers)
             print("   - Amount:  " + str(totalAmountInput / 100))
-            transaction = generate_transaction_document(issuers, totalAmountInput, listinput_and_amount, outputAddresses, "Change operation")
+            transaction = generate_transaction_document(
+                issuers,
+                totalAmountInput,
+                listinput_and_amount,
+                outputAddresses,
+                "Change operation",
+            )
             transaction += sign_document_from_seed(transaction, seed) + "\n"
-            post_request("tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
+            post_request(
+                "tx/process", "transaction=" + urllib.parse.quote_plus(transaction)
+            )
             print("Change Transaction successfully sent.")
             sleep(1)  # wait 1 second before sending a new transaction
 
@@ -119,16 +198,35 @@ def generate_and_send_transaction(seed, issuers, AmountTransfered, outputAddress
             if all_input:
                 print("   - Amount:  " + str(listinput_and_amount[1] / 100))
             else:
-                print("   - Amount:  " + str(AmountTransfered / 100 * len(outputAddresses)))
-            transaction = generate_transaction_document(issuers, AmountTransfered, listinput_and_amount, outputAddresses, Comment, OutputbackChange)
+                print(
+                    "   - Amount:  "
+                    + str(AmountTransfered / 100 * len(outputAddresses))
+                )
+            transaction = generate_transaction_document(
+                issuers,
+                AmountTransfered,
+                listinput_and_amount,
+                outputAddresses,
+                Comment,
+                OutputbackChange,
+            )
             transaction += sign_document_from_seed(transaction, seed) + "\n"
 
-            post_request("tx/process", "transaction=" + urllib.parse.quote_plus(transaction))
+            post_request(
+                "tx/process", "transaction=" + urllib.parse.quote_plus(transaction)
+            )
             print("Transaction successfully sent.")
             break
 
 
-def generate_transaction_document(issuers, AmountTransfered, listinput_and_amount, outputAddresses, Comment="", OutputbackChange=None):
+def generate_transaction_document(
+    issuers,
+    AmountTransfered,
+    listinput_and_amount,
+    outputAddresses,
+    Comment="",
+    OutputbackChange=None,
+):
 
     totalAmountTransfered = AmountTransfered * len(outputAddresses)
 
@@ -145,7 +243,9 @@ def generate_transaction_document(issuers, AmountTransfered, listinput_and_amoun
 
     # if it's not a foreign exchange transaction, we remove units after 2 digits after the decimal point.
     if issuers not in outputAddresses:
-        totalAmountTransfered = (totalAmountTransfered // 10 ** curentUnitBase) * 10 ** curentUnitBase
+        totalAmountTransfered = (
+            totalAmountTransfered // 10 ** curentUnitBase
+        ) * 10 ** curentUnitBase
 
     # Generate output
     ################
@@ -159,7 +259,14 @@ def generate_transaction_document(issuers, AmountTransfered, listinput_and_amoun
             rest -= outputAmount
             if outputAmount > 0:
                 outputAmount = int(outputAmount / math.pow(10, unitbase))
-                listoutput.append(str(outputAmount) + ":" + str(unitbase) + ":SIG(" + outputAddress + ")")
+                listoutput.append(
+                    str(outputAmount)
+                    + ":"
+                    + str(unitbase)
+                    + ":SIG("
+                    + outputAddress
+                    + ")"
+                )
             unitbase = unitbase - 1
 
     # Outputs to himself
@@ -170,7 +277,14 @@ def generate_transaction_document(issuers, AmountTransfered, listinput_and_amoun
         rest -= outputAmount
         if outputAmount > 0:
             outputAmount = int(outputAmount / math.pow(10, unitbase))
-            listoutput.append(str(outputAmount) + ":" + str(unitbase) + ":SIG(" + OutputbackChange + ")")
+            listoutput.append(
+                str(outputAmount)
+                + ":"
+                + str(unitbase)
+                + ":SIG("
+                + OutputbackChange
+                + ")"
+            )
         unitbase = unitbase - 1
 
     # Generate transaction document
@@ -223,7 +337,9 @@ def get_list_input_for_transaction(pubkey, TXamount, allinput=False):
 def checkComment(Comment):
     if len(Comment) > 255:
         message_exit("Error: Comment is too long")
-    regex = compile('^[0-9a-zA-Z\ \-\_\:\/\;\*\[\]\(\)\?\!\^\+\=\@\&\~\#\{\}\|\\\<\>\%\.]*$')
+    regex = compile(
+        "^[0-9a-zA-Z\ \-\_\:\/\;\*\[\]\(\)\?\!\^\+\=\@\&\~\#\{\}\|\\\<\>\%\.]*$"
+    )
     if not search(regex, Comment):
         message_exit("Error: the format of the comment is invalid")
 
