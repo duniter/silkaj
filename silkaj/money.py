@@ -18,7 +18,7 @@ def cmd_amount(cli_args):
             show_amount_from_pubkey(pubkey, value)
             total[0] += value[0]
             total[1] += value[1]
-        if (len(pubkeys) > 1):
+        if len(pubkeys) > 1:
             show_amount_from_pubkey("Total", total)
     else:
         seed = auth_method(cli_args)
@@ -37,17 +37,33 @@ def show_amount_from_pubkey(pubkey, value):
         print("Blockchain:")
         print("-----------")
         print("Relative     =", round(amount / ud_value, 2), "UD", currency_symbol)
-        print("Quantitative =",  round(amount / 100, 2), currency_symbol + "\n")
+        print("Quantitative =", round(amount / 100, 2), currency_symbol + "\n")
 
         print("Pending Transaction:")
         print("--------------------")
-        print("Relative     =",  round((totalAmountInput - amount) / ud_value, 2), "UD", currency_symbol)
-        print("Quantitative =",  round((totalAmountInput - amount) / 100, 2), currency_symbol + "\n")
+        print(
+            "Relative     =",
+            round((totalAmountInput - amount) / ud_value, 2),
+            "UD",
+            currency_symbol,
+        )
+        print(
+            "Quantitative =",
+            round((totalAmountInput - amount) / 100, 2),
+            currency_symbol + "\n",
+        )
 
     print("Total amount of: " + pubkey)
     print("----------------------------------------------------------------")
-    print("Total Relative     =",  round(totalAmountInput / ud_value, 2), "UD", currency_symbol)
-    print("Total Quantitative =",  round(totalAmountInput / 100, 2), currency_symbol + "\n")
+    print(
+        "Total Relative     =",
+        round(totalAmountInput / ud_value, 2),
+        "UD",
+        currency_symbol,
+    )
+    print(
+        "Total Quantitative =", round(totalAmountInput / 100, 2), currency_symbol + "\n"
+    )
 
 
 def get_amount_from_pubkey(pubkey):
@@ -70,11 +86,17 @@ def get_sources(pubkey):
     for source in sources:
         if source["conditions"] == "SIG(" + pubkey + ")":
             amount += source["amount"] * 10 ** source["base"]
-            listinput.append(str(source["amount"]) + ":" +
-                             str(source["base"]) + ":" +
-                             str(source["type"]) + ":" +
-                             str(source["identifier"]) + ":" +
-                             str(source["noffset"]))
+            listinput.append(
+                str(source["amount"])
+                + ":"
+                + str(source["base"])
+                + ":"
+                + source["type"]
+                + ":"
+                + source["identifier"]
+                + ":"
+                + str(source["noffset"])
+            )
 
     # pending source
     history = get_request("tx/history/" + pubkey + "/pending")["history"]
@@ -94,10 +116,14 @@ def get_sources(pubkey):
                 outputsplited = output.split(":")
                 if outputsplited[2] == "SIG(" + pubkey + ")":
                     inputgenerated = (
-                                        str(outputsplited[0]) + ":" +
-                                        str(outputsplited[1]) + ":T:" +
-                                        identifier + ":" + str(i)
-                                      )
+                        outputsplited[0]
+                        + ":"
+                        + outputsplited[1]
+                        + ":T:"
+                        + identifier
+                        + ":"
+                        + str(i)
+                    )
                     if inputgenerated not in listinput:
                         listinput.append(inputgenerated)
                 i += 1
