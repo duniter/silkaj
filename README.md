@@ -5,20 +5,14 @@
 - [Website](https://silkaj.duniter.org)
 
 ## Install
-
-### Install from Pypi
-
 ```bash
 pip3 install silkaj --user
 ```
-
-### Other installation methods
 
 - [Install with Pip](doc/install_pip.md)
 - [Install with pipenv](doc/install_pipenv.md)
 - [Install with the build](doc/install_build.md)
 - [Build an executable with Pyinstaller](doc/build_with_pyinstaller.md)
-- [Install as a drop-down for GNOME Shell with Argos](doc/argos.md)
 
 ## Usage
 - Get help usage with `-h`, `--help` or `--usage` options, then run:
@@ -46,6 +40,11 @@ silkaj <sub-command> -p <address>:<port>
  - nodes versions.
  - current block n°, hash and time.
 - Issuers last ones or all: hash, gentime, mediantime
+
+## Wrappers
+- [Install as a drop-down for GNOME Shell with Argos](doc/argos.md)
+- [How-to: automate transactions and multi-output](doc/how-to_automate_transactions_and_multi-output.md)
+- [Transaction generator written in Shell](https://gitlab.com/jytou/tgen)
 
 ## Example
 ```bash
