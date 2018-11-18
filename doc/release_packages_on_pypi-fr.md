@@ -43,7 +43,7 @@ twine upload --repository-url https://test.pypi.org/legacy/ dist/silkaj-$VERSION
 On peut voir le paquet ici : https://test.pypi.org/project/silkaj/
 
 
-Pout installer le paquet depuis le dépôt de test sur un venv tout neuf :
+Pour installer le paquet depuis le dépôt de test sur un venv tout neuf :
 
 ```bash
 pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.python.org/simple/ silkaj

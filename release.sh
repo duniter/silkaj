@@ -63,6 +63,6 @@ check_version_format
 check_branch
 update_version
 commit_tag
-build
-checksum
-error_message "Build and checksum can be found in 'dist' folder"
+#build
+#checksum
+#error_message "Build and checksum can be found in 'dist' folder"
