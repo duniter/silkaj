@@ -15,6 +15,9 @@ PyNaCl = "*"
 [dev-packages]
 pre-commit = "*"
 black = "*"
+setuptools = "*"
+wheel = "*"
+twine = "*"
 
 [requires]
 python_version = "3.7"

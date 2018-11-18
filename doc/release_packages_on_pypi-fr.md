@@ -14,10 +14,11 @@ De production : https://pypi.org/account/register/
 
 # Générer les paquets
 
-D'abord il faut installer/mettre à jour `setuptools` et `wheels`
+D'abord il faut installer `setuptools`, `wheels` et `twine` dans Pipenv :
 
 ```bash
-pip install -U setuptools wheel twine
+pipenv shell
+pipenv install --dev
 ```
 
 Ensuite créer les paquets source et binaire dans le dossier "dist/" :
@@ -43,7 +44,7 @@ twine upload --repository-url https://test.pypi.org/legacy/ dist/silkaj-$VERSION
 On peut voir le paquet ici : https://test.pypi.org/project/silkaj/
 
 
-Pout installer le paquet depuis le dépôt de test sur un venv tout neuf :
+Pour installer le paquet depuis le dépôt de test sur un venv tout neuf :
 
 ```bash
 pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.python.org/simple/ silkaj
@@ -51,7 +52,7 @@ pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://
 
 Le `--extra-index-url` sert à ajouter les paquets officiels, sinon il y aura un problème avec les dépendances absentes de l'environnement de test.
 
-## Pousser sur l'environnement de test
+## Pousser sur l'environnement de production
 
 Juste faire : `twine upload dist/silkaj-$VERSION*`
 
