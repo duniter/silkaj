@@ -86,7 +86,7 @@ def membership_status(certifications, certs, pubkey, req):
     params = BlockchainParams().params
     if len(certifications["received"]) >= params["sigQty"]:
         print(
-            "Membership expiration due to certifications expirations: "
+            "Membership expiration due to certification expirations: "
             + certifications["received_expire"][
                 len(certifications["received"]) - params["sigQty"]
             ]
