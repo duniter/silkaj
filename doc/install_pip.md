@@ -11,6 +11,10 @@ On Ubuntu 14.04 and Debian 8, you need this package too:
 sudo apt install libffi-dev
 ```
 
+```bash
+echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.bashrc
+```
+
 ## Install from Pypi
 
 ```bash
