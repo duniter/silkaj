@@ -12,6 +12,7 @@ pip3 install silkaj --user
 - [Install with Pip](doc/install_pip.md)
 - [Install with pipenv](doc/install_pipenv.md)
 - [Install with the build](doc/install_build.md)
+- [Install with docker](doc/install_docker.md)
 - [Build an executable with Pyinstaller](doc/build_with_pyinstaller.md)
 
 ## Usage
