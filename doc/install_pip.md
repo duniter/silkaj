@@ -11,14 +11,16 @@ On Ubuntu 14.04 and Debian 8, you need this package too:
 sudo apt install libffi-dev
 ```
 
-```bash
-echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.bashrc
-```
-
 ## Install from Pypi
 
 ```bash
 pip3 install silkaj --user
+```
+
+After intallation, if you get a `bash: silkaj: command not found` error, you should add `~/.local/bin` to your `PATH`:
+```bash
+echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.bashrc
+source $HOME/.bashrc
 ```
 
 ## Install from sources
