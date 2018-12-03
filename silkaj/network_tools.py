@@ -81,7 +81,11 @@ class EndPoint(object):
         cli_args = Command()
         ep = dict()
         if cli_args.contains_switches("p"):
-            ep["domain"], ep["port"] = cli_args.get_definition("p").rsplit(":", 1)
+            peer = cli_args.get_definition("p")
+            if ":" in peer:
+                ep["domain"], ep["port"] = peer.rsplit(":", 1)
+            else:
+                ep["domain"], ep["port"] = peer, "443"
         else:
             ep["domain"], ep["port"] = (
                 G1_TEST_DEFAULT_ENDPOINT

@@ -46,7 +46,7 @@ def usage():
         + " currency with `https://"
         + G1_TEST_DEFAULT_ENDPOINT[0]
         + "` endpoint\
-    \n - custom endpoint can be specified with `-p` option followed by <domain>:<port>\
+    \n - custom endpoint can be specified with `-p` option followed by <domain>:<port> or <domain> with 443 as default port\
     \n \
     \nCommands: \
     \n - info: Display information about currency \
