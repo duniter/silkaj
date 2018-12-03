@@ -57,7 +57,7 @@ def received_sent_certifications(id):
                 len(certifications["sent"]) if "sent" in certifications else 0
             )
             print(
-                "{0} ({1}) from block #{2}\nreceived {3} and sent {4}/{5} certifications:\n{6}\n".format(
+                "{0} ({1}) from block #{2}\nreceived {3} and sent {4}/{5} certifications:\n{6}\n{7}\n".format(
                     id,
                     pubkey[:5] + "…",
                     certs["meta"]["timestamp"][:15] + "…",
@@ -70,6 +70,7 @@ def received_sent_certifications(id):
                         tablefmt="orgtbl",
                         stralign="center",
                     ),
+                    "✔: Certifications written into the blockchain",
                 )
             )
             membership_status(certifications, certs, pubkey, req)
