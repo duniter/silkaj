@@ -180,7 +180,7 @@ def generate_and_send_transaction(
                 issuers,
                 totalAmountInput,
                 listinput_and_amount,
-                outputAddresses,
+                issuers,
                 "Change operation",
             )
             transaction += sign_document_from_seed(transaction, seed) + "\n"
@@ -251,8 +251,11 @@ def generate_transaction_document(
     ################
     listoutput = []
     # Outputs to receiver (if not himself)
-    for outputAddress in outputAddresses:
+    if isinstance(outputAddresses, str):
         generate_output(listoutput, curentUnitBase, AmountTransfered, outputAddresses)
+    else:
+        for outputAddress in outputAddresses:
+            generate_output(listoutput, curentUnitBase, AmountTransfered, outputAddress)
 
     # Outputs to himself
     rest = totalAmountInput - totalAmountTransfered
