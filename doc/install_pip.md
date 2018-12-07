@@ -30,6 +30,13 @@ echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.bashrc
 source $HOME/.bashrc
 ```
 
+## Upgrade from Pypi
+```bash
+pip3 install silkaj --user --upgrade
+```
+
+---
+
 ## Install from sources
 
 ### Retrieve silkaj sources
