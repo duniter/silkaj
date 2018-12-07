@@ -44,6 +44,11 @@ def send_certification(cli_args):
                 renewable_date = convert_time(time() + renewable, "date")
                 message_exit("Certification renewable the " + renewable_date)
 
+    # Check if the certification is already in the pending certifications
+    for pending_cert in req["pendingCerts"]:
+        if pending_cert["from"] == issuer_pubkey:
+            message_exit("Certification is currently been processed")
+
     # Certification confirmation
     if not certification_confirmation(
         issuer_id, issuer_pubkey, id_to_certify, main_id_to_certify
