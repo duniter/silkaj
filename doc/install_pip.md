@@ -1,6 +1,47 @@
 # Install Silkaj with Pip
 
-## Install dependencies
+Assuming that python and pip version 3 are installed and available. You can check with
+```bash
+pip3 --version
+```
+
+## Install directly from internet (implicitely uses binaries from website Pypi)
+
+### installing for all users
+
+```bash
+pip3 install silkaj
+```
+
+### installing for current user only
+
+```bash
+pip3 install silkaj --user
+```
+
+### upgrading
+
+```bash
+pip3 install silkaj --user --upgrade
+```
+
+### uninstalling (useful to see the real pathes)
+
+```bash
+pip3 install silkaj --user
+```
+
+### testing silkaj
+
+```bash
+silkaj info
+```
+
+## On linux 
+
+### Your system must use UTF-8 locales...
+
+### Install dependencies before installing
 
 ```bash
 sudo apt install python3-pip libssl-dev
@@ -11,18 +52,12 @@ On Ubuntu (14.04 and 16.04) and Debian 8, you need this package too:
 sudo apt install libffi-dev
 ```
 
-Your system must use UTF-8 locales.
-
 Linux Mint is reported to require the installation of this package too:
 ```
 sudo apt install python3-dev
 ```
 
-## Install from Pypi
-
-```bash
-pip3 install silkaj --user
-```
+### Completing PATH
 
 After intallation, if you get a `bash: silkaj: command not found` error, you should add `~/.local/bin` to your `PATH`:
 ```bash
@@ -30,10 +65,84 @@ echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.bashrc
 source $HOME/.bashrc
 ```
 
-## Upgrade from Pypi
+## On windows
+
+### administrator rights
+Please note administrator rights may be mandatory for some of these operations.
+
+### PATH variable
+
+The main problem on Windows is about finding where are the requested files.
+
+Python must be installed (version 3 minimum). For instance https://sourceforge.net/projects/winpython/
+
+You can test that python is available by opening a command tool (cmd.exe) and trying:
 ```bash
-pip3 install silkaj --user --upgrade
+C:\>python --version
+Python 3.6.7
+
+C:\>
 ```
+
+When installing Python, be careful which folder you specify (for instance C:\WPy-3670)
+
+After install you commonlly have to add yourself this folder in the PATH environment variable:
+
+To make it by command tool (cmd.exe) :
+```bash
+set PATH=%PATH%;C:\WPy-3670\
+```
+then you have to exit the cmd tool so that PATH variable be upgraded internally.
+
+You may also use RightClick on computer, then Advanced System Parameters and use in the bottom the button Environment Variables.
+
+In order to be able to use silkaj and specifically the OpenSSL binaries, you also have to add the following folder to the PATH variable:
+C:\WPy-3670\python-3.6.7.amd64\Lib\site-packages\PyQt5\Qt\bin\
+
+```bash
+set PATH=%PATH%;C:\WPy-3670\python-3.6.7.amd64\Lib\site-packages\PyQt5\Qt\bin\
+```
+
+If not, you will obtain this error while testing silkaj:
+```bash
+C:\WPy-3670\python-3.6.7.amd64\Scripts>silkaj info
+Traceback (most recent call last):
+File "C:\WPy-3670\python-3.6.7.amd64\Scripts\silkaj", line 7, in <module>
+from silkaj.cli_tools import manage_cmd
+File "C:\WPy-3670\python-3.6.7.amd64\lib\site-packages\silkaj\cli_tools.py", line 5, in <module>
+from silkaj.tx import send_transaction
+File "C:\WPy-3670\python-3.6.7.amd64\lib\site-packages\silkaj\tx.py", line 14, in <module>
+from silkaj.auth import auth_method
+File "C:\WPy-3670\python-3.6.7.amd64\lib\site-packages\silkaj\auth.py", line 5, in <module>
+from scrypt import hash
+File "C:\WPy-3670\python-3.6.7.amd64\lib\site-packages\scrypt\__init__.py", line 1, in <module>
+from .scrypt import *
+File "C:\WPy-3670\python-3.6.7.amd64\lib\site-packages\scrypt\scrypt.py", line 15, in <module>
+_scrypt = cdll.LoadLibrary(imp.find_module('_scrypt')[1])
+File "C:\WPy-3670\python-3.6.7.amd64\lib\ctypes\__init__.py", line 426, in LoadLibrary
+return self._dlltype(name)
+File "C:\WPy-3670\python-3.6.7.amd64\lib\ctypes\__init__.py", line 348, in init
+self._handle = _dlopen(self._name, mode)
+OSError: [WinError 126] Le module spécifié est introuvable
+
+C:\WPy-3670\python-3.6.7.amd64\Scripts>
+```
+
+### creating the silkaj command file silka.bat
+
+In order to be able to launch silkaj as a windows command, you have to create a file silkaj.bat in the following folder:
+C:\WPy-3670\python-3.6.7.amd64\Scripts\silkaj.bat
+
+containing exactly:
+rem @echo off
+python "%~dpn0" %*
+
+and then to add this folder in the PATH variable :
+```bash
+set PATH=%PATH%;C:\WPy-3670\python-3.6.7.amd64\Scripts\
+```
+
+
 
 ---
 
@@ -46,9 +155,9 @@ git clone https://git.duniter.org/clients/python/silkaj.git
 cd silkaj
 ```
 
-### Install with dependencies
+### then Install with dependencies
 
-Just install:
+Just install (assuming you are in silkaj folder : cd silkaj)
 ```bash
 pip3 install .
 ```
