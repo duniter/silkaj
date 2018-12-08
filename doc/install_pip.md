@@ -1,5 +1,7 @@
 # Install Silkaj with Pip
 
+Have to use a shell in linux or a command tool (cmd.exe) on windows.
+
 Assuming that python and pip version 3 are installed and available. You can check with
 ```bash
 pip3 --version
@@ -146,18 +148,40 @@ set PATH=%PATH%;C:\WPy-3670\python-3.6.7.amd64\Scripts\
 
 ---
 
-## Install from sources
+## Install from original sources in duniter website
 
-### Retrieve silkaj sources
+### Retrieve silkaj sources on linux
 ```bash
 sudo apt install git
 git clone https://git.duniter.org/clients/python/silkaj.git
 cd silkaj
 ```
 
+### Retrieve silkaj sources on windows
+
+You have first to install the git tool from https://git-scm.com/download/win
+
+Then change directory to where you want to download the sources, for instance:
+```bash
+cd  ~/appdata/Roaming/
+```
+
+Then download the silkaj source (dev version) with git tool
+which will create a folder silkaj
+
+```bash
+ git clone https://git.duniter.org/clients/python/silkaj.git
+ ```
+ 
+Then change directory to the downloaded folder
+```bash
+ cd ~/appdata/Roaming/silkaj
+```
+
 ### then Install with dependencies
 
-Just install (assuming you are in silkaj folder : cd silkaj)
+Just install
+after being sure you have changed directory to the downloaded folder
 ```bash
 pip3 install .
 ```
