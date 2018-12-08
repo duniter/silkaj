@@ -1,4 +1,3 @@
-from os import system
 from time import time
 from tabulate import tabulate
 from collections import OrderedDict
@@ -33,7 +32,6 @@ def received_sent_certifications(id):
     time_first_block = get_request("blockchain/block/1")["time"]
     id_certs = get_informations_for_identity(id)
     certifications = OrderedDict()
-    system("clear")
     params = BlockchainParams().params
     for certs in id_certs["uids"]:
         if certs["uid"].lower() == id.lower():

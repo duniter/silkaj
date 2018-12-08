@@ -33,7 +33,6 @@ def currency_info():
         ]
     head_block = HeadBlock().head_block
     ep = EndPoint().ep
-    system("clear")
     print(
         "Connected to node:",
         ep[best_node(ep, False)],
@@ -210,7 +209,6 @@ def network_info(discover):
             else:
                 endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
         i += 1
-    system("clear")
     print(
         len(endpoints),
         "peers ups, with",
@@ -254,7 +252,6 @@ def list_issuers(nbr, last):
             ):
                 issuer2["uid"] = uid
                 issuer2.pop("pubkey")
-    system("clear")
     print(
         "Issuers for last {0} blocks from block n°{1} to block n°{2}".format(
             nbr, current_nbr - nbr + 1, current_nbr
