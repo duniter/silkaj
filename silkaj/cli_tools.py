@@ -76,7 +76,7 @@ def usage():
     \n \
     \n - diffi: list proof-of-work difficulty to generate next block \
     \n \
-    \n - issuers n: display last n issuers (`0` for current window size) \
+    \n - blocks n: display last n issuers (`0` for current window size) \
     \n      last issuers are displayed under n <= 30.\
     \n      To force display last ones, use `--last` option\
     \n \
@@ -114,7 +114,7 @@ def manage_cmd():
         "diffi",
         "net",
         "network",
-        "issuers",
+        "blocks",
         "argos",
         "amount",
         "tx",
@@ -148,7 +148,7 @@ def manage_cmd():
         network_info(cli_args.contains_switches("discover"))
 
     elif (
-        cli_args.subcmd == "issuers"
+        cli_args.subcmd == "blocks"
         and cli_args.subsubcmd
         and int(cli_args.subsubcmd) >= 0
     ):
