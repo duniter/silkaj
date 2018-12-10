@@ -11,7 +11,7 @@ from silkaj.commands import (
     set_network_sort_keys,
     network_info,
     argos_info,
-    list_issuers,
+    list_blocks,
 )
 from silkaj.tools import message_exit
 from silkaj.network_tools import get_request
@@ -76,8 +76,8 @@ def usage():
     \n \
     \n - diffi: list proof-of-work difficulty to generate next block \
     \n \
-    \n - blocks n: display last n issuers (`0` for current window size) \
-    \n      last issuers are displayed under n <= 30.\
+    \n - blocks n: display last n blocks (`0` for current window size) \
+    \n      last blocks are displayed under n <= 30.\
     \n      To force display last ones, use `--last` option\
     \n \
     \n - argos: display currency information formated for Argos or BitBar\
@@ -152,7 +152,7 @@ def manage_cmd():
         and cli_args.subsubcmd
         and int(cli_args.subsubcmd) >= 0
     ):
-        list_issuers(int(cli_args.subsubcmd), cli_args.contains_switches("last"))
+        list_blocks(int(cli_args.subsubcmd), cli_args.contains_switches("last"))
 
     elif cli_args.subcmd == "argos":
         argos_info()

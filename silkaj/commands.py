@@ -222,7 +222,7 @@ def network_info(discover):
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 
-def list_issuers(nbr, last):
+def list_blocks(nbr, last):
     head_block = HeadBlock().head_block
     current_nbr = head_block["number"]
     if nbr == 0:
@@ -253,7 +253,7 @@ def list_issuers(nbr, last):
                 issuer2["uid"] = uid
                 issuer2.pop("pubkey")
     print(
-        "Issuers for last {0} blocks from block n°{1} to block n°{2}".format(
+        "Last {0} blocks from n°{1} to n°{2}".format(
             nbr, current_nbr - nbr + 1, current_nbr
         ),
         end=" ",
