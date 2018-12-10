@@ -180,7 +180,7 @@ def generate_and_send_transaction(
                 issuers,
                 totalAmountInput,
                 listinput_and_amount,
-                outputAddresses,
+                issuers,
                 "Change operation",
             )
             transaction += sign_document_from_seed(transaction, seed) + "\n"
@@ -251,41 +251,15 @@ def generate_transaction_document(
     ################
     listoutput = []
     # Outputs to receiver (if not himself)
-    for outputAddress in outputAddresses:
-        rest = AmountTransfered
-        unitbase = curentUnitBase
-        while rest > 0:
-            outputAmount = truncBase(rest, unitbase)
-            rest -= outputAmount
-            if outputAmount > 0:
-                outputAmount = int(outputAmount / math.pow(10, unitbase))
-                listoutput.append(
-                    str(outputAmount)
-                    + ":"
-                    + str(unitbase)
-                    + ":SIG("
-                    + outputAddress
-                    + ")"
-                )
-            unitbase = unitbase - 1
+    if isinstance(outputAddresses, str):
+        generate_output(listoutput, curentUnitBase, AmountTransfered, outputAddresses)
+    else:
+        for outputAddress in outputAddresses:
+            generate_output(listoutput, curentUnitBase, AmountTransfered, outputAddress)
 
     # Outputs to himself
-    unitbase = curentUnitBase
     rest = totalAmountInput - totalAmountTransfered
-    while rest > 0:
-        outputAmount = truncBase(rest, unitbase)
-        rest -= outputAmount
-        if outputAmount > 0:
-            outputAmount = int(outputAmount / math.pow(10, unitbase))
-            listoutput.append(
-                str(outputAmount)
-                + ":"
-                + str(unitbase)
-                + ":SIG("
-                + OutputbackChange
-                + ")"
-            )
-        unitbase = unitbase - 1
+    generate_output(listoutput, curentUnitBase, rest, OutputbackChange)
 
     # Generate transaction document
     ##############################
@@ -309,6 +283,23 @@ def generate_transaction_document(
     transaction_document += "Comment: " + Comment + "\n"
 
     return transaction_document
+
+
+def generate_output(listoutput, unitbase, rest, recipient_address):
+    while rest > 0:
+        outputAmount = truncBase(rest, unitbase)
+        rest -= outputAmount
+        if outputAmount > 0:
+            outputAmount = int(outputAmount / math.pow(10, unitbase))
+            listoutput.append(
+                str(outputAmount)
+                + ":"
+                + str(unitbase)
+                + ":SIG("
+                + recipient_address
+                + ")"
+            )
+        unitbase = unitbase - 1
 
 
 def get_list_input_for_transaction(pubkey, TXamount, allinput=False):
