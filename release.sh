@@ -60,7 +60,7 @@ error_message() {
 
 check_argument_specified
 check_version_format
-check_branch
+#check_branch
 update_version
 commit_tag
 #build
