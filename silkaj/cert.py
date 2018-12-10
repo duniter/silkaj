@@ -1,10 +1,12 @@
 import urllib
+from time import time
 from tabulate import tabulate
 
 from silkaj.auth import auth_method
 from silkaj.crypto_tools import get_publickey_from_seed, sign_document_from_seed
-from silkaj.tools import message_exit
-from silkaj.network_tools import post_request, HeadBlock
+from silkaj.tools import convert_time, message_exit
+from silkaj.network_tools import get_request, post_request, HeadBlock
+from silkaj.blockchain_tools import BlockchainParams
 from silkaj.license import license_approval
 from silkaj.wot import is_member, get_uid_from_pubkey, get_informations_for_identity
 
@@ -28,9 +30,24 @@ def send_certification(cli_args):
     if issuer_pubkey == id_to_certify["pubkey"]:
         message_exit("You can’t certify yourself!")
 
-    for certifier in main_id_to_certify["others"]:
-        if certifier["pubkey"] == issuer_pubkey:
-            message_exit("Identity already certified by " + issuer_id)
+    # Check if the certification can be renewed
+    req = get_request("wot/requirements/" + id_to_certify["pubkey"])["identities"][0]
+    for cert in req["certifications"]:
+        if cert["from"] == issuer_pubkey:
+            params = BlockchainParams().params
+            # Change params["msWindow"] to params["sigReplay"] when deployed
+            # https://git.duniter.org/nodes/typescript/duniter/merge_requests/1270
+            # Ğ1: 0<–>2y - 2y + 2m
+            # ĞT: 0<–>6m - 6m + ¼m
+            renewable = cert["expiresIn"] - params["sigValidity"] + params["msWindow"]
+            if renewable > 0:
+                renewable_date = convert_time(time() + renewable, "date")
+                message_exit("Certification renewable the " + renewable_date)
+
+    # Check if the certification is already in the pending certifications
+    for pending_cert in req["pendingCerts"]:
+        if pending_cert["from"] == issuer_pubkey:
+            message_exit("Certification is currently been processed")
 
     # Certification confirmation
     if not certification_confirmation(
