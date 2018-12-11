@@ -112,6 +112,8 @@ class EndPoint(object):
         if ep["domain"].startswith("[") and ep["domain"].endswith("]"):
             ep["domain"] = ep["domain"][1:-1]
         self.ep = ep
+        api = "BMAS" if ep["port"] == "443" else "BASIC_MERKLED_API"
+        self.BMA_ENDPOINT = " ".join([api, ep["domain"], ep["port"]])
 
 
 def parse_endpoint(rep):
