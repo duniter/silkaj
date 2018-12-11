@@ -21,6 +21,7 @@ from os import system, popen
 from collections import OrderedDict
 from tabulate import tabulate
 from operator import itemgetter
+from duniterpy.api.bma import blockchain
 
 from silkaj.wot import get_uid_from_pubkey
 from silkaj.network_tools import (
@@ -28,6 +29,7 @@ from silkaj.network_tools import (
     get_request,
     best_node,
     EndPoint,
+    ClientInstance,
     HeadBlock,
 )
 from silkaj.tools import convert_time, message_exit, CurrencySymbol
@@ -106,14 +108,15 @@ def power(nbr, pow=0):
     return "{0:.1f} × 10^{1}".format(nbr, pow)
 
 
-def difficulties():
+async def difficulties():
+    client = ClientInstance().client
     while True:
-        diffi = get_request("blockchain/difficulties")
+        diffi = await client(blockchain.difficulties)
         levels = [
             OrderedDict((i, d[i]) for i in ("uid", "level")) for d in diffi["levels"]
         ]
         diffi["levels"] = levels
-        current = get_request("blockchain/current")
+        current = await client(blockchain.current)
         issuers = 0
         sorted_diffi = sorted(diffi["levels"], key=itemgetter("level"), reverse=True)
         for d in diffi["levels"]:
@@ -136,6 +139,7 @@ def difficulties():
             )
         )
         sleep(5)
+    await client.close()
 
 
 network_sort_keys = ["block", "member", "diffi", "uid"]

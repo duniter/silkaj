@@ -119,7 +119,7 @@ def usage():
     )
 
 
-def manage_cmd():
+async def manage_cmd():
     cli_args = Command()
     if cli_args.is_version_request():
         message_exit(SILKAJ_VERSION)
@@ -155,7 +155,7 @@ def manage_cmd():
         currency_info()
 
     elif cli_args.subcmd == "diffi":
-        difficulties()
+        await difficulties()
 
     elif cli_args.subcmd == "net" or cli_args.subcmd == "network":
         if cli_args.contains_switches("sort"):
