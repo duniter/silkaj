@@ -202,9 +202,10 @@ def get_informations_for_identities(identifier):
     return results["results"]
 
 
-def is_member(pubkey, uid):
-    members = get_request("wot/members")["results"]
-    for member in members:
+async def is_member(pubkey, uid):
+    client = ClientInstance().client
+    members = await client(wot.members)
+    for member in members["results"]:
         if pubkey in member["pubkey"] and uid in member["uid"]:
             return True
     return False

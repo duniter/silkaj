@@ -181,7 +181,7 @@ async def manage_cmd():
         send_transaction(cli_args)
 
     elif cli_args.subcmd == "cert":
-        send_certification(cli_args)
+        await send_certification(cli_args)
 
     elif cli_args.subcmd == "generate_auth_file":
         generate_auth_file(cli_args)
