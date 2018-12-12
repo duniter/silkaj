@@ -18,8 +18,9 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 from time import time
 from tabulate import tabulate
 from collections import OrderedDict
+from duniterpy.api.bma import wot, blockchain
 
-from silkaj.network_tools import get_request
+from silkaj.network_tools import ClientInstance
 from silkaj.crypto_tools import check_public_key
 from silkaj.tools import message_exit, convert_time
 from silkaj.blockchain_tools import BlockchainParams
@@ -40,20 +41,23 @@ def get_sent_certifications(certs, time_first_block, params):
     return sent, expire
 
 
-def received_sent_certifications(id):
+async def received_sent_certifications(id):
     """
     get searched id
     get id of received and sent certifications
     display on a chart the result with the numbers
     """
-    time_first_block = get_request("blockchain/block/1")["time"]
-    id_certs = get_informations_for_identity(id)
+    client = ClientInstance().client
+    first_block = await client(blockchain.block, 1)
+    time_first_block = first_block["time"]
+    id_certs = await get_informations_for_identity(id)
     certifications = OrderedDict()
     params = BlockchainParams().params
     for certs in id_certs["uids"]:
         if certs["uid"].lower() == id.lower():
             pubkey = id_certs["pubkey"]
-            req = get_request("wot/requirements/" + pubkey)["identities"][0]
+            req = await client(wot.requirements, pubkey)
+            req = req["identities"][0]
             certifications["received_expire"] = list()
             certifications["received"] = list()
             for cert in certs["others"]:
@@ -89,6 +93,7 @@ def received_sent_certifications(id):
                 )
             )
             membership_status(certifications, certs, pubkey, req)
+    await client.close()
 
 
 def cert_written_in_the_blockchain(written_certs, certifieur):
@@ -107,7 +112,7 @@ def membership_status(certifications, certs, pubkey, req):
                 len(certifications["received"]) - params["sigQty"]
             ]
         )
-    member = is_member(pubkey, certs["uid"])
+    member = await is_member(pubkey, certs["uid"])
     print("member:", member)
     if req["revoked"]:
         print(
@@ -162,13 +167,13 @@ def id_pubkey_correspondence(id_pubkey):
                     print("")
 
 
-def get_informations_for_identity(id):
+async def get_informations_for_identity(id):
     """
     Check that the id is present on the network
     many identities could match
     return the one searched
     """
-    certs_req = get_informations_for_identities(id)
+    certs_req = await get_informations_for_identities(id)
     if certs_req == NO_MATCHING_ID:
         message_exit(NO_MATCHING_ID)
     for certs_id in certs_req:
@@ -179,7 +184,8 @@ def get_informations_for_identity(id):
 
 def get_uid_from_pubkey(pubkey):
     try:
-        results = get_request("wot/lookup/" + pubkey)
+        client = ClientInstance().client
+        results = await client(wot.lookup, pubkey)
     except:
         return NO_MATCHING_ID
     i, results = 0, results["results"]
@@ -189,14 +195,15 @@ def get_uid_from_pubkey(pubkey):
         i += 1
 
 
-def get_informations_for_identities(identifier):
+async def get_informations_for_identities(identifier):
     """
     :identifier: identity or pubkey in part or whole
     Return received and sent certifications lists of matching identities
     if one identity found
     """
+    client = ClientInstance().client
     try:
-        results = get_request("wot/lookup/" + identifier)
+        results = await client(wot.lookup, identifier)
     except:
         return NO_MATCHING_ID
     return results["results"]

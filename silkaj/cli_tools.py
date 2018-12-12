@@ -190,7 +190,7 @@ async def manage_cmd():
         id_pubkey_correspondence(cli_args.subsubcmd)
 
     elif cli_args.subcmd == "wot":
-        received_sent_certifications(cli_args.subsubcmd)
+        await received_sent_certifications(cli_args.subsubcmd)
 
     elif cli_args.subcmd == "license":
         display_license()
