@@ -2,43 +2,6 @@
 
 You have to use a shell on GNU/Linux or a command tool (`cmd.exe`) on Windows.
 
-Assuming that Python v3 and pip version 3 are installed and available. You can check with:
-```bash
-pip3 --version
-```
-
-## Install directly from internet (implicitely uses binaries from website Pypi)
-
-### Installing for all users
-
-```bash
-pip3 install silkaj
-```
-
-### Installing for current user only
-
-```bash
-pip3 install silkaj --user
-```
-
-### Upgrading
-
-```bash
-pip3 install silkaj --user --upgrade
-```
-
-### Uninstalling (useful to see the real paths)
-
-```bash
-pip3 uninstall silkaj --user
-```
-
-### Checking silkaj is working
-
-```bash
-silkaj info
-```
-
 ## GNU/Linux 
 The system must use UTF-8 locales…
 
@@ -116,6 +79,43 @@ python "%~dpn0" %*
 and then to add this folder into the `PATH` variable:
 ```bash
 set PATH=%PATH%;C:\WPy-3670\python-3.6.7.amd64\Scripts\
+```
+
+## Install directly from internet (implicitely uses binaries from website Pypi)
+
+Assuming that Python v3 and pip version 3 are installed and available. You can check with:
+```bash
+pip3 --version
+```
+
+### Install for all users
+
+```bash
+pip3 install silkaj
+```
+
+### Install for current user only
+
+```bash
+pip3 install silkaj --user
+```
+
+### Upgrade
+
+```bash
+pip3 install silkaj --user --upgrade
+```
+
+### Uninstall (useful to see the real paths)
+
+```bash
+pip3 uninstall silkaj --user
+```
+
+### Check silkaj is working
+
+```bash
+silkaj info
 ```
 
 ---
