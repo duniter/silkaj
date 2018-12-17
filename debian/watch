@@ -1,0 +1,5 @@
+# run "uscan --report" to check or "gbp import-orig --uscan" to update
+version=4
+opts="filenamemangle=s%(?:.*?)?v(@ANY_VERSION@@ARCHIVE_EXT@)%@PACKAGE@-$1%" \
+ https://github.com/duniter/silkaj/tags \
+ .*/v@ANY_VERSION@@ARCHIVE_EXT@
