@@ -1,0 +1,5 @@
+  * Fix add needed package relations.
+  * (Add upstream and) list copyright coverage.
+  * (Add upstream and) include extended project description.
+  * (Add upstream and) enable testsuite.
+  * (Either include upstream or) generate manpage with help2man.
