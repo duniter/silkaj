@@ -33,8 +33,7 @@ def show_amount_from_pubkey(pubkey, value):
 
     currency_symbol = CurrencySymbol().symbol
     ud_value = UDValue().ud_value
-    average = get_average()[0]
-    monetary_mass = get_average()[1]
+    average, monetary_mass = get_average()
     if totalAmountInput - amount != 0:
         print("Blockchain:")
         print("-----------")
@@ -63,11 +62,25 @@ def show_amount_from_pubkey(pubkey, value):
         "UD",
         currency_symbol,
     )
+    print("Total Quantitative =", round(totalAmountInput / 100, 2), currency_symbol)
     print(
-        "Total Quantitative =", round(totalAmountInput / 100, 2), currency_symbol
+        "Total Relative to average money share =",
+        round((totalAmountInput / average) * 100, 2),
+        "% M/N",
     )
-    print("Total Relative to average money share =", round((totalAmountInput / average) * 100, 2), "% M/N")
-    print("Total Relative to monetary mass       =", round((totalAmountInput / monetary_mass) * 1000000, 2), "10-⁶ M" + "\n")
+    print(
+        "Total Relative to monetary mass       =",
+        round((totalAmountInput / monetary_mass) * 1000000, 2),
+        "10-⁶ M" + "\n",
+    )
+
+
+def get_average():
+    head = HeadBlock().head_block
+    monetary_mass = head["monetaryMass"]
+    members_count = head["membersCount"]
+    average = monetary_mass / members_count
+    return average, monetary_mass
 
 
 def get_amount_from_pubkey(pubkey):
@@ -158,10 +171,3 @@ class UDValue(object):
         NBlastUDblock = blockswithud["blocks"][-1]
         lastUDblock = get_request("blockchain/block/" + str(NBlastUDblock))
         self.ud_value = lastUDblock["dividend"] * 10 ** lastUDblock["unitbase"]
-
-
-def get_average ():
-	monetary_mass = HeadBlock().head_block["monetaryMass"]
-	members_count = HeadBlock().head_block["membersCount"]
-	average = (monetary_mass / members_count)
-	return average, monetary_mass
