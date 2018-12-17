@@ -33,6 +33,7 @@ def show_amount_from_pubkey(pubkey, value):
 
     currency_symbol = CurrencySymbol().symbol
     ud_value = UDValue().ud_value
+    average, monetary_mass = get_average()
     if totalAmountInput - amount != 0:
         print("Blockchain:")
         print("-----------")
@@ -61,9 +62,25 @@ def show_amount_from_pubkey(pubkey, value):
         "UD",
         currency_symbol,
     )
+    print("Total Quantitative =", round(totalAmountInput / 100, 2), currency_symbol)
     print(
-        "Total Quantitative =", round(totalAmountInput / 100, 2), currency_symbol + "\n"
+        "Total Relative to average money share =",
+        round(totalAmountInput / average, 2),
+        "× M/N",
     )
+    print(
+        "Total Relative to monetary mass       =",
+        round((totalAmountInput / monetary_mass) * 100, 3),
+        "% M" + "\n",
+    )
+
+
+def get_average():
+    head = HeadBlock().head_block
+    monetary_mass = head["monetaryMass"]
+    members_count = head["membersCount"]
+    average = monetary_mass / members_count
+    return average, monetary_mass
 
 
 def get_amount_from_pubkey(pubkey):
