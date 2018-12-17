@@ -105,7 +105,7 @@ def difficulties():
             d["match"] = match_pattern(d["level"])[0][:20]
             d["Π diffi"] = power(match_pattern(d["level"])[1])
             d["Σ diffi"] = d.pop("level")
-        system("clear")
+        system("cls||clear")
         print(
             "Minimal Proof-of-Work: {0} to match `{1}`\nDifficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}".format(
                 current["powMin"],
