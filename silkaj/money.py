@@ -65,13 +65,13 @@ def show_amount_from_pubkey(pubkey, value):
     print("Total Quantitative =", round(totalAmountInput / 100, 2), currency_symbol)
     print(
         "Total Relative to average money share =",
-        round((totalAmountInput / average) * 100, 2),
-        "% M/N",
+        round(totalAmountInput / average, 2),
+        "× M/N",
     )
     print(
         "Total Relative to monetary mass       =",
-        round((totalAmountInput / monetary_mass) * 1000000, 2),
-        "10-⁶ M" + "\n",
+        round((totalAmountInput / monetary_mass) * 100, 3),
+        "% M" + "\n",
     )
 
 
