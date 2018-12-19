@@ -187,7 +187,7 @@ async def manage_cmd():
         generate_auth_file(cli_args)
 
     elif cli_args.subcmd == "id" or cli_args.subcmd == "identities":
-        id_pubkey_correspondence(cli_args.subsubcmd)
+        await id_pubkey_correspondence(cli_args.subsubcmd)
 
     elif cli_args.subcmd == "wot":
         await received_sent_certifications(cli_args.subsubcmd)

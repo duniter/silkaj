@@ -144,7 +144,8 @@ def date_approximation(block_id, time_first_block, avgentime):
     return time_first_block + block_id * avgentime
 
 
-def id_pubkey_correspondence(id_pubkey):
+async def id_pubkey_correspondence(id_pubkey):
+    client = ClientInstance().client
     if check_public_key(id_pubkey, False):
         print(
             "{} public key corresponds to identity: {}".format(
@@ -152,7 +153,7 @@ def id_pubkey_correspondence(id_pubkey):
             )
         )
     else:
-        pubkeys = get_informations_for_identities(id_pubkey)
+        pubkeys = await get_informations_for_identities(id_pubkey)
         if pubkeys == NO_MATCHING_ID:
             print(NO_MATCHING_ID)
         else:
@@ -160,11 +161,11 @@ def id_pubkey_correspondence(id_pubkey):
             for pubkey in pubkeys:
                 print("→", pubkey["pubkey"], end=" ")
                 try:
-                    print(
-                        "↔ " + get_request("wot/identity-of/" + pubkey["pubkey"])["uid"]
-                    )
+                    corresponding_id = await client(wot.identity_of, pubkey["pubkey"])
+                    print("↔ " + corresponding_id["uid"])
                 except:
                     print("")
+    await client.close()
 
 
 async def get_informations_for_identity(id):
