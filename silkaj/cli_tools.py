@@ -178,7 +178,7 @@ async def manage_cmd():
         await cmd_amount(cli_args)
 
     elif cli_args.subcmd == "tx" or cli_args.subcmd == "transaction":
-        send_transaction(cli_args)
+        await send_transaction(cli_args)
 
     elif cli_args.subcmd == "cert":
         await send_certification(cli_args)

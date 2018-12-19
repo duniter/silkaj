@@ -21,7 +21,7 @@ from time import sleep
 import urllib
 
 from tabulate import tabulate
-from silkaj.network_tools import get_request, post_request, HeadBlock
+from silkaj.network_tools import ClientInstance, post_request, HeadBlock
 from silkaj.crypto_tools import (
     get_publickey_from_seed,
     sign_document_from_seed,
@@ -34,7 +34,7 @@ from silkaj.money import get_sources, get_amount_from_pubkey, UDValue
 from silkaj.constants import NO_MATCHING_ID
 
 
-def send_transaction(cli_args):
+async def send_transaction(cli_args):
     """
     Main function
     """
@@ -42,13 +42,13 @@ def send_transaction(cli_args):
     seed = auth_method(cli_args)
     issuer_pubkey = get_publickey_from_seed(seed)
 
-    pubkey_amount = get_amount_from_pubkey(issuer_pubkey)[0]
+    pubkey_amount = await get_amount_from_pubkey(issuer_pubkey)
     outputAddresses = output.split(":")
     check_transaction_values(
         comment,
         outputAddresses,
         outputBackChange,
-        pubkey_amount < tx_amount * len(outputAddresses),
+        pubkey_amount[0] < tx_amount * len(outputAddresses),
         issuer_pubkey,
     )
 
@@ -58,7 +58,7 @@ def send_transaction(cli_args):
         or input(
             tabulate(
                 transaction_confirmation(
-                    issuer_pubkey, pubkey_amount, tx_amount, outputAddresses, comment
+                    issuer_pubkey, pubkey_amount[0], tx_amount, outputAddresses, comment
                 ),
                 tablefmt="fancy_grid",
             )
@@ -66,7 +66,7 @@ def send_transaction(cli_args):
         )
         == "yes"
     ):
-        generate_and_send_transaction(
+        await generate_and_send_transaction(
             seed,
             issuer_pubkey,
             tx_amount,
@@ -171,7 +171,7 @@ def transaction_confirmation(
     return tx
 
 
-def generate_and_send_transaction(
+async def generate_and_send_transaction(
     seed,
     issuers,
     AmountTransfered,
@@ -182,7 +182,7 @@ def generate_and_send_transaction(
 ):
 
     while True:
-        listinput_and_amount = get_list_input_for_transaction(
+        listinput_and_amount = await get_list_input_for_transaction(
             issuers, AmountTransfered * len(outputAddresses), all_input
         )
         intermediatetransaction = listinput_and_amount[2]
@@ -233,6 +233,7 @@ def generate_and_send_transaction(
                 "tx/process", "transaction=" + urllib.parse.quote_plus(transaction)
             )
             print("Transaction successfully sent.")
+            await client.close()
             break
 
 
@@ -319,8 +320,8 @@ def generate_output(listoutput, unitbase, rest, recipient_address):
         unitbase = unitbase - 1
 
 
-def get_list_input_for_transaction(pubkey, TXamount, allinput=False):
-    listinput, amount = get_sources(pubkey)
+async def get_list_input_for_transaction(pubkey, TXamount, allinput=False):
+    listinput, amount = await get_sources(pubkey)
 
     # generate final list source
     listinputfinal = []
