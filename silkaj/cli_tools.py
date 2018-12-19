@@ -175,7 +175,7 @@ async def manage_cmd():
         argos_info()
 
     elif cli_args.subcmd == "amount":
-        cmd_amount(cli_args)
+        await cmd_amount(cli_args)
 
     elif cli_args.subcmd == "tx" or cli_args.subcmd == "transaction":
         send_transaction(cli_args)

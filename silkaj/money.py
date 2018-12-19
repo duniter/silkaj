@@ -15,14 +15,16 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from silkaj.network_tools import get_request, HeadBlock
+from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.crypto_tools import get_publickey_from_seed
 from silkaj.tools import CurrencySymbol
 from silkaj.auth import auth_method
 from silkaj.wot import check_public_key
+from duniterpy.api.bma import tx, blockchain
 
 
-def cmd_amount(cli_args):
+async def cmd_amount(cli_args):
+    client = ClientInstance().client
     if not cli_args.subsubcmd.startswith("--auth-"):
         pubkeys = cli_args.subsubcmd.split(":")
         for pubkey in pubkeys:
@@ -31,7 +33,7 @@ def cmd_amount(cli_args):
                 return
         total = [0, 0]
         for pubkey in pubkeys:
-            value = get_amount_from_pubkey(pubkey)
+            value = await get_amount_from_pubkey(pubkey)
             show_amount_from_pubkey(pubkey, value)
             total[0] += value[0]
             total[1] += value[1]
@@ -40,7 +42,8 @@ def cmd_amount(cli_args):
     else:
         seed = auth_method(cli_args)
         pubkey = get_publickey_from_seed(seed)
-        show_amount_from_pubkey(pubkey, get_amount_from_pubkey(pubkey))
+        await show_amount_from_pubkey(pubkey, await get_amount_from_pubkey(pubkey))
+    await client.close()
 
 
 def show_amount_from_pubkey(pubkey, value):
@@ -100,8 +103,8 @@ def get_average():
     return average, monetary_mass
 
 
-def get_amount_from_pubkey(pubkey):
-    listinput, amount = get_sources(pubkey)
+async def get_amount_from_pubkey(pubkey):
+    listinput, amount = await get_sources(pubkey)
 
     totalAmountInput = 0
     for input in listinput:
@@ -111,13 +114,14 @@ def get_amount_from_pubkey(pubkey):
     return totalAmountInput, amount
 
 
-def get_sources(pubkey):
+async def get_sources(pubkey):
+    client = ClientInstance().client
     # Sources written into the blockchain
-    sources = get_request("tx/sources/" + pubkey)["sources"]
+    sources = await client(tx.sources, pubkey)
 
     listinput = []
     amount = 0
-    for source in sources:
+    for source in sources["sources"]:
         if source["conditions"] == "SIG(" + pubkey + ")":
             amount += source["amount"] * 10 ** source["base"]
             listinput.append(
@@ -133,7 +137,8 @@ def get_sources(pubkey):
             )
 
     # pending source
-    history = get_request("tx/history/" + pubkey + "/pending")["history"]
+    history = await client(tx.pending, pubkey)
+    history = history["history"]
     pendings = history["sending"] + history["receiving"] + history["pending"]
 
     last_block_number = HeadBlock().head_block["number"]
