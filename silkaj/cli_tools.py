@@ -17,7 +17,6 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 
 # -*- coding: utf-8 -*-
 
-from sys import stderr
 from commandlines import Command
 from silkaj.tx import send_transaction
 from silkaj.money import cmd_amount
@@ -31,7 +30,6 @@ from silkaj.commands import (
     list_blocks,
 )
 from silkaj.tools import message_exit
-from silkaj.network_tools import get_request
 from silkaj.wot import received_sent_certifications, id_pubkey_correspondence
 from silkaj.auth import generate_auth_file
 from silkaj.license import display_license
