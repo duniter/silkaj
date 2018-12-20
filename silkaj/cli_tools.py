@@ -167,7 +167,7 @@ async def manage_cmd():
         and cli_args.subsubcmd
         and int(cli_args.subsubcmd) >= 0
     ):
-        list_blocks(int(cli_args.subsubcmd), cli_args.contains_switches("last"))
+        await list_blocks(int(cli_args.subsubcmd), cli_args.contains_switches("last"))
 
     elif cli_args.subcmd == "argos":
         argos_info()

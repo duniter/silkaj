@@ -243,13 +243,14 @@ def network_info(discover):
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 
-def list_blocks(nbr, last):
+async def list_blocks(nbr, last):
     head_block = HeadBlock().head_block
     current_nbr = head_block["number"]
     if nbr == 0:
         nbr = head_block["issuersFrame"]
-    url = "blockchain/blocks/" + str(nbr) + "/" + str(current_nbr - nbr + 1)
-    blocks, list_issuers, j = get_request(url), list(), 0
+    client = ClientInstance().client
+    blocks = await client(blockchain.blocks, nbr, current_nbr - nbr + 1)
+    list_issuers, j = list(), 0
     issuers_dict = dict()
     while j < len(blocks):
         issuer = OrderedDict()
@@ -273,6 +274,7 @@ def list_blocks(nbr, last):
             ):
                 issuer2["uid"] = uid
                 issuer2.pop("pubkey")
+    await client.close()
     print(
         "Last {0} blocks from n°{1} to n°{2}".format(
             nbr, current_nbr - nbr + 1, current_nbr
