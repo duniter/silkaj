@@ -42,7 +42,7 @@ async def send_certification(cli_args):
 
     # Check whether current user is member
     issuer_pubkey = get_publickey_from_seed(seed)
-    issuer_id = get_uid_from_pubkey(issuer_pubkey)
+    issuer_id = await get_uid_from_pubkey(issuer_pubkey)
     if not await is_member(issuer_pubkey, issuer_id):
         message_exit("Current identity is not member.")
 

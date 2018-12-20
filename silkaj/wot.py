@@ -149,7 +149,7 @@ async def id_pubkey_correspondence(id_pubkey):
     if check_public_key(id_pubkey, False):
         print(
             "{} public key corresponds to identity: {}".format(
-                id_pubkey, get_uid_from_pubkey(id_pubkey)
+                id_pubkey, await get_uid_from_pubkey(id_pubkey)
             )
         )
     else:
@@ -183,7 +183,7 @@ async def get_informations_for_identity(id):
     message_exit(NO_MATCHING_ID)
 
 
-def get_uid_from_pubkey(pubkey):
+async def get_uid_from_pubkey(pubkey):
     try:
         client = ClientInstance().client
         results = await client(wot.lookup, pubkey)

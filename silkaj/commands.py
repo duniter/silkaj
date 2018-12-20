@@ -264,7 +264,7 @@ def list_blocks(nbr, last):
         j += 1
     for pubkey in issuers_dict.keys():
         issuer = issuers_dict[pubkey]
-        uid = get_uid_from_pubkey(issuer["pubkey"])
+        uid = await get_uid_from_pubkey(issuer["pubkey"])
         for issuer2 in list_issuers:
             if (
                 issuer2.get("pubkey") is not None
