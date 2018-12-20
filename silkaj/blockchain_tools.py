@@ -15,7 +15,8 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from silkaj.network_tools import get_request
+from silkaj.network_tools import ClientInstance
+from duniterpy.api.bma import blockchain
 
 
 class BlockchainParams(object):
@@ -27,4 +28,8 @@ class BlockchainParams(object):
         return BlockchainParams.__instance
 
     def __init__(self):
-        self.params = get_request("blockchain/parameters")
+        self.params = self.get_params()
+
+    async def get_params(self):
+        client = ClientInstance().client
+        return await client(blockchain.parameters)

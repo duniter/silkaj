@@ -54,7 +54,7 @@ async def send_certification(cli_args):
     req = req["identities"][0]
     for cert in req["certifications"]:
         if cert["from"] == issuer_pubkey:
-            params = BlockchainParams().params
+            params = await BlockchainParams().params
             # Change params["msWindow"] to params["sigReplay"] when deployed
             # https://git.duniter.org/nodes/typescript/duniter/merge_requests/1270
             # Ğ1: 0<–>2y - 2y + 2m

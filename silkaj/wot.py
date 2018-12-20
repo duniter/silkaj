@@ -52,7 +52,7 @@ async def received_sent_certifications(id):
     time_first_block = first_block["time"]
     id_certs = await get_informations_for_identity(id)
     certifications = OrderedDict()
-    params = BlockchainParams().params
+    params = await BlockchainParams().params
     for certs in id_certs["uids"]:
         if certs["uid"].lower() == id.lower():
             pubkey = id_certs["pubkey"]
@@ -92,7 +92,7 @@ async def received_sent_certifications(id):
                     "✔: Certifications written into the blockchain",
                 )
             )
-            membership_status(certifications, certs, pubkey, req)
+            await membership_status(certifications, certs, pubkey, req)
     await client.close()
 
 
@@ -103,8 +103,8 @@ def cert_written_in_the_blockchain(written_certs, certifieur):
     return certifieur["uids"][0]
 
 
-def membership_status(certifications, certs, pubkey, req):
-    params = BlockchainParams().params
+async def membership_status(certifications, certs, pubkey, req):
+    params = await BlockchainParams().params
     if len(certifications["received"]) >= params["sigQty"]:
         print(
             "Membership expiration due to certification expirations: "
