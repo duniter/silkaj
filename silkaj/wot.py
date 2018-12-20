@@ -219,9 +219,10 @@ async def is_member(pubkey, uid):
     return False
 
 
-def get_pubkey_from_id(uid):
-    members = get_request("wot/members")["results"]
-    for member in members:
+async def get_pubkey_from_id(uid):
+    client = ClientInstance().client
+    members = await client(wot.members)
+    for member in members["results"]:
         if uid == member["uid"]:
             return member["pubkey"]
     return NO_MATCHING_ID
