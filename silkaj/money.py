@@ -51,7 +51,7 @@ async def show_amount_from_pubkey(pubkey, value):
     amount = value[1]
     # output
 
-    currency_symbol = CurrencySymbol().symbol
+    currency_symbol = await CurrencySymbol().symbol
     ud_value = await UDValue().ud_value
     average, monetary_mass = get_average()
     if totalAmountInput - amount != 0:

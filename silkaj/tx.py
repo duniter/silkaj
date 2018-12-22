@@ -137,7 +137,7 @@ async def transaction_confirmation(
     Generate transaction confirmation
     """
 
-    currency_symbol = CurrencySymbol().symbol
+    currency_symbol = await CurrencySymbol().symbol
     tx = list()
     tx.append(
         ["pubkey’s amount before tx", str(pubkey_amount / 100) + " " + currency_symbol]

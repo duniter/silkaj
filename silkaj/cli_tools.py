@@ -150,7 +150,7 @@ async def manage_cmd():
     if cli_args.subcmd == "about":
         about()
     elif cli_args.subcmd == "info":
-        currency_info()
+        await currency_info()
 
     elif cli_args.subcmd == "diffi":
         await difficulties()
@@ -170,7 +170,7 @@ async def manage_cmd():
         await list_blocks(int(cli_args.subsubcmd), cli_args.contains_switches("last"))
 
     elif cli_args.subcmd == "argos":
-        argos_info()
+        await argos_info()
 
     elif cli_args.subcmd == "amount":
         await cmd_amount(cli_args)

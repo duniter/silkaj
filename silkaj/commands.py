@@ -36,7 +36,7 @@ from silkaj.tools import convert_time, message_exit, CurrencySymbol
 from silkaj.constants import NO_MATCHING_ID
 
 
-def currency_info():
+async def currency_info():
     info_data = dict()
     for info_type in [
         "newcomers",
@@ -59,7 +59,7 @@ def currency_info():
         "\nCurrent block number:",
         head_block["number"],
         "\nCurrency name:",
-        CurrencySymbol().symbol,
+        await CurrencySymbol().symbol,
         "\nNumber of members:",
         head_block["membersCount"],
         "\nMinimal Proof-of-Work:",
@@ -86,6 +86,8 @@ def currency_info():
         "\n- transactions:",
         len(info_data["tx"]),
     )
+    client = ClientInstance().client
+    await client.close()
 
 
 def match_pattern(pow, match="", p=1):
@@ -327,7 +329,7 @@ async def list_blocks(nbr, last):
         )
 
 
-def argos_info():
+async def argos_info():
     info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
     pretty_names = {"g1": "Ğ1", "gtest": "Ğtest"}
     i, info_data = 0, dict()
@@ -353,7 +355,7 @@ def argos_info():
         "\nCurrent block number:",
         head_block["number"],
         "\nCurrency name:",
-        CurrencySymbol().symbol,
+        await CurrencySymbol().symbol,
         "\nNumber of members:",
         head_block["membersCount"],
         "\nMinimal Proof-of-Work:",
@@ -380,3 +382,5 @@ def argos_info():
         "\n-- transactions:",
         len(info_data["tx"]),
     )
+    client = ClientInstance().client
+    await client.close()
