@@ -38,7 +38,9 @@ async def send_transaction(cli_args):
     """
     Main function
     """
-    tx_amount, output, comment, allSources, outputBackChange = cmd_transaction(cli_args)
+    tx_amount, output, comment, allSources, outputBackChange = await cmd_transaction(
+        cli_args
+    )
     seed = auth_method(cli_args)
     issuer_pubkey = get_publickey_from_seed(seed)
 
@@ -77,7 +79,7 @@ async def send_transaction(cli_args):
         )
 
 
-def cmd_transaction(cli_args):
+async def cmd_transaction(cli_args):
     """
     Retrieve values from command line interface
     """
@@ -92,7 +94,9 @@ def cmd_transaction(cli_args):
     if cli_args.contains_definitions("amount"):
         tx_amount = float(cli_args.get_definition("amount")) * 100
     if cli_args.contains_definitions("amountUD"):
-        tx_amount = float(cli_args.get_definition("amountUD")) * UDValue().ud_value
+        tx_amount = (
+            float(cli_args.get_definition("amountUD")) * await UDValue().ud_value
+        )
 
     output = cli_args.get_definition("output")
     comment = (
@@ -147,7 +151,9 @@ async def transaction_confirmation(
     tx.append(
         [
             "tx amount (relative)",
-            str(round(tx_amount / UDValue().ud_value, 4)) + " UD " + currency_symbol,
+            str(round(tx_amount / await UDValue().ud_value, 4))
+            + " UD "
+            + currency_symbol,
         ]
     )
     tx.append(

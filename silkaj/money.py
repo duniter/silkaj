@@ -34,11 +34,11 @@ async def cmd_amount(cli_args):
         total = [0, 0]
         for pubkey in pubkeys:
             value = await get_amount_from_pubkey(pubkey)
-            show_amount_from_pubkey(pubkey, value)
+            await show_amount_from_pubkey(pubkey, value)
             total[0] += value[0]
             total[1] += value[1]
         if len(pubkeys) > 1:
-            show_amount_from_pubkey("Total", total)
+            await show_amount_from_pubkey("Total", total)
     else:
         seed = auth_method(cli_args)
         pubkey = get_publickey_from_seed(seed)
@@ -46,13 +46,13 @@ async def cmd_amount(cli_args):
     await client.close()
 
 
-def show_amount_from_pubkey(pubkey, value):
+async def show_amount_from_pubkey(pubkey, value):
     totalAmountInput = value[0]
     amount = value[1]
     # output
 
     currency_symbol = CurrencySymbol().symbol
-    ud_value = UDValue().ud_value
+    ud_value = await UDValue().ud_value
     average, monetary_mass = get_average()
     if totalAmountInput - amount != 0:
         print("Blockchain:")
@@ -189,7 +189,11 @@ class UDValue(object):
         return UDValue.__instance
 
     def __init__(self):
-        blockswithud = get_request("blockchain/with/ud")["result"]
-        NBlastUDblock = blockswithud["blocks"][-1]
-        lastUDblock = get_request("blockchain/block/" + str(NBlastUDblock))
-        self.ud_value = lastUDblock["dividend"] * 10 ** lastUDblock["unitbase"]
+        self.ud_value = self.get_ud_value()
+
+    async def get_ud_value(self):
+        client = ClientInstance().client
+        blockswithud = await client(blockchain.ud)
+        NBlastUDblock = blockswithud["result"]["blocks"][-1]
+        lastUDblock = await client(blockchain.block, NBlastUDblock)
+        return lastUDblock["dividend"] * 10 ** lastUDblock["unitbase"]
