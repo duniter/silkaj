@@ -53,7 +53,7 @@ async def show_amount_from_pubkey(pubkey, value):
 
     currency_symbol = await CurrencySymbol().symbol
     ud_value = await UDValue().ud_value
-    average, monetary_mass = get_average()
+    average, monetary_mass = await get_average()
     if totalAmountInput - amount != 0:
         print("Blockchain:")
         print("-----------")
@@ -95,8 +95,8 @@ async def show_amount_from_pubkey(pubkey, value):
     )
 
 
-def get_average():
-    head = HeadBlock().head_block
+async def get_average():
+    head = await HeadBlock().head_block
     monetary_mass = head["monetaryMass"]
     members_count = head["membersCount"]
     average = monetary_mass / members_count
@@ -141,7 +141,8 @@ async def get_sources(pubkey):
     history = history["history"]
     pendings = history["sending"] + history["receiving"] + history["pending"]
 
-    last_block_number = HeadBlock().head_block["number"]
+    head_block = await HeadBlock().head_block
+    last_block_number = head_block["number"]
 
     # add pending output
     for pending in pendings:

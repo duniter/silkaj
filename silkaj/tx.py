@@ -199,7 +199,7 @@ async def generate_and_send_transaction(
             print("   - From:    " + issuers)
             print("   - To:      " + issuers)
             print("   - Amount:  " + str(totalAmountInput / 100))
-            transaction = generate_transaction_document(
+            transaction = await generate_transaction_document(
                 issuers,
                 totalAmountInput,
                 listinput_and_amount,
@@ -225,7 +225,7 @@ async def generate_and_send_transaction(
                     "   - Amount:  "
                     + str(AmountTransfered / 100 * len(outputAddresses))
                 )
-            transaction = generate_transaction_document(
+            transaction = await generate_transaction_document(
                 issuers,
                 AmountTransfered,
                 listinput_and_amount,
@@ -243,7 +243,7 @@ async def generate_and_send_transaction(
             break
 
 
-def generate_transaction_document(
+async def generate_transaction_document(
     issuers,
     AmountTransfered,
     listinput_and_amount,
@@ -257,7 +257,7 @@ def generate_transaction_document(
     listinput = listinput_and_amount[0]
     totalAmountInput = listinput_and_amount[1]
 
-    head_block = HeadBlock().head_block
+    head_block = await HeadBlock().head_block
     currency_name = head_block["currency"]
     blockstamp_current = str(head_block["number"]) + "-" + str(head_block["hash"])
     curentUnitBase = head_block["unitbase"]

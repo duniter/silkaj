@@ -35,7 +35,8 @@ async def send_certification(cli_args):
     main_id_to_certify = id_to_certify["uids"][0]
 
     # Display license and ask for confirmation
-    license_approval(HeadBlock().head_block["currency"])
+    head = await HeadBlock().head_block
+    license_approval(head["currency"])
 
     # Authentication
     seed = auth_method(cli_args)
@@ -75,7 +76,7 @@ async def send_certification(cli_args):
     ):
         await client.close()
         return
-    cert_doc = generate_certification_document(
+    cert_doc = await generate_certification_document(
         issuer_pubkey, id_to_certify, main_id_to_certify
     )
     cert_doc += sign_document_from_seed(cert_doc, seed) + "\n"
@@ -103,8 +104,10 @@ def certification_confirmation(
         return True
 
 
-def generate_certification_document(issuer_pubkey, id_to_certify, main_id_to_certify):
-    head_block = HeadBlock().head_block
+async def generate_certification_document(
+    issuer_pubkey, id_to_certify, main_id_to_certify
+):
+    head_block = await HeadBlock().head_block
     return (
         "Version: 10\n\
 Type: Certification\n\

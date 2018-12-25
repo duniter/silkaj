@@ -37,7 +37,7 @@ from silkaj.constants import NO_MATCHING_ID
 
 
 async def currency_info():
-    head_block = HeadBlock().head_block
+    head_block = await HeadBlock().head_block
     ep = EndPoint().ep
     print(
         "Connected to node:",
@@ -218,7 +218,7 @@ def network_info(discover):
 
 
 async def list_blocks(nbr, last):
-    head_block = HeadBlock().head_block
+    head_block = await HeadBlock().head_block
     current_nbr = head_block["number"]
     if nbr == 0:
         nbr = head_block["issuersFrame"]
@@ -303,7 +303,7 @@ async def list_blocks(nbr, last):
 
 async def argos_info():
     pretty_names = {"g1": "Ğ1", "gtest": "Ğtest"}
-    head_block = HeadBlock().head_block
+    head_block = await HeadBlock().head_block
     pretty = head_block["currency"]
     if head_block["currency"] in pretty_names:
         pretty = pretty_names[head_block["currency"]]

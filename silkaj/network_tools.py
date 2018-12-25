@@ -24,6 +24,7 @@ import logging
 from sys import exit, stderr
 from commandlines import Command
 from duniterpy.api.client import Client
+from duniterpy.api.bma import blockchain
 
 from silkaj.constants import (
     G1_DEFAULT_ENDPOINT,
@@ -242,4 +243,8 @@ class HeadBlock(object):
         return HeadBlock.__instance
 
     def __init__(self):
-        self.head_block = get_request("blockchain/current")
+        self.head_block = self.get_head()
+
+    async def get_head(self):
+        client = ClientInstance().client
+        return await client(blockchain.current)
