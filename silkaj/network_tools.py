@@ -23,6 +23,7 @@ import urllib.request
 import logging
 from sys import exit, stderr
 from commandlines import Command
+from duniterpy.api.client import Client
 
 from silkaj.constants import (
     G1_DEFAULT_ENDPOINT,
@@ -85,15 +86,19 @@ def parse_endpoints(rep):
     return endpoints
 
 
+def singleton(class_):
+    instances = {}
+
+    def getinstance(*args, **kwargs):
+        if class_ not in instances:
+            instances[class_] = class_(*args, **kwargs)
+        return instances[class_]
+
+    return getinstance
+
+
+@singleton
 class EndPoint(object):
-    __instance = None
-
-    # Try to inheritate this part for all singleton classes
-    def __new__(cls):
-        if EndPoint.__instance is None:
-            EndPoint.__instance = object.__new__(cls)
-        return EndPoint.__instance
-
     def __init__(self):
         cli_args = Command()
         ep = dict()
@@ -114,6 +119,12 @@ class EndPoint(object):
         self.ep = ep
         api = "BMAS" if ep["port"] == "443" else "BASIC_MERKLED_API"
         self.BMA_ENDPOINT = " ".join([api, ep["domain"], ep["port"]])
+
+
+@singleton
+class ClientInstance(object):
+    def __init__(self):
+        self.client = Client(EndPoint().BMA_ENDPOINT)
 
 
 def parse_endpoint(rep):
