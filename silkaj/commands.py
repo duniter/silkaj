@@ -302,14 +302,7 @@ async def list_blocks(nbr, last):
 
 
 async def argos_info():
-    info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
     pretty_names = {"g1": "Ğ1", "gtest": "Ğtest"}
-    i, info_data = 0, dict()
-    while i < len(info_type):
-        info_data[info_type[i]] = get_request("blockchain/with/" + info_type[i])[
-            "result"
-        ]["blocks"]
-        i += 1
     head_block = HeadBlock().head_block
     pretty = head_block["currency"]
     if head_block["currency"] in pretty_names:
@@ -338,21 +331,6 @@ async def argos_info():
         convert_time(head_block["medianTime"], "all"),
         "\nDifference time:",
         convert_time(head_block["time"] - head_block["medianTime"], "hour"),
-        "\nNumber of blocks containing… \
-     \n-- new comers:",
-        len(info_data["newcomers"]),
-        "\n-- Certifications:",
-        len(info_data["certs"]),
-        "\n-- Actives (members updating their membership):",
-        len(info_data["actives"]),
-        "\n-- Leavers:",
-        len(info_data["leavers"]),
-        "\n-- Excluded:",
-        len(info_data["excluded"]),
-        "\n-- UD created:",
-        len(info_data["ud"]),
-        "\n-- transactions:",
-        len(info_data["tx"]),
     )
     client = ClientInstance().client
     await client.close()
