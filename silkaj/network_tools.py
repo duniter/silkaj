@@ -197,19 +197,6 @@ def check_ip(address):
         return 0
 
 
-def get_request(path, ep=EndPoint().ep):
-    address = best_node(ep, False)
-    if address is None:
-        return address
-    url = "http://" + ep[address] + ":" + ep["port"] + "/" + path
-    if ep["port"] == "443":
-        url = "https://" + ep[address] + "/" + path
-    request = urllib.request.Request(url)
-    response = urllib.request.urlopen(request, timeout=CONNECTION_TIMEOUT)
-    encoding = response.info().get_content_charset("utf8")
-    return loads(response.read().decode(encoding))
-
-
 def post_request(path, postdata, ep=EndPoint().ep):
     address = best_node(ep, False)
     if address is None:
