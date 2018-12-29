@@ -21,12 +21,12 @@ from os import system, popen
 from collections import OrderedDict
 from tabulate import tabulate
 from operator import itemgetter
-from duniterpy.api.bma import blockchain
+from duniterpy.api.client import Client
+from duniterpy.api.bma import blockchain, node
 
 from silkaj.wot import get_uid_from_pubkey
 from silkaj.network_tools import (
     discover_peers,
-    get_request,
     best_node,
     EndPoint,
     ClientInstance,
@@ -138,7 +138,7 @@ def get_network_sort_key(endpoint):
     return tuple(t)
 
 
-def network_info(discover):
+async def network_info(discover):
     rows, columns = popen("stty size", "r").read().split()
     wide = int(columns)
     if wide < 146:
@@ -152,16 +152,23 @@ def network_info(discover):
         for p in discover_peers(discover)
     ]
     # Todo : renommer endpoints en info
-    diffi = get_request("blockchain/difficulties")
+    client = ClientInstance().client
+    diffi = await client(blockchain.difficulties)
     i, members = 0, 0
     print("Getting informations about nodes:")
     while i < len(endpoints):
+        ep = endpoints[i]
+        api = "BASIC_MERKLED_API " if ep["port"] != "443" else "BMAS "
+        api += ep.get("domain") + " " if ep["domain"] else ""
+        api += ep.get("ip4") + " " if ep["ip4"] else ""
+        api += ep.get("ip6") + " " if ep["ip6"] else ""
+        api += ep.get("port")
         print("{0:.0f}%".format(i / len(endpoints) * 100, 1), end=" ")
         best_ep = best_node(endpoints[i], False)
         print(best_ep if best_ep is None else endpoints[i][best_ep], end=" ")
         print(endpoints[i]["port"])
         try:
-            endpoints[i]["uid"] = get_uid_from_pubkey(ep, endpoints[i]["pubkey"])
+            endpoints[i]["uid"] = await get_uid_from_pubkey(ep, endpoints[i]["pubkey"])
             if endpoints[i]["uid"] is NO_MATCHING_ID:
                 endpoints[i]["uid"] = None
             else:
@@ -172,15 +179,14 @@ def network_info(discover):
         if endpoints[i].get("member") is None:
             endpoints[i]["member"] = "no"
         endpoints[i]["pubkey"] = endpoints[i]["pubkey"][:5] + "…"
-        # Todo: request difficulty from node point of view: two nodes with same pubkey id could be on diffrent branches and have different difficulties
-        #        diffi = get_request(endpoints[i], "blockchain/difficulties") # super long, doit être requetté uniquement pour les nœuds d’une autre branche
         for d in diffi["levels"]:
             if endpoints[i].get("uid") is not None:
                 if endpoints[i]["uid"] == d["uid"]:
                     endpoints[i]["diffi"] = d["level"]
                 if len(endpoints[i]["uid"]) > 10:
                     endpoints[i]["uid"] = endpoints[i]["uid"][:9] + "…"
-        current_blk = get_request("blockchain/current", endpoints[i])
+        sub_client = Client(api)
+        current_blk = await sub_client(blockchain.current)
         if current_blk is not None:
             endpoints[i]["gen_time"] = convert_time(current_blk["time"], "hour")
             if wide > 171:
@@ -193,9 +199,9 @@ def network_info(discover):
                 )
             endpoints[i]["block"] = current_blk["number"]
             endpoints[i]["hash"] = current_blk["hash"][:10] + "…"
-            endpoints[i]["version"] = get_request("node/summary", endpoints[i])[
-                "duniter"
-            ]["version"]
+            summary = await sub_client(node.summary)
+            endpoints[i]["version"] = summary["duniter"]["version"]
+        await sub_client.close()
         if endpoints[i].get("domain") is not None and len(endpoints[i]["domain"]) > 20:
             endpoints[i]["domain"] = "…" + endpoints[i]["domain"][-20:]
         if endpoints[i].get("ip6") is not None:
@@ -204,6 +210,7 @@ def network_info(discover):
             else:
                 endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
         i += 1
+    await client.close()
     print(
         len(endpoints),
         "peers ups, with",

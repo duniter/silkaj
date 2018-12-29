@@ -160,7 +160,7 @@ async def manage_cmd():
             set_network_sort_keys(cli_args.get_definition("sort"))
         if cli_args.contains_switches("s"):
             set_network_sort_keys(cli_args.get_definition("s"))
-        network_info(cli_args.contains_switches("discover"))
+        await network_info(cli_args.contains_switches("discover"))
 
     elif (
         cli_args.subcmd == "blocks"
