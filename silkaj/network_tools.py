@@ -24,7 +24,7 @@ import logging
 from sys import exit, stderr
 from commandlines import Command
 from duniterpy.api.client import Client
-from duniterpy.api.bma import blockchain
+from duniterpy.api.bma import blockchain, network
 
 from silkaj.constants import (
     G1_DEFAULT_ENDPOINT,
@@ -33,14 +33,15 @@ from silkaj.constants import (
 )
 
 
-def discover_peers(discover):
+async def discover_peers(discover):
     """
     From first node, discover his known nodes.
     Remove from know nodes if nodes are down.
     If discover option: scan all network to know all nodes.
         display percentage discovering.
     """
-    endpoints = parse_endpoints(get_request("network/peers")["peers"])
+    client = ClientInstance().client
+    endpoints = await get_peers_among_leaves(client)
     if discover:
         print("Discovering network")
     for i, endpoint in enumerate(endpoints):
@@ -49,21 +50,36 @@ def discover_peers(discover):
         if best_node(endpoint, False) is None:
             endpoints.remove(endpoint)
         elif discover:
-            endpoints = recursive_discovering(endpoints, endpoint)
+            endpoints = await recursive_discovering(endpoints, endpoint)
     return endpoints
 
 
-def recursive_discovering(endpoints):
+async def recursive_discovering(endpoints, endpoint):
     """
     Discover recursively new nodes.
     If new node found add it and try to found new node from his known nodes.
     """
-    news = parse_endpoints(get_request("network/peers")["peers"])
+    api = generate_duniterpy_endpoint_format(endpoint)
+    sub_client = Client(api)
+    news = await get_peers_among_leaves(sub_client)
+    await sub_client.close()
     for new in news:
         if best_node(new, False) is not None and new not in endpoints:
             endpoints.append(new)
-            recursive_discovering(endpoints, new)
+            await recursive_discovering(endpoints, new)
     return endpoints
+
+
+async def get_peers_among_leaves(client):
+    """
+    Browse among leaves of peers to retrieve the other peers’ endpoints
+    """
+    leaves = await client(network.peers, leaves=True)
+    peers = list()
+    for leaf in leaves["leaves"]:
+        leaf_response = await client(network.peers, leaf=leaf)
+        peers.append(leaf_response["leaf"]["value"])
+    return parse_endpoints(peers)
 
 
 def parse_endpoints(rep):
@@ -85,6 +101,15 @@ def parse_endpoints(rep):
         i += 1
         j = 0
     return endpoints
+
+
+def generate_duniterpy_endpoint_format(ep):
+    api = "BASIC_MERKLED_API " if ep["port"] != "443" else "BMAS "
+    api += ep.get("domain") + " " if "domain" in ep else ""
+    api += ep.get("ip4") + " " if "ip4" in ep else ""
+    api += ep.get("ip6") + " " if "ip6" in ep else ""
+    api += ep.get("port")
+    return api
 
 
 def singleton(class_):

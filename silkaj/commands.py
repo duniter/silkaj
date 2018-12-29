@@ -149,7 +149,7 @@ async def network_info(discover):
         OrderedDict(
             (i, p.get(i, None)) for i in ("domain", "port", "ip4", "ip6", "pubkey")
         )
-        for p in discover_peers(discover)
+        for p in await discover_peers(discover)
     ]
     # Todo : renommer endpoints en info
     client = ClientInstance().client
