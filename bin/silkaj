@@ -17,15 +17,9 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from sys import exit
 from asyncio import get_event_loop
 
-from silkaj.network_tools import check_port, best_node, EndPoint
 from silkaj.cli_tools import manage_cmd
 
 if __name__ == "__main__":
-    ep = EndPoint().ep
-    if not check_port(ep["port"]):
-        exit(1)
-    best_node(ep, True)
     get_event_loop().run_until_complete(manage_cmd())
