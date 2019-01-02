@@ -13,6 +13,7 @@ Standards-Version: 4.3.0
 Vcs-Git: https://salsa.debian.org/cryptocoin-team/silkaj.git
 Vcs-Browser: https://salsa.debian.org/cryptocoin-team/silkaj
 Homepage: https://silkaj.duniter.org/
+Rules-Requires-Root: no
 
 Package: silkaj
 Architecture: all
