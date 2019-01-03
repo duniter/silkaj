@@ -110,6 +110,11 @@ Copyright: automatiquement selon les tags
 License: UNKNOWN
  FIXME
 
+Files: debian/TODO
+Copyright: coverage.
+License: UNKNOWN
+ FIXME
+
 Files: doc/release_packages_on_pypi-fr.md
 Copyright: er les paquets source et binaire dans le dossier "dist/" :
   er un compte sur pypi

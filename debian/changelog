@@ -1,6 +1,6 @@
-silkaj (0.6.1-1) UNRELEASED; urgency=low
+silkaj (0.6.1-1) experimental; urgency=low
 
   * Initial packaging release.
     Closes: bug#916847.
 
- -- Jonas Smedegaard <dr@jones.dk>  Mon, 17 Dec 2018 23:35:53 +0100
+ -- Jonas Smedegaard <dr@jones.dk>  Thu, 03 Jan 2019 17:18:26 +0100
