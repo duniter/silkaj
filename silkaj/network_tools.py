@@ -34,7 +34,7 @@ def discover_peers(discover):
     return endpoints
 
 
-def recursive_discovering(endpoints):
+def recursive_discovering(endpoints, endpoint):
     """
     Discover recursively new nodes.
     If new node found add it and try to found new node from his known nodes.
@@ -66,7 +66,6 @@ def parse_endpoints(rep):
         i += 1
         j = 0
     return endpoints
-
 
 class EndPoint(object):
     __instance = None
