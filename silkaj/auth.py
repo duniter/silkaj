@@ -7,25 +7,25 @@ import pyaes
 from getpass import getpass
 from os import path
 from re import compile, search
+import click
 
 
-def auth_method(cli_args):
-    if cli_args.contains_switches("auth-seed"):
+@click.pass_context
+def auth_method(ctx):
+    if ctx.obj["AUTH_SEED"]:
         return auth_by_seed()
-    if cli_args.contains_switches("auth-file"):
-        return auth_by_auth_file(cli_args)
-    if cli_args.contains_switches("auth-wif"):
+    if ctx.obj["AUTH_FILE"]:
+        return auth_by_auth_file()
+    if ctx.obj["AUTH_WIF"]:
         return auth_by_wif()
     else:
-        return auth_by_scrypt(cli_args)
+        return auth_by_scrypt()
 
 
-def generate_auth_file(cli_args):
-    if cli_args.contains_definitions("file"):
-        file = cli_args.get_definition("file")
-    else:
+def generate_auth_file(file):
+    if not file:
         file = "authfile"
-    seed = auth_method(cli_args)
+    seed = auth_method()
     with open(file, "w") as f:
         f.write(seed)
     print(
@@ -35,9 +35,10 @@ def generate_auth_file(cli_args):
     )
 
 
-def auth_by_auth_file(cli_args):
-    if cli_args.contains_definitions("file"):
-        file = cli_args.get_definition("file")
+@click.pass_context
+def auth_by_auth_file(ctx):
+    if ctx.obj["AUTH_FILE_PATH"]:
+        file = ctx.obj["AUTH_FILE_PATH"]
     else:
         file = "authfile"
     if not path.isfile(file):
@@ -69,20 +70,13 @@ def auth_by_seed():
     return seed
 
 
-def auth_by_scrypt(cli_args):
+@click.pass_context
+def auth_by_scrypt(ctx):
     salt = getpass("Please enter your Scrypt Salt (Secret identifier): ")
     password = getpass("Please enter your Scrypt password (masked): ")
 
-    if (
-        cli_args.contains_definitions("n")
-        and cli_args.contains_definitions("r")
-        and cli_args.contains_definitions("p")
-    ):
-        n, r, p = (
-            cli_args.get_definition("n"),
-            cli_args.get_definition("r"),
-            cli_args.get_definition("p"),
-        )
+    if ctx.obj["AUTH_SCRYPT_PARAMS"]:
+        n, r, p = ctx.obj["AUTH_SCRYPT_PARAMS"].split(",")
         if n.isnumeric() and r.isnumeric() and p.isnumeric():
             n, r, p = int(n), int(r), int(p)
             if n <= 0 or n > 65536 or r <= 0 or r > 512 or p <= 0 or p > 32:
