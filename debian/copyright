@@ -1,8 +1,8 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Silkaj
-Upstream-Contact: https://github.com/duniter/silkaj/issues
-Source: https://github.com/duniter/silkaj/releases
- git://github.com/duniter/silkaj
+Upstream-Contact: https://git.duniter.org/clients/python/silkaj/issues
+Source: https://git.duniter.org/clients/python/silkaj
+ https://git.duniter.org/clients/python/silkaj.git/
 
 Files: *
 Copyright: Moul <moul@moul.re>
