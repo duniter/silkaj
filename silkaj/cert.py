@@ -11,15 +11,15 @@ from silkaj.license import license_approval
 from silkaj.wot import is_member, get_uid_from_pubkey, get_informations_for_identity
 
 
-def send_certification(cli_args):
-    id_to_certify = get_informations_for_identity(cli_args.subsubcmd)
+def send_certification(id_to_certify):
+    id_to_certify = get_informations_for_identity(id_to_certify)
     main_id_to_certify = id_to_certify["uids"][0]
 
     # Display license and ask for confirmation
     license_approval(HeadBlock().head_block["currency"])
 
     # Authentication
-    seed = auth_method(cli_args)
+    seed = auth_method()
 
     # Check whether current user is member
     issuer_pubkey = get_publickey_from_seed(seed)

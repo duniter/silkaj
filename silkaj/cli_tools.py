@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import click
 from sys import stderr
-from commandlines import Command
 from silkaj.tx import send_transaction
 from silkaj.money import cmd_amount
 from silkaj.cert import send_certification
@@ -25,6 +25,163 @@ from silkaj.constants import (
     G1_DEFAULT_ENDPOINT,
     G1_TEST_DEFAULT_ENDPOINT,
 )
+
+
+@click.group()
+@click.version_option(version=SILKAJ_VERSION)
+@click.option(
+    "--peer",
+    "-p",
+    help="Default endpoint will reach Ğ1 currency with `https://g1.duniter.org` endpoint.\
+ Custom endpoint can be specified with `-p` option followed by <domain>:<port>",
+)
+@click.option(
+    "--gtest", "-gt", is_flag=True, help="ĞTest: `https://g1-test.duniter.org` endpoint"
+)
+@click.option(
+    "--auth-scrypt", is_flag=True, help="Scrypt authentication: default method"
+)
+@click.option(
+    "--scrypt-params",
+    "--nrp",
+    help="Scrypt parameters seperated by commas: defaults N,r,p: 4096,16,1",
+)
+@click.option(
+    "--auth-file", is_flag=True, help="Authentication file. Defaults to: './authfile'"
+)
+@click.option("--file", help="Path file specification with '--auth-file'")
+@click.option("--auth-seed", is_flag=True, help="Seed authentication")
+@click.option("--auth-wif", is_flag=True, help="WIF and EWIF authentication methods")
+@click.pass_context
+def cli(
+    ctx, peer, gtest, auth_scrypt, scrypt_params, auth_file, file, auth_seed, auth_wif
+):
+    ctx.obj = dict()
+    ctx.ensure_object(dict)
+    ctx.obj["PEER"] = peer
+    ctx.obj["GTEST"] = gtest
+    ctx.obj["AUTH_SCRYPT"] = auth_scrypt
+    ctx.obj["AUTH_SCRYPT_PARAMS"] = scrypt_params
+    ctx.obj["AUTH_FILE"] = auth_file
+    ctx.obj["AUTH_FILE_PATH"] = file
+    ctx.obj["AUTH_SEED"] = auth_seed
+    ctx.obj["AUTH_WIF"] = auth_wif
+
+
+def manage_cmd():
+    cli(obj={})
+
+
+@cli.command("about", help="Display informations about the programm")
+def cliAbout():
+    about()
+
+
+@cli.command("amount", help="Get amount of pubkeys")
+@click.option(
+    "--pubkeys", "-p", help="pubkeys and/or ids separated with colon: <pubkey:pubkey>"
+)
+def cliAmount(pubkeys):
+    cmd_amount(pubkeys)
+
+
+@cli.command("argos", help="Display currency information formated for Argos or BitBar")
+def cliArgos():
+    argos_info()
+
+
+@cli.command("blocks", help="Display blocks")
+@click.option(
+    "--nbr",
+    "-n",
+    required=True,
+    type=int,
+    help="Number of blocks (`0` for current window size), Details blocks are displayed under n <= 30.",
+)
+@click.option("--detailed", "-d", is_flag=True, help="This flag force detailed view")
+def cliBlocks(nbr, detailed):
+    list_issuers(nbr, detailed)
+
+
+@cli.command("cert", help="Send certification")
+@click.argument("id_to_certify")
+def cliCert(id_to_certify):
+    send_certification(id_to_certify)
+
+
+@cli.command("diffi", help="List proof-of-work difficulty to generate next block")
+def cliDiffi():
+    difficulties()
+
+
+@cli.command(
+    "generate_auth_file", help="Generate file to store the seed of the account"
+)
+@click.option("--file", help="Path file")
+def cliGenerateAuthFile(file):
+    generate_auth_file(file)
+
+
+@cli.command("id", help="Get corresponding identity or pubkey from pubkey or identity")
+@click.argument("id_pubkey")
+def cliId(id_pubkey):
+    id_pubkey_correspondence(id_pubkey)
+
+
+@cli.command("info", help="Display information about currency")
+def cliInfo():
+    currency_info()
+
+
+@cli.command("license", help="Display Ğ1 license")
+def cliLicense():
+    display_license()
+
+
+@cli.command("net", help="Display network")
+@click.option(
+    "--discover", "-d", is_flag=True, help="Discover all network (could take a while)"
+)
+@click.option(
+    "--sort",
+    "-s",
+    help='Sort column names comma-separated (for example "-s block,diffi"), optional. Default sort: block,member,diffi,uid',
+)
+def cliNetwork(discover, sort):
+    network_info(discover, sort)
+
+
+@cli.command("tx", help="Send transaction")
+@click.option("--amount", type=float, help="Quantitative value")
+@click.option("--amountUD", type=float, help="Relative value")
+@click.option("--allSources", is_flag=True, help="Send all sources")
+@click.option(
+    "--output",
+    help="Pubkey(s)’ recipients + optional checksum: <pubkey>[!checksum]:[<pubkey>[!checksum]]",
+)
+@click.option("--comment", help="Comment")
+@click.option(
+    "--outputBackChange",
+    help="Pubkey recipient to send the rest of the transaction: <pubkey[!checksum]>",
+)
+@click.option("--yes", "-y", is_flag=True, help="Assume yes. No prompt confirmation")
+def cliTransaction(
+    amount, amountud, allsources, output, comment, outputbackchange, yes
+):
+    send_transaction(
+        amount, amountud, allsources, output, comment, outputbackchange, yes
+    )
+
+
+@cli.command("usage", help="Display usage")
+def cliUsage():
+    usage()
+
+
+@cli.command("wot", help="Display received and sent certifications of an id")
+@click.argument("id")
+def cliWot(id):
+    received_sent_certifications(id)
 
 
 def usage():
@@ -102,89 +259,12 @@ def usage():
     )
 
 
-def manage_cmd():
-    cli_args = Command()
-    if cli_args.is_version_request():
-        message_exit(SILKAJ_VERSION)
-
-    subcmd = [
-        "license",
-        "about",
-        "info",
-        "diffi",
-        "net",
-        "network",
-        "issuers",
-        "argos",
-        "amount",
-        "tx",
-        "transaction",
-        "cert",
-        "generate_auth_file",
-        "id",
-        "identities",
-        "wot",
-    ]
-    if (
-        cli_args.is_help_request()
-        or cli_args.is_usage_request()
-        or cli_args.subcmd not in subcmd
-    ):
-        usage()
-
-    if cli_args.subcmd == "about":
-        about()
-    elif cli_args.subcmd == "info":
-        currency_info()
-
-    elif cli_args.subcmd == "diffi":
-        difficulties()
-
-    elif cli_args.subcmd == "net" or cli_args.subcmd == "network":
-        if cli_args.contains_switches("sort"):
-            set_network_sort_keys(cli_args.get_definition("sort"))
-        if cli_args.contains_switches("s"):
-            set_network_sort_keys(cli_args.get_definition("s"))
-        network_info(cli_args.contains_switches("discover"))
-
-    elif (
-        cli_args.subcmd == "issuers"
-        and cli_args.subsubcmd
-        and int(cli_args.subsubcmd) >= 0
-    ):
-        list_issuers(int(cli_args.subsubcmd), cli_args.contains_switches("last"))
-
-    elif cli_args.subcmd == "argos":
-        argos_info()
-
-    elif cli_args.subcmd == "amount":
-        cmd_amount(cli_args)
-
-    elif cli_args.subcmd == "tx" or cli_args.subcmd == "transaction":
-        send_transaction(cli_args)
-
-    elif cli_args.subcmd == "cert":
-        send_certification(cli_args)
-
-    elif cli_args.subcmd == "generate_auth_file":
-        generate_auth_file(cli_args)
-
-    elif cli_args.subcmd == "id" or cli_args.subcmd == "identities":
-        id_pubkey_correspondence(cli_args.subsubcmd)
-
-    elif cli_args.subcmd == "wot":
-        received_sent_certifications(cli_args.subsubcmd)
-
-    elif cli_args.subcmd == "license":
-        display_license()
-
-
 def about():
     print(
         "\
 \n             @@@@@@@@@@@@@\
 \n         @@@     @         @@@\
-\n      @@@   @@       @@@@@@   @@.           ",
+\n      @@@   @@       @@@@@@   @@.            Silkaj",
         SILKAJ_VERSION,
         "\
 \n     @@  @@@       @@@@@@@@@@@  @@,\

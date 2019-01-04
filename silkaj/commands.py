@@ -126,6 +126,8 @@ network_sort_keys = ["block", "member", "diffi", "uid"]
 
 def set_network_sort_keys(some_keys):
     global network_sort_keys
+    if some_keys is None:
+        return
     if some_keys.endswith(","):
         message_exit(
             "Argument 'sort' ends with a comma, you have probably inserted a space after the comma, which is incorrect."
@@ -143,7 +145,8 @@ def get_network_sort_key(endpoint):
     return tuple(t)
 
 
-def network_info(discover):
+def network_info(discover, sort):
+    set_network_sort_keys(sort)
     rows, columns = popen("stty size", "r").read().split()
     wide = int(columns)
     if wide < 146:
@@ -222,7 +225,9 @@ def network_info(discover):
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 
-def list_issuers(nbr, last):
+def list_issuers(nbr, detailed):
+    if nbr < 0:
+        message_exit("The number of blocks should be positive")
     head_block = HeadBlock().head_block
     current_nbr = head_block["number"]
     if nbr == 0:
@@ -233,7 +238,7 @@ def list_issuers(nbr, last):
     while j < len(blocks):
         issuer = OrderedDict()
         issuer["pubkey"] = blocks[j]["issuer"]
-        if last or nbr <= 30:
+        if detailed or nbr <= 30:
             issuer["block"] = blocks[j]["number"]
             issuer["gentime"] = convert_time(blocks[j]["time"], "hour")
             issuer["mediantime"] = convert_time(blocks[j]["medianTime"], "hour")
@@ -258,7 +263,7 @@ def list_issuers(nbr, last):
         ),
         end=" ",
     )
-    if last or nbr <= 30:
+    if detailed or nbr <= 30:
         sorted_list = sorted(list_issuers, key=itemgetter("block"), reverse=True)
         print(
             "\n"

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="silkaj",
-    version="0.6.1",
+    version="0.6.2",
     author="Moul",
     author_email="moul@moul.re",
     description="Command line client for Duniter",
@@ -25,7 +25,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ),
     install_requires=[
-        "commandlines",
+        "Click",
         "ipaddress",
         "tabulate",
         "pynacl",
