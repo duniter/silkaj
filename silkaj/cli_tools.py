@@ -42,7 +42,6 @@ from silkaj.constants import (
     "--auth-scrypt", is_flag=True, help="Scrypt authentication: default method"
 )
 @click.option(
-    "--scrypt-params",
     "--nrp",
     help="Scrypt parameters seperated by commas: defaults N,r,p: 4096,16,1",
 )
@@ -54,14 +53,14 @@ from silkaj.constants import (
 @click.option("--auth-wif", is_flag=True, help="WIF and EWIF authentication methods")
 @click.pass_context
 def cli(
-    ctx, peer, gtest, auth_scrypt, scrypt_params, auth_file, file, auth_seed, auth_wif
+    ctx, peer, gtest, auth_scrypt, nrp, auth_file, file, auth_seed, auth_wif
 ):
     ctx.obj = dict()
     ctx.ensure_object(dict)
     ctx.obj["PEER"] = peer
     ctx.obj["GTEST"] = gtest
     ctx.obj["AUTH_SCRYPT"] = auth_scrypt
-    ctx.obj["AUTH_SCRYPT_PARAMS"] = scrypt_params
+    ctx.obj["AUTH_SCRYPT_PARAMS"] = nrp
     ctx.obj["AUTH_FILE"] = auth_file
     ctx.obj["AUTH_FILE_PATH"] = file
     ctx.obj["AUTH_SEED"] = auth_seed
@@ -252,7 +251,7 @@ def usage():
     \nAuthentication:\
     \n for amount, transaction, certification, and generate_auth_file commands\
     \n - Scrypt is the default authentication method with 4096,16,1 as default values\
-    \n    you can specify others values specifying following parameters: -n <N> -r <r> -p <p>\
+    \n    you can specify others values specifying following option: --nrp N,r,p\
     \n - Seed: --auth-seed\
     \n - File: --auth-file [--file=<path file>], './authfile' will be taken if there is no path specified\
     \n - WIF: --auth-wif"
