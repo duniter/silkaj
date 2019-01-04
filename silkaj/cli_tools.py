@@ -90,6 +90,14 @@ def cliArgos():
     argos_info()
 
 
+@cli.command(
+    "authfile", help="Generate file to store the seed of the account"
+)
+@click.option("--file", help="Path file")
+def cliGenerateAuthFile(file):
+    generate_auth_file(file)
+
+
 @cli.command("blocks", help="Display blocks")
 @click.option(
     "--nbr",
@@ -112,14 +120,6 @@ def cliCert(id_to_certify):
 @cli.command("diffi", help="List proof-of-work difficulty to generate next block")
 def cliDiffi():
     difficulties()
-
-
-@cli.command(
-    "generate_auth_file", help="Generate file to store the seed of the account"
-)
-@click.option("--file", help="Path file")
-def cliGenerateAuthFile(file):
-    generate_auth_file(file)
 
 
 @cli.command("id", help="Get corresponding identity or pubkey from pubkey or identity")
@@ -239,7 +239,7 @@ def usage():
     \n \
     \n - argos: display currency information formated for Argos or BitBar\
     \n \
-    \n - generate_auth_file: Generate file to store the seed of the account\
+    \n - authfile: Generate file to store the seed of the account\
     \n     - authentication: see below section\
     \n \
     \n - id <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
