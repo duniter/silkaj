@@ -187,8 +187,8 @@ def cliWot(id):
 def usage():
     message_exit(
         "Silkaj: command line client for Duniter currencies\
-    \n\nhelp: -h, --help, --usage \
-    \nversion: -v, --version \
+    \n\nhelp: --help \
+    \nversion: --version \
     \nabout: display informations about the programm\
     \n \
     \nEndpoint:\
@@ -203,16 +203,16 @@ def usage():
         + " currency with `https://"
         + G1_TEST_DEFAULT_ENDPOINT[0]
         + "` endpoint\
-    \n - custom endpoint can be specified with `-p` option followed by <domain>:<port>\
+    \n - custom endpoint can be specified with [-p | --peer] option followed by <domain>:<port>\
     \n \
     \nCommands: \
     \n - info: Display information about currency \
     \n \
     \n - amount: Get amount of accounts \
-    \n      pubkeys and/or ids separated with colon: <pubkey:id:pubkey>\
+    \n      pubkeys and/or ids separated with colon: <pubkey:pubkey>\
     \n      - authentication: see below section\
     \n \
-    \n - tx/transaction: Send transaction\
+    \n - tx: Send transaction\
     \n     - authentication: see below section\
     \n     - amount:\
     \n         --amountUD=<relative value> | --amount=<quantitative value>\
@@ -226,23 +226,23 @@ def usage():
     \n     - e.g.: silkaj cert <id> <auth>\
     \n     - authentication: see below section\
     \n \
-    \n - net/network: Display current network with many information \
-    \n      [--discover]     Discover all network (could take a while), optional \
+    \n - net: Display current network with many information \
+    \n      [-d | --discover]     Discover all network (could take a while), optional \
     \n      [-s | --sort]     Sort column names comma-separated (for example \"-s block,diffi\"), optional \
     \n                       Default sort is block,member,diffi,uid \
     \n \
     \n - diffi: list proof-of-work difficulty to generate next block \
     \n \
-    \n - issuers n: display last n issuers (`0` for current window size) \
-    \n      last issuers are displayed under n <= 30.\
-    \n      To force display last ones, use `--last` option\
+    \n - blocks: display last n blocks (`0` for current window size) \
+    \n      [-n | --nbr] detailed blocks are displayed under n <= 30.\
+    \n      To force detailed display, use [-d | --detailed] option\
     \n \
     \n - argos: display currency information formated for Argos or BitBar\
     \n \
     \n - generate_auth_file: Generate file to store the seed of the account\
     \n     - authentication: see below section\
     \n \
-    \n - id/identities <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
+    \n - id <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
     \n      it could autocomplete the pubkey corresponding to an identity with three or four following characters.\
     \n \
     \n - wot <pubkey> or <identity>: display received and sent certifications for an account.\
