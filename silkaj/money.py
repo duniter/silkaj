@@ -1,3 +1,4 @@
+import click
 from silkaj.network_tools import get_request, HeadBlock
 from silkaj.crypto_tools import get_publickey_from_seed
 from silkaj.tools import CurrencySymbol
@@ -5,9 +6,15 @@ from silkaj.auth import auth_method
 from silkaj.wot import check_public_key
 
 
-def cmd_amount(cli_args):
-    if not cli_args.subsubcmd.startswith("--auth-"):
-        pubkeys = cli_args.subsubcmd.split(":")
+@click.pass_context
+def cmd_amount(ctx, pubkeys):
+    if not (
+        ctx.obj["AUTH_SCRYPT"]
+        or ctx.obj["AUTH_FILE"]
+        or ctx.obj["AUTH_SEED"]
+        or ctx.obj["AUTH_WIF"]
+    ):
+        pubkeys = pubkeys.split(":")
         for pubkey in pubkeys:
             pubkey = check_public_key(pubkey, True)
             if not pubkey:
@@ -21,7 +28,7 @@ def cmd_amount(cli_args):
         if len(pubkeys) > 1:
             show_amount_from_pubkey("Total", total)
     else:
-        seed = auth_method(cli_args)
+        seed = auth_method()
         pubkey = get_publickey_from_seed(seed)
         show_amount_from_pubkey(pubkey, get_amount_from_pubkey(pubkey))
 

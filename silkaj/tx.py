@@ -17,12 +17,16 @@ from silkaj.money import get_sources, get_amount_from_pubkey, UDValue
 from silkaj.constants import NO_MATCHING_ID
 
 
-def send_transaction(cli_args):
+def send_transaction(
+    amount, amountUD, allSources, output, comment, outputBackChange, yes
+):
     """
     Main function
     """
-    tx_amount, output, comment, allSources, outputBackChange = cmd_transaction(cli_args)
-    seed = auth_method(cli_args)
+    tx_amount, comment = cmd_transaction(
+        amount, amountUD, allSources, output, comment, outputBackChange
+    )
+    seed = auth_method()
     issuer_pubkey = get_publickey_from_seed(seed)
 
     pubkey_amount = get_amount_from_pubkey(issuer_pubkey)[0]
@@ -36,8 +40,7 @@ def send_transaction(cli_args):
     )
 
     if (
-        cli_args.contains_switches("yes")
-        or cli_args.contains_switches("y")
+        yes
         or input(
             tabulate(
                 transaction_confirmation(
@@ -60,36 +63,22 @@ def send_transaction(cli_args):
         )
 
 
-def cmd_transaction(cli_args):
+def cmd_transaction(amount, amountUD, allSources, output, comment, outputBackChange):
     """
-    Retrieve values from command line interface
+    Check command line interface arguments
     """
-    if not (
-        cli_args.contains_definitions("amount")
-        or cli_args.contains_definitions("amountUD")
-    ):
-        message_exit("--amount or --amountUD is not set")
-    if not cli_args.contains_definitions("output"):
+    if not (amount or amountUD or allSources):
+        message_exit("--amount nor --amountUD nor --allSources is set")
+    if not output:
         message_exit("--output is not set")
-
-    if cli_args.contains_definitions("amount"):
-        tx_amount = float(cli_args.get_definition("amount")) * 100
-    if cli_args.contains_definitions("amountUD"):
-        tx_amount = float(cli_args.get_definition("amountUD")) * UDValue().ud_value
-
-    output = cli_args.get_definition("output")
-    comment = (
-        cli_args.get_definition("comment")
-        if cli_args.contains_definitions("comment")
-        else ""
-    )
-    allSources = cli_args.contains_switches("allSources")
-
-    if cli_args.contains_definitions("outputBackChange"):
-        outputBackChange = cli_args.get_definition("outputBackChange")
-    else:
-        outputBackChange = None
-    return tx_amount, output, comment, allSources, outputBackChange
+    if amount:
+        tx_amount = float(amount) * 100
+    if amountUD:
+        tx_amount = float(amountUD) * UDValue().ud_value
+    if allSources:
+        tx_amount = 0
+    comment = comment if comment else ""
+    return tx_amount, comment
 
 
 def check_transaction_values(

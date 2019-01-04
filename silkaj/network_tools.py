@@ -5,7 +5,7 @@ import socket
 import urllib.request
 import logging
 from sys import exit, stderr
-from commandlines import Command
+import click
 
 from silkaj.constants import (
     G1_DEFAULT_ENDPOINT,
@@ -67,6 +67,7 @@ def parse_endpoints(rep):
         j = 0
     return endpoints
 
+
 class EndPoint(object):
     __instance = None
 
@@ -76,15 +77,15 @@ class EndPoint(object):
             EndPoint.__instance = object.__new__(cls)
         return EndPoint.__instance
 
-    def __init__(self):
-        cli_args = Command()
+    @click.pass_context
+    def __init__(ctx, self):
         ep = dict()
-        if cli_args.contains_switches("p"):
-            ep["domain"], ep["port"] = cli_args.get_definition("p").rsplit(":", 1)
+        if ctx.obj["PEER"]:
+            ep["domain"], ep["port"] = ctx.obj["PEER"].rsplit(":", 1)
         else:
             ep["domain"], ep["port"] = (
                 G1_TEST_DEFAULT_ENDPOINT
-                if cli_args.contains_switches("gtest")
+                if ctx.obj["GTEST"]
                 else G1_DEFAULT_ENDPOINT
             )
         if ep["domain"].startswith("[") and ep["domain"].endswith("]"):
@@ -136,7 +137,8 @@ def check_ip(address):
         return 0
 
 
-def get_request(path, ep=EndPoint().ep):
+def get_request(path, ep=None):
+    ep = EndPoint().ep
     address = best_node(ep, False)
     if address is None:
         return address
@@ -149,7 +151,8 @@ def get_request(path, ep=EndPoint().ep):
     return loads(response.read().decode(encoding))
 
 
-def post_request(path, postdata, ep=EndPoint().ep):
+def post_request(path, postdata, ep=None):
+    ep = EndPoint().ep
     address = best_node(ep, False)
     if address is None:
         return address
