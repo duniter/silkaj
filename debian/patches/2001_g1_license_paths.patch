@@ -1,0 +1,18 @@
+Description: Fix read Ǧ1 license from system shared path
+Author: Jonas Smedegaard <dr@jones.dk>
+Forwarded: no
+Last-Update: 2019-01-05
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/silkaj/license.py
++++ b/silkaj/license.py
+@@ -15,7 +15,7 @@
+     language = input("In which language would you like to display Ğ1 license [en/fr]? ")
+     if language == "en":
+         if not webbrowser.open("https://duniter.org/en/wiki/g1-license/"):
+-            pager(open("licence-G1/license/license_g1-en.rst").read())
++            pager(open("/usr/share/silkaj/license/license_g1-en.rst").read())
+     else:
+         if not webbrowser.open("https://duniter.org/fr/wiki/licence-g1/"):
+-            pager(open("licence-G1/license/license_g1-fr-FR.rst").read())
++            pager(open("/usr/share/silkaj/license/license_g1-fr-FR.rst").read())
