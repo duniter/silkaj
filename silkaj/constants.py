@@ -1,4 +1,4 @@
-SILKAJ_VERSION = "0.6.2"
+SILKAJ_VERSION = "0.6.3"
 NO_MATCHING_ID = "No matching identity"
 G1_SYMBOL = "Ğ1"
 GTEST_SYMBOL = "ĞTest"
