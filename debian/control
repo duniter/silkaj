@@ -27,6 +27,8 @@ Depends:
  ${cdbs:Depends},
  ${misc:Depends},
  ${python3:Depends},
+Recommends:
+ ca-certificates,
 Provides:
  ${python3:Provides},
 Description: command-line client for Duniter
