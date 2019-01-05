@@ -1,3 +1,15 @@
+silkaj (0.6.2-2) unstable; urgency=medium
+
+  * Fix install Ǧ1 license files.
+  * Add patch 2001 to fix read Ǧ1 license from system shared path.
+  * Generate manpage with help2man.
+    Build-depend on help2man python3-click python3-nacl python3-pyaes
+    python3-scrypt python3-tabulate.
+  * Fix recommend ca-certificates.
+  * Add autopkgtest.
+
+ -- Jonas Smedegaard <dr@jones.dk>  Sat, 05 Jan 2019 01:38:26 +0100
+
 silkaj (0.6.2-1) experimental; urgency=medium
 
   [ upstream ]

@@ -8,11 +8,19 @@ Files: Pipfile
  Pipfile.lock
  README.md
  bin/silkaj
+ debian/clean
  debian/compat
  debian/control
  debian/gbp.conf
+ debian/patches/2001_g1_license_paths.patch
+ debian/patches/README
+ debian/patches/series
  debian/rules
+ debian/silkaj.install
+ debian/silkaj.manpages
  debian/source/format
+ debian/tests/control
+ debian/tests/options
  debian/watch
  doc/argos.md
  doc/build_with_pyinstaller.md
