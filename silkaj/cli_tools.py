@@ -43,7 +43,7 @@ from silkaj.constants import (
 )
 @click.option(
     "--nrp",
-    help="Scrypt parameters seperated by commas: defaults N,r,p: 4096,16,1",
+    help="Scrypt parameters seperated by commas: defaults N,r,p: 4096,16,1",
 )
 @click.option(
     "--auth-file", is_flag=True, help="Authentication file. Defaults to: './authfile'"

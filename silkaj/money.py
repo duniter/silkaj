@@ -1,7 +1,7 @@
 import click
 from silkaj.network_tools import get_request, HeadBlock
 from silkaj.crypto_tools import get_publickey_from_seed
-from silkaj.tools import CurrencySymbol
+from silkaj.tools import CurrencySymbol, message_exit
 from silkaj.auth import auth_method
 from silkaj.wot import check_public_key
 
@@ -14,6 +14,8 @@ def cmd_amount(ctx, pubkeys):
         or ctx.obj["AUTH_SEED"]
         or ctx.obj["AUTH_WIF"]
     ):
+        if not pubkeys:
+            message_exit("You should specify pubkeys with -p option")
         pubkeys = pubkeys.split(":")
         for pubkey in pubkeys:
             pubkey = check_public_key(pubkey, True)
