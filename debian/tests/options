@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+
+silkaj --version | grep -q 'silkaj, version'
+silkaj --help | grep -q 'Usage:'
+
+silkaj about | grep -q 'Repository:'
+silkaj usage | grep -q 'Authentication:'
+silkaj info | grep -q 'Certifications:'
