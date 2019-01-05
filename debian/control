@@ -7,8 +7,14 @@ Uploaders:
 Build-Depends:
  debhelper,
  dh-python,
+ help2man,
  python3,
+ python3-click,
+ python3-nacl,
+ python3-pyaes,
+ python3-scrypt,
  python3-setuptools,
+ python3-tabulate,
 Standards-Version: 4.3.0
 Vcs-Git: https://salsa.debian.org/cryptocoin-team/silkaj.git
 Vcs-Browser: https://salsa.debian.org/cryptocoin-team/silkaj
