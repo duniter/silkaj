@@ -92,17 +92,15 @@ def membership_status(certifications, certs, pubkey, req):
         )
     member = is_member(pubkey, certs["uid"])
     print("member:", member)
-    if not member and req["wasMember"]:
+    if req["revoked"]:
         print(
             "revoked:",
             req["revoked"],
             "\nrevoked on:",
-            convert_time(req["revoked_on"]),
-            "\nexpired:",
-            req["expired"],
-            "\nwasMember:",
-            req["wasMember"],
+            convert_time(req["revoked_on"], "date") + "\n",
         )
+    if not member and req["wasMember"]:
+        print("expired:", req["expired"], "\nwasMember:", req["wasMember"])
     elif member:
         print(
             "Membership document expiration: "
