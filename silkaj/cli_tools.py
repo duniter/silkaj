@@ -1,3 +1,20 @@
+"""
+Copyright  2016-2019 Maël Azimi <m.a@moul.re>
+
+Silkaj is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Silkaj is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
+"""
+
 # -*- coding: utf-8 -*-
 
 import click
@@ -42,8 +59,7 @@ from silkaj.constants import (
     "--auth-scrypt", is_flag=True, help="Scrypt authentication: default method"
 )
 @click.option(
-    "--nrp",
-    help="Scrypt parameters seperated by commas: defaults N,r,p: 4096,16,1",
+    "--nrp", help="Scrypt parameters seperated by commas: defaults N,r,p: 4096,16,1"
 )
 @click.option(
     "--auth-file", is_flag=True, help="Authentication file. Defaults to: './authfile'"
@@ -52,9 +68,7 @@ from silkaj.constants import (
 @click.option("--auth-seed", is_flag=True, help="Seed authentication")
 @click.option("--auth-wif", is_flag=True, help="WIF and EWIF authentication methods")
 @click.pass_context
-def cli(
-    ctx, peer, gtest, auth_scrypt, nrp, auth_file, file, auth_seed, auth_wif
-):
+def cli(ctx, peer, gtest, auth_scrypt, nrp, auth_file, file, auth_seed, auth_wif):
     ctx.obj = dict()
     ctx.ensure_object(dict)
     ctx.obj["PEER"] = peer
@@ -89,9 +103,7 @@ def cliArgos():
     argos_info()
 
 
-@cli.command(
-    "authfile", help="Generate file to store the seed of the account"
-)
+@cli.command("authfile", help="Generate file to store the seed of the account")
 @click.option("--file", help="Path file")
 def cliGenerateAuthFile(file):
     generate_auth_file(file)
