@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-SILKAJ_VERSION = "0.6.4"
+SILKAJ_VERSION = "0.6.5"
 NO_MATCHING_ID = "No matching identity"
 G1_SYMBOL = "Ğ1"
 GTEST_SYMBOL = "ĞTest"
