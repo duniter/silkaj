@@ -60,11 +60,9 @@ async def send_certification(id_to_certify):
     for cert in req["certifications"]:
         if cert["from"] == issuer_pubkey:
             params = await BlockchainParams().params
-            # Change params["msWindow"] to params["sigReplay"] when deployed
-            # https://git.duniter.org/nodes/typescript/duniter/merge_requests/1270
             # Ğ1: 0<–>2y - 2y + 2m
-            # ĞT: 0<–>6m - 6m + ¼m
-            renewable = cert["expiresIn"] - params["sigValidity"] + params["msWindow"]
+            # ĞT: 0<–>4.8m - 4.8m + 12.5d
+            renewable = cert["expiresIn"] - params["sigValidity"] + params["sigReplay"]
             if renewable > 0:
                 renewable_date = convert_time(time() + renewable, "date")
                 message_exit("Certification renewable the " + renewable_date)
