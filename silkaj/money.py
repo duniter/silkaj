@@ -16,11 +16,11 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
 from silkaj.network_tools import ClientInstance, HeadBlock
-from silkaj.crypto_tools import get_publickey_from_seed
 from silkaj.tools import CurrencySymbol
 from silkaj.auth import auth_method
 from silkaj.wot import check_public_key
 from duniterpy.api.bma import tx, blockchain
+from duniterpy.documents.transaction import InputSource
 
 
 async def cmd_amount(cli_args):
@@ -40,8 +40,8 @@ async def cmd_amount(cli_args):
         if len(pubkeys) > 1:
             await show_amount_from_pubkey("Total", total)
     else:
-        seed = auth_method(cli_args)
-        pubkey = get_publickey_from_seed(seed)
+        key = auth_method(cli_args)
+        pubkey = key.pubkey
         await show_amount_from_pubkey(pubkey, await get_amount_from_pubkey(pubkey))
     await client.close()
 
@@ -108,9 +108,7 @@ async def get_amount_from_pubkey(pubkey):
 
     totalAmountInput = 0
     for input in listinput:
-        inputsplit = input.split(":")
-        totalAmountInput += int(inputsplit[0]) * 10 ** int(inputsplit[1])
-
+        totalAmountInput += input.amount * 10 ** input.base
     return totalAmountInput, amount
 
 
@@ -125,15 +123,13 @@ async def get_sources(pubkey):
         if source["conditions"] == "SIG(" + pubkey + ")":
             amount += source["amount"] * 10 ** source["base"]
             listinput.append(
-                str(source["amount"])
-                + ":"
-                + str(source["base"])
-                + ":"
-                + source["type"]
-                + ":"
-                + source["identifier"]
-                + ":"
-                + str(source["noffset"])
+                InputSource(
+                    amount=source["amount"],
+                    base=source["base"],
+                    source=source["type"],
+                    origin_id=source["identifier"],
+                    index=source["noffset"],
+                )
             )
 
     # pending source
@@ -155,14 +151,12 @@ async def get_sources(pubkey):
             for output in pending["outputs"]:
                 outputsplited = output.split(":")
                 if outputsplited[2] == "SIG(" + pubkey + ")":
-                    inputgenerated = (
-                        outputsplited[0]
-                        + ":"
-                        + outputsplited[1]
-                        + ":T:"
-                        + identifier
-                        + ":"
-                        + str(i)
+                    inputgenerated = InputSource(
+                        amount=int(outputsplited[0]),
+                        base=int(outputsplited[1]),
+                        source="T",
+                        origin_id=identifier,
+                        index=i,
                     )
                     if inputgenerated not in listinput:
                         listinput.append(inputgenerated)
