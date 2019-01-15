@@ -15,15 +15,14 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-import urllib
 from time import time
 from tabulate import tabulate
 from duniterpy.api.bma import wot
+from duniterpy.documents import BlockUID, Identity, Certification
 
 from silkaj.auth import auth_method
-from silkaj.crypto_tools import get_publickey_from_seed, sign_document_from_seed
 from silkaj.tools import convert_time, message_exit
-from silkaj.network_tools import ClientInstance, post_request, HeadBlock
+from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.blockchain_tools import BlockchainParams
 from silkaj.license import license_approval
 from silkaj.wot import is_member, get_uid_from_pubkey, get_informations_for_identity
@@ -36,13 +35,14 @@ async def send_certification(cli_args):
 
     # Display license and ask for confirmation
     head = await HeadBlock().head_block
-    license_approval(head["currency"])
+    currency = head["currency"]
+    license_approval(currency)
 
     # Authentication
-    seed = auth_method(cli_args)
+    key = auth_method(cli_args)
 
     # Check whether current user is member
-    issuer_pubkey = get_publickey_from_seed(seed)
+    issuer_pubkey = key.pubkey
     issuer_id = await get_uid_from_pubkey(issuer_pubkey)
     if not await is_member(issuer_pubkey, issuer_id):
         message_exit("Current identity is not member.")
@@ -76,15 +76,37 @@ async def send_certification(cli_args):
     ):
         await client.close()
         return
-    cert_doc = await generate_certification_document(
-        issuer_pubkey, id_to_certify, main_id_to_certify
+
+    identity = Identity(
+        version=10,
+        currency=currency,
+        pubkey=id_to_certify["pubkey"],
+        uid=main_id_to_certify["uid"],
+        ts=BlockUID.from_str(main_id_to_certify["meta"]["timestamp"]),
+        signature=main_id_to_certify["self"],
     )
-    cert_doc += sign_document_from_seed(cert_doc, seed) + "\n"
+
+    certification = Certification(
+        version=10,
+        currency=currency,
+        pubkey_from=issuer_pubkey,
+        identity=identity,
+        timestamp=BlockUID(head["number"], head["hash"]),
+        signature="",
+    )
+
+    # Sign document
+    certification.sign([key])
 
     # Send certification document
-    post_request("wot/certify", "cert=" + urllib.parse.quote_plus(cert_doc))
+    response = await client(wot.certify, certification.signed_raw())
+
+    if response.status == 200:
+        print("Certification successfully sent.")
+    else:
+        print("Error while publishing certification: {0}".format(await response.text()))
+
     await client.close()
-    print("Certification successfully sent.")
 
 
 def certification_confirmation(
@@ -102,36 +124,3 @@ def certification_confirmation(
         == "yes"
     ):
         return True
-
-
-async def generate_certification_document(
-    issuer_pubkey, id_to_certify, main_id_to_certify
-):
-    head_block = await HeadBlock().head_block
-    return (
-        "Version: 10\n\
-Type: Certification\n\
-Currency: "
-        + head_block["currency"]
-        + "\n\
-Issuer: "
-        + issuer_pubkey
-        + "\n\
-IdtyIssuer: "
-        + id_to_certify["pubkey"]
-        + "\n\
-IdtyUniqueID: "
-        + main_id_to_certify["uid"]
-        + "\n\
-IdtyTimestamp: "
-        + main_id_to_certify["meta"]["timestamp"]
-        + "\n\
-IdtySignature: "
-        + main_id_to_certify["self"]
-        + "\n\
-CertTimestamp: "
-        + str(head_block["number"])
-        + "-"
-        + head_block["hash"]
-        + "\n"
-    )
