@@ -18,20 +18,19 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 from re import compile, search
 import math
 from time import sleep
-import urllib
 
 from tabulate import tabulate
-from silkaj.network_tools import ClientInstance, post_request, HeadBlock
-from silkaj.crypto_tools import (
-    get_publickey_from_seed,
-    sign_document_from_seed,
-    check_public_key,
-)
+from silkaj.network_tools import ClientInstance, HeadBlock
+from silkaj.crypto_tools import check_public_key
 from silkaj.tools import message_exit, CurrencySymbol
 from silkaj.auth import auth_method
 from silkaj.wot import get_uid_from_pubkey
 from silkaj.money import get_sources, get_amount_from_pubkey, UDValue
 from silkaj.constants import NO_MATCHING_ID
+
+from duniterpy.api.bma.tx import process
+from duniterpy.documents import BlockUID, Transaction
+from duniterpy.documents.transaction import OutputSource, Unlock, SIGParameter
 
 
 async def send_transaction(cli_args):
@@ -41,8 +40,8 @@ async def send_transaction(cli_args):
     tx_amount, output, comment, allSources, outputBackChange = await cmd_transaction(
         cli_args
     )
-    seed = auth_method(cli_args)
-    issuer_pubkey = get_publickey_from_seed(seed)
+    key = auth_method(cli_args)
+    issuer_pubkey = key.pubkey
 
     pubkey_amount = await get_amount_from_pubkey(issuer_pubkey)
     outputAddresses = output.split(":")
@@ -69,7 +68,7 @@ async def send_transaction(cli_args):
         == "yes"
     ):
         await generate_and_send_transaction(
-            seed,
+            key,
             issuer_pubkey,
             tx_amount,
             outputAddresses,
@@ -178,7 +177,7 @@ async def transaction_confirmation(
 
 
 async def generate_and_send_transaction(
-    seed,
+    key,
     issuers,
     AmountTransfered,
     outputAddresses,
@@ -187,6 +186,7 @@ async def generate_and_send_transaction(
     OutputbackChange=None,
 ):
 
+    client = ClientInstance().client
     while True:
         listinput_and_amount = await get_list_input_for_transaction(
             issuers, AmountTransfered * len(outputAddresses), all_input
@@ -206,11 +206,17 @@ async def generate_and_send_transaction(
                 issuers,
                 "Change operation",
             )
-            transaction += sign_document_from_seed(transaction, seed) + "\n"
-            post_request(
-                "tx/process", "transaction=" + urllib.parse.quote_plus(transaction)
-            )
-            print("Change Transaction successfully sent.")
+            transaction.sign([key])
+            response = await client(process, transaction.signed_raw())
+            if response.status == 200:
+                print("Change Transaction successfully sent.")
+            else:
+                print(
+                    "Error while publishing transaction: {0}".format(
+                        await response.text()
+                    )
+                )
+
             sleep(1)  # wait 1 second before sending a new transaction
 
         else:
@@ -233,12 +239,17 @@ async def generate_and_send_transaction(
                 Comment,
                 OutputbackChange,
             )
-            transaction += sign_document_from_seed(transaction, seed) + "\n"
+            transaction.sign([key])
+            response = await client(process, transaction.signed_raw())
+            if response.status == 200:
+                print("Transaction successfully sent.")
+            else:
+                print(
+                    "Error while publishing transaction: {0}".format(
+                        await response.text()
+                    )
+                )
 
-            post_request(
-                "tx/process", "transaction=" + urllib.parse.quote_plus(transaction)
-            )
-            print("Transaction successfully sent.")
             await client.close()
             break
 
@@ -259,7 +270,7 @@ async def generate_transaction_document(
 
     head_block = await HeadBlock().head_block
     currency_name = head_block["currency"]
-    blockstamp_current = str(head_block["number"]) + "-" + str(head_block["hash"])
+    blockstamp_current = BlockUID(head_block["number"], head_block["hash"])
     curentUnitBase = head_block["unitbase"]
 
     if not OutputbackChange:
@@ -285,28 +296,31 @@ async def generate_transaction_document(
     rest = totalAmountInput - totalAmountTransfered
     generate_output(listoutput, curentUnitBase, rest, OutputbackChange)
 
+    # Unlocks
+    unlocks = generate_unlocks(listinput)
+
     # Generate transaction document
     ##############################
 
-    transaction_document = "Version: 10\n"
-    transaction_document += "Type: Transaction\n"
-    transaction_document += "Currency: " + currency_name + "\n"
-    transaction_document += "Blockstamp: " + blockstamp_current + "\n"
-    transaction_document += "Locktime: 0\n"
-    transaction_document += "Issuers:\n"
-    transaction_document += issuers + "\n"
-    transaction_document += "Inputs:\n"
-    for input in listinput:
-        transaction_document += input + "\n"
-    transaction_document += "Unlocks:\n"
-    for i in range(0, len(listinput)):
-        transaction_document += str(i) + ":SIG(0)\n"
-    transaction_document += "Outputs:\n"
-    for output in listoutput:
-        transaction_document += output + "\n"
-    transaction_document += "Comment: " + Comment + "\n"
+    return Transaction(
+        version=10,
+        currency=currency_name,
+        blockstamp=blockstamp_current,
+        locktime=0,
+        issuers=[issuers],
+        inputs=listinput,
+        unlocks=unlocks,
+        outputs=listoutput,
+        comment=Comment,
+        signatures=[],
+    )
 
-    return transaction_document
+
+def generate_unlocks(listinput):
+    unlocks = list()
+    for i in range(0, len(listinput)):
+        unlocks.append(Unlock(index=i, parameters=[SIGParameter(0)]))
+    return unlocks
 
 
 def generate_output(listoutput, unitbase, rest, recipient_address):
@@ -316,12 +330,11 @@ def generate_output(listoutput, unitbase, rest, recipient_address):
         if outputAmount > 0:
             outputAmount = int(outputAmount / math.pow(10, unitbase))
             listoutput.append(
-                str(outputAmount)
-                + ":"
-                + str(unitbase)
-                + ":SIG("
-                + recipient_address
-                + ")"
+                OutputSource(
+                    amount=str(outputAmount),
+                    base=unitbase,
+                    condition="SIG({0})".format(recipient_address),
+                )
             )
         unitbase = unitbase - 1
 
@@ -335,9 +348,8 @@ async def get_list_input_for_transaction(pubkey, TXamount, allinput=False):
     intermediatetransaction = False
     for input in listinput:
         listinputfinal.append(input)
-        inputsplit = input.split(":")
-        totalAmountInput += int(inputsplit[0]) * 10 ** int(inputsplit[1])
-        TXamount -= int(inputsplit[0]) * 10 ** int(inputsplit[1])
+        totalAmountInput += input.amount * 10 ** input.base
+        TXamount -= input.amount * 10 ** input.base
         # if more 40 sources, it's an intermediate transaction
         if len(listinputfinal) >= 40:
             intermediatetransaction = True
