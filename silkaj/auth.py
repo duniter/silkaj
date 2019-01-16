@@ -15,9 +15,8 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from silkaj.crypto_tools import get_publickey_from_seed, b58_decode
+from silkaj.crypto_tools import get_publickey_from_seed
 from silkaj.tools import message_exit
-from nacl import encoding
 from getpass import getpass
 from os import path
 from re import compile, search
@@ -60,29 +59,26 @@ def auth_by_auth_file(cli_args):
         message_exit('Error: the file "' + file + '" does not exist')
     with open(file) as f:
         filetxt = f.read()
-
     regex_seed = compile("^[0-9a-fA-F]{64}$")
     regex_gannonce = compile(
         "^pub: [1-9A-HJ-NP-Za-km-z]{43,44}\nsec: [1-9A-HJ-NP-Za-km-z]{88,90}.*$"
     )
     # Seed Format
     if search(regex_seed, filetxt):
-        seed = filetxt[0:64]
+        return SigningKey.from_seedhex_file(file)
     # gannonce.duniter.org Format
     elif search(regex_gannonce, filetxt):
-        private_key = filetxt.split("sec: ")[1].split("\n")[0]
-        seed = encoding.HexEncoder.encode(b58_decode(private_key))[0:64].decode("utf-8")
+        return SigningKey.from_pubsec_file(file)
     else:
         message_exit("Error: the format of the file is invalid")
-    return seed
 
 
 def auth_by_seed():
-    seed = input("Please enter your seed on hex format: ")
-    regex = compile("^[0-9a-fA-F]{64}$")
-    if not search(regex, seed):
-        message_exit("Error: the format of the seed is invalid")
-    return seed
+    seedhex = getpass("Please enter your seed on hex format: ")
+    try:
+        return SigningKey.from_seedhex(seedhex)
+    except Exception as error:
+        message_exit(error)
 
 
 def auth_by_scrypt(cli_args):
