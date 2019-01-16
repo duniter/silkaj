@@ -18,11 +18,12 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 from silkaj.crypto_tools import get_publickey_from_seed, b58_decode
 from silkaj.tools import message_exit
 from nacl import encoding
-import nacl.hash
 from getpass import getpass
 from os import path
 from re import compile, search
 from duniterpy.key import SigningKey
+from duniterpy.key import ScryptParams
+
 
 def auth_method(cli_args):
     if cli_args.contains_switches("auth-seed"):
@@ -99,17 +100,18 @@ def auth_by_scrypt(cli_args):
             cli_args.get_definition("p"),
         )
         if n.isnumeric() and r.isnumeric() and p.isnumeric():
-            n, r, p = int(n), int(r), int(p)
+            scrypt_params = ScryptParams(int(n), int(r), int(p))
             if n <= 0 or n > 65536 or r <= 0 or r > 512 or p <= 0 or p > 32:
                 message_exit("Error: the values of Scrypt parameters are not good")
         else:
             message_exit("one of n, r or p is not a number")
     else:
+        scrypt_params = None
         print("Using default values. Scrypt parameters not specified or wrong format")
         n, r, p = 4096, 16, 1
     print("Scrypt parameters used: N: {0}, r: {1}, p: {2}".format(n, r, p))
 
-    return get_seed_from_scrypt(salt, password, n, r, p)
+    return SigningKey.from_credentials(salt, password, scrypt_params)
 
 
 def auth_by_wif():
@@ -121,9 +123,3 @@ def auth_by_wif():
         return SigningKey.from_wif_or_ewif_hex(wif_hex, password)
     except Exception as error:
         message_exit(error)
-
-
-def get_seed_from_scrypt(salt, password, N=4096, r=16, p=1):
-    seed = hash(password, salt, N, r, p, 32)
-    seedhex = encoding.HexEncoder.encode(seed).decode("utf-8")
-    return seedhex
