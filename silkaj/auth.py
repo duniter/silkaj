@@ -15,7 +15,6 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from silkaj.crypto_tools import get_publickey_from_seed
 from silkaj.tools import message_exit
 from getpass import getpass
 from os import path
@@ -40,13 +39,12 @@ def generate_auth_file(cli_args):
         file = cli_args.get_definition("file")
     else:
         file = "authfile"
-    seed = auth_method(cli_args)
-    with open(file, "w") as f:
-        f.write(seed)
+    key = auth_method(cli_args)
+    key.save_seedhex_file(file)
     print(
         "Authentication file 'authfile' generated and stored in current\
  folder for following public key:",
-        get_publickey_from_seed(seed),
+        key.pubkey,
     )
 
 
