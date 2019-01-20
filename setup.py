@@ -25,6 +25,7 @@ setuptools.setup(
     ),
     install_requires=[
         "commandlines",
+        "duniterpy",
         "ipaddress",
         "tabulate",
         "pynacl",
