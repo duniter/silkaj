@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2e209d428ac040de3bbcb1d6166f6ee0e1e20741913b75f8b01bc703469b9e9b"
+            "sha256": "daef6a4aae12b7fe0fec094bd6f73590437fb6d5779e4e5f7a4318840b476f49"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -115,14 +115,6 @@
                 "sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"
             ],
             "version": "==3.0.4"
-        },
-        "commandlines": {
-            "hashes": [
-                "sha256:86b650b78470ac95966d7b1a9d215c16591bccb34b28ae2bb9026c3b4166fd64",
-                "sha256:b7dbf71b8dec42c16e9694b87e0e121d288e5a40d5d4f0dd1c0651ab7af06837"
-            ],
-            "index": "pypi",
-            "version": "==0.4.1"
         },
         "duniterpy": {
             "hashes": [

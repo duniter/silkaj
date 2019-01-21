@@ -57,7 +57,6 @@ Silkaj is based on Python dependencies:
 
 - [DuniterPy](https://git.duniter.org/clients/python/duniterpy/): Python APIs library to implement duniter clients softwares.
 - [Tabulate](https://bitbucket.org/astanin/python-tabulate/overview): to display charts.
-- [Commandlines](https://github.com/chrissimpkins/commandlines): to parse command and sub-commands.
 - [PyNaCl](https://github.com/pyca/pynacl/): Cryptography (NaCl) library.
 
 ### Names
