@@ -15,16 +15,8 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from nacl import encoding, signing, hash, bindings
+from nacl import encoding, hash, bindings
 from re import compile, search
-
-
-def sign_document_from_seed(document, seed):
-    seed = bytes(seed, "utf-8")
-    signing_key = signing.SigningKey(seed, encoding.HexEncoder)
-    signed = signing_key.sign(bytes(document, "utf-8"))
-    signed_b64 = encoding.Base64Encoder.encode(signed.signature)
-    return signed_b64.decode("utf-8")
 
 
 def get_publickey_from_seed(seed):

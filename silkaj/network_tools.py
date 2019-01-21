@@ -17,9 +17,7 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from ipaddress import ip_address
-from json import loads
 import socket
-import urllib.request
 import logging
 from sys import exit, stderr
 from commandlines import Command
@@ -195,23 +193,6 @@ def check_ip(address):
         return ip_address(address).version
     except:
         return 0
-
-
-def post_request(path, postdata, ep=EndPoint().ep):
-    address = best_node(ep, False)
-    if address is None:
-        return address
-    url = "http://" + ep[address] + ":" + ep["port"] + "/" + path
-    if ep["port"] == "443":
-        url = "https://" + ep[address] + "/" + path
-    request = urllib.request.Request(url, bytes(postdata, "utf-8"))
-    try:
-        response = urllib.request.urlopen(request, timeout=CONNECTION_TIMEOUT)
-    except urllib.error.URLError as e:
-        print(e, file=stderr)
-        exit(1)
-    encoding = response.info().get_content_charset("utf8")
-    return loads(response.read().decode(encoding))
 
 
 def best_node(ep, main):
