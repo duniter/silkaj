@@ -112,10 +112,3 @@ def b58_decode(s):
         else:
             break
     return b"\x00" * pad + res
-
-
-def xor_bytes(b1, b2):
-    result = bytearray()
-    for b1, b2 in zip(b1, b2):
-        result.append(b1 ^ b2)
-    return result

@@ -15,16 +15,14 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from silkaj.crypto_tools import get_publickey_from_seed, b58_decode, xor_bytes
+from silkaj.crypto_tools import get_publickey_from_seed, b58_decode
 from silkaj.tools import message_exit
 from nacl import encoding
 import nacl.hash
-from scrypt import hash
-import pyaes
 from getpass import getpass
 from os import path
 from re import compile, search
-
+from duniterpy.key import SigningKey
 
 def auth_method(cli_args):
     if cli_args.contains_switches("auth-seed"):
@@ -115,109 +113,17 @@ def auth_by_scrypt(cli_args):
 
 
 def auth_by_wif():
-    wif = input("Please enter your WIF or Encrypted WIF address: ")
-
-    regex = compile("^[1-9A-HJ-NP-Za-km-z]*$")
-    if not search(regex, wif):
-        message_exit("Error: the format of WIF is invalid")
-
-    wif_bytes = b58_decode(wif)
-    fi = wif_bytes[0:1]
-
-    if fi == b"\x01":
-        return get_seed_from_wifv1(wif)
-    elif fi == b"\x02":
-        password = getpass("Please enter the " + "password of WIF (masked): ")
-        return get_seed_from_ewifv1(wif, password)
-
-    message_exit("Error: the format of WIF is invalid or unknown")
+    wif_hex = getpass("Enter your WIF or Encrypted WIF address (masked): ")
+    password = getpass(
+        "(Leave empty in case WIF format) Enter the Encrypted WIF password (masked): "
+    )
+    try:
+        return SigningKey.from_wif_or_ewif_hex(wif_hex, password)
+    except Exception as error:
+        message_exit(error)
 
 
 def get_seed_from_scrypt(salt, password, N=4096, r=16, p=1):
     seed = hash(password, salt, N, r, p, 32)
     seedhex = encoding.HexEncoder.encode(seed).decode("utf-8")
-    return seedhex
-
-
-def get_seed_from_wifv1(wif):
-    regex = compile("^[1-9A-HJ-NP-Za-km-z]*$")
-    if not search(regex, wif):
-        message_exit("Error: the format of WIF is invalid")
-
-    wif_bytes = b58_decode(wif)
-    if len(wif_bytes) != 35:
-        message_exit("Error: the size of WIF is invalid")
-
-    checksum_from_wif = wif_bytes[-2:]
-    fi = wif_bytes[0:1]
-    seed = wif_bytes[1:-2]
-    seed_fi = wif_bytes[0:-2]
-
-    if fi != b"\x01":
-        message_exit("Error: It's not a WIF format")
-
-    # checksum control
-    checksum = nacl.hash.sha256(
-        nacl.hash.sha256(seed_fi, encoding.RawEncoder), encoding.RawEncoder
-    )[0:2]
-    if checksum_from_wif != checksum:
-        message_exit("Error: bad checksum of the WIF")
-
-    seedhex = encoding.HexEncoder.encode(seed).decode("utf-8")
-    return seedhex
-
-
-def get_seed_from_ewifv1(ewif, password):
-    regex = compile("^[1-9A-HJ-NP-Za-km-z]*$")
-    if not search(regex, ewif):
-        message_exit("Error: the format of EWIF is invalid")
-
-    wif_bytes = b58_decode(ewif)
-    if len(wif_bytes) != 39:
-        message_exit("Error: the size of EWIF is invalid")
-
-    wif_no_checksum = wif_bytes[0:-2]
-    checksum_from_ewif = wif_bytes[-2:]
-    fi = wif_bytes[0:1]
-    salt = wif_bytes[1:5]
-    encryptedhalf1 = wif_bytes[5:21]
-    encryptedhalf2 = wif_bytes[21:37]
-
-    if fi != b"\x02":
-        message_exit("Error: It's not a EWIF format")
-
-    # Checksum Control
-    checksum = nacl.hash.sha256(
-        nacl.hash.sha256(wif_no_checksum, encoding.RawEncoder), encoding.RawEncoder
-    )[0:2]
-    if checksum_from_ewif != checksum:
-        message_exit("Error: bad checksum of EWIF address")
-
-    # SCRYPT
-    password = password.encode("utf-8")
-    scrypt_seed = hash(password, salt, 16384, 8, 8, 64)
-    derivedhalf1 = scrypt_seed[0:32]
-    derivedhalf2 = scrypt_seed[32:64]
-
-    # AES
-    aes = pyaes.AESModeOfOperationECB(derivedhalf2)
-    decryptedhalf1 = aes.decrypt(encryptedhalf1)
-    decryptedhalf2 = aes.decrypt(encryptedhalf2)
-
-    # XOR
-    seed1 = xor_bytes(decryptedhalf1, derivedhalf1[0:16])
-    seed2 = xor_bytes(decryptedhalf2, derivedhalf1[16:32])
-    seed = seed1 + seed2
-    seedhex = encoding.HexEncoder.encode(seed).decode("utf-8")
-
-    # Password Control
-    salt_from_seed = nacl.hash.sha256(
-        nacl.hash.sha256(
-            b58_decode(get_publickey_from_seed(seedhex)), encoding.RawEncoder
-        ),
-        encoding.RawEncoder,
-    )[0:4]
-    if salt_from_seed != salt:
-        message_exit("Error: bad Password of EWIF address")
-
     return seedhex

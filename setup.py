@@ -29,8 +29,6 @@ setuptools.setup(
         "ipaddress",
         "tabulate",
         "pynacl",
-        "scrypt",
-        "pyaes",
     ],
     scripts=["bin/silkaj"],
 )
