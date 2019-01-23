@@ -17,6 +17,8 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 
 from datetime import datetime
 from sys import exit
+from asyncio import get_event_loop
+from functools import update_wrapper
 
 from silkaj.constants import G1_SYMBOL, GTEST_SYMBOL
 from silkaj.blockchain_tools import BlockchainParams
@@ -60,3 +62,11 @@ class CurrencySymbol(object):
 def message_exit(message):
     print(message)
     exit(1)
+
+
+def coroutine(f):
+    def wrapper(*args, **kwargs):
+        loop = get_event_loop()
+        return loop.run_until_complete(f(*args, **kwargs))
+
+    return update_wrapper(wrapper, f)
