@@ -29,7 +29,6 @@ from silkaj.commands import (
     argos_info,
     list_blocks,
 )
-from silkaj.tools import message_exit
 from silkaj.wot import received_sent_certifications, id_pubkey_correspondence
 from silkaj.auth import generate_auth_file
 from silkaj.license import license_command
@@ -95,81 +94,6 @@ cli.add_command(license_command)
 cli.add_command(network_info)
 cli.add_command(send_transaction)
 cli.add_command(received_sent_certifications)
-
-
-def usage():
-    message_exit(
-        "Silkaj: command line client for Duniter currencies\
-    \n\nhelp: -h, --help, --usage \
-    \nversion: -v, --version \
-    \nabout: display informations about the programm\
-    \n \
-    \nEndpoint:\
-    \nDefault endpoint will reach "
-        + G1_SYMBOL
-        + " currency with `https://"
-        + G1_DEFAULT_ENDPOINT[0]
-        + "` endpoint.\
-    \nUse one of these options at the end of the command:\
-    \n - `--gtest` to reach "
-        + GTEST_SYMBOL
-        + " currency with `https://"
-        + G1_TEST_DEFAULT_ENDPOINT[0]
-        + "` endpoint\
-    \n - custom endpoint can be specified with `-p` option followed by <domain>:<port> or <domain> with 443 as default port\
-    \n \
-    \nCommands: \
-    \n - info: Display information about currency \
-    \n \
-    \n - amount: Get amount of accounts \
-    \n      pubkeys and/or ids separated with colon: <pubkey:id:pubkey>\
-    \n      - authentication: see below section\
-    \n \
-    \n - tx/transaction: Send transaction\
-    \n     - authentication: see below section\
-    \n     - amount:\
-    \n         --amountUD=<relative value> | --amount=<quantitative value>\
-    \n         [--allSources] \
-    \n     --output=<public key>[!checksum]:[<public key>[!checksum]] \
-    \n     [--comment=<comment>] \
-    \n     [--outputBackChange=<public key[!checksum]>] \
-    \n     [-y | --yes], don't ask for prompt confirmation \
-    \n \
-    \n - cert: Send certification\
-    \n     - e.g.: silkaj cert <id> <auth>\
-    \n     - authentication: see below section\
-    \n \
-    \n - net/network: Display current network with many information \
-    \n      [--discover]     Discover all network (could take a while), optional \
-    \n      [-s | --sort]     Sort column names comma-separated (for example \"-s block,diffi\"), optional \
-    \n                       Default sort is block,member,diffi,uid \
-    \n \
-    \n - diffi: list proof-of-work difficulty to generate next block \
-    \n \
-    \n - blocks n: display last n blocks (`0` for current window size) \
-    \n      last blocks are displayed under n <= 30.\
-    \n      To force display last ones, use `--last` option\
-    \n \
-    \n - argos: display currency information formated for Argos or BitBar\
-    \n \
-    \n - generate_auth_file: Generate file to store the seed of the account\
-    \n     - authentication: see below section\
-    \n \
-    \n - id/identities <pubkey> or <identity>: get corresponding identity or pubkey from pubkey or identity.\
-    \n      it could autocomplete the pubkey corresponding to an identity with three or four following characters.\
-    \n \
-    \n - wot <pubkey> or <identity>: display received and sent certifications for an account.\
-    \n \
-    \n - license: display Ğ1 currency license.\
-    \n \
-    \nAuthentication:\
-    \n for amount, transaction, certification, and generate_auth_file commands\
-    \n - Scrypt is the default authentication method with 4096,16,1 as default values\
-    \n    you can specify others values specifying following parameters: -n <N> -r <r> -p <p>\
-    \n - Seed: --auth-seed\
-    \n - File: --auth-file [--file=<path file>], './authfile' will be taken if there is no path specified\
-    \n - WIF: --auth-wif"
-    )
 
 
 @cli.command("about", help="Display programm information")
