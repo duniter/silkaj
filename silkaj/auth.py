@@ -16,6 +16,7 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
 from silkaj.tools import message_exit
+from click import command, option, pass_context
 from getpass import getpass
 from os import path
 from re import compile, search
@@ -23,23 +24,22 @@ from duniterpy.key import SigningKey
 from duniterpy.key import ScryptParams
 
 
-def auth_method(cli_args):
-    if cli_args.contains_switches("auth-seed"):
+@pass_context
+def auth_method(ctx):
+    if ctx.obj["AUTH_SEED"]:
         return auth_by_seed()
-    if cli_args.contains_switches("auth-file"):
-        return auth_by_auth_file(cli_args)
-    if cli_args.contains_switches("auth-wif"):
+    if ctx.obj["AUTH_FILE"]:
+        return auth_by_auth_file()
+    if ctx.obj["AUTH_WIF"]:
         return auth_by_wif()
     else:
-        return auth_by_scrypt(cli_args)
+        return auth_by_scrypt()
 
 
-def generate_auth_file(cli_args):
-    if cli_args.contains_definitions("file"):
-        file = cli_args.get_definition("file")
-    else:
-        file = "authfile"
-    key = auth_method(cli_args)
+@command("authfile", help="Generate authentication file")
+@option("--file", default="authfile", show_default=True, help="Path file")
+def generate_auth_file(file):
+    key = auth_method()
     key.save_seedhex_file(file)
     print(
         "Authentication file 'authfile' generated and stored in current\
@@ -48,11 +48,9 @@ def generate_auth_file(cli_args):
     )
 
 
-def auth_by_auth_file(cli_args):
-    if cli_args.contains_definitions("file"):
-        file = cli_args.get_definition("file")
-    else:
-        file = "authfile"
+@pass_context
+def auth_by_auth_file(ctx):
+    file = ctx.obj["AUTH_FILE_PATH"]
     if not path.isfile(file):
         message_exit('Error: the file "' + file + '" does not exist')
     with open(file) as f:
@@ -79,33 +77,28 @@ def auth_by_seed():
         message_exit(error)
 
 
-def auth_by_scrypt(cli_args):
+@pass_context
+def auth_by_scrypt(ctx):
     salt = getpass("Please enter your Scrypt Salt (Secret identifier): ")
     password = getpass("Please enter your Scrypt password (masked): ")
 
-    if (
-        cli_args.contains_definitions("n")
-        and cli_args.contains_definitions("r")
-        and cli_args.contains_definitions("p")
-    ):
-        n, r, p = (
-            cli_args.get_definition("n"),
-            cli_args.get_definition("r"),
-            cli_args.get_definition("p"),
-        )
+    if ctx.obj["AUTH_SCRYPT_PARAMS"]:
+        n, r, p = ctx.obj["AUTH_SCRYPT_PARAMS"].split(",")
+
         if n.isnumeric() and r.isnumeric() and p.isnumeric():
-            scrypt_params = ScryptParams(int(n), int(r), int(p))
+            n, r, p = int(n), int(r), int(p)
             if n <= 0 or n > 65536 or r <= 0 or r > 512 or p <= 0 or p > 32:
                 message_exit("Error: the values of Scrypt parameters are not good")
+            scrypt_params = ScryptParams(n, r, p)
         else:
             message_exit("one of n, r or p is not a number")
     else:
         scrypt_params = None
-        print("Using default values. Scrypt parameters not specified or wrong format")
-        n, r, p = 4096, 16, 1
-    print("Scrypt parameters used: N: {0}, r: {1}, p: {2}".format(n, r, p))
 
-    return SigningKey.from_credentials(salt, password, scrypt_params)
+    try:
+        return SigningKey.from_credentials(salt, password, scrypt_params)
+    except ValueError as error:
+        message_exit(error)
 
 
 def auth_by_wif():
