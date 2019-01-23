@@ -46,7 +46,7 @@ def check_public_key(pubkey, display_error):
             return False
 
     elif display_error:
-        print("Error: bad format for following public key:")
+        print("Error: bad format for following public key:", pubkey)
     return False
 
 
