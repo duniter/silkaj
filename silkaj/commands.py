@@ -15,6 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
+from click import command, option, argument
 from datetime import datetime
 from time import sleep
 from os import system, popen
@@ -24,6 +25,7 @@ from operator import itemgetter
 from duniterpy.api.client import Client
 from duniterpy.api.bma import blockchain, node
 
+from silkaj.tools import coroutine
 from silkaj.wot import get_uid_from_pubkey
 from silkaj.network_tools import (
     discover_peers,
@@ -36,6 +38,8 @@ from silkaj.tools import convert_time, message_exit, CurrencySymbol
 from silkaj.constants import NO_MATCHING_ID
 
 
+@command("info", help="Display information about currency")
+@coroutine
 async def currency_info():
     head_block = await HeadBlock().head_block
     ep = EndPoint().ep
@@ -82,6 +86,11 @@ def power(nbr, pow=0):
     return "{0:.1f} × 10^{1}".format(nbr, pow)
 
 
+@command(
+    "diffi",
+    help="Display the current Proof of Work difficulty level to generate the next block",
+)
+@coroutine
 async def difficulties():
     client = ClientInstance().client
     while True:
@@ -308,6 +317,8 @@ async def list_blocks(nbr, last):
         )
 
 
+@command("argos", help="Display currency information formated for Argos or BitBar")
+@coroutine
 async def argos_info():
     pretty_names = {"g1": "Ğ1", "gtest": "Ğtest"}
     head_block = await HeadBlock().head_block
