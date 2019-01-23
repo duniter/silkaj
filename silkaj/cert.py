@@ -15,22 +15,26 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
+from click import command, argument
 from time import time
 from tabulate import tabulate
 from duniterpy.api.bma import wot
 from duniterpy.documents import BlockUID, Identity, Certification
 
 from silkaj.auth import auth_method
-from silkaj.tools import convert_time, message_exit
+from silkaj.tools import convert_time, message_exit, coroutine
 from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.blockchain_tools import BlockchainParams
 from silkaj.license import license_approval
 from silkaj.wot import is_member, get_uid_from_pubkey, get_informations_for_identity
 
 
-async def send_certification(cli_args):
+@command("cert", help="Send certification")
+@argument("id_to_certify")
+@coroutine
+async def send_certification(id_to_certify):
     client = ClientInstance().client
-    id_to_certify = await get_informations_for_identity(cli_args.subsubcmd)
+    id_to_certify = await get_informations_for_identity(id_to_certify)
     main_id_to_certify = id_to_certify["uids"][0]
 
     # Display license and ask for confirmation
@@ -39,7 +43,7 @@ async def send_certification(cli_args):
     license_approval(currency)
 
     # Authentication
-    key = auth_method(cli_args)
+    key = auth_method()
 
     # Check whether current user is member
     issuer_pubkey = key.pubkey
