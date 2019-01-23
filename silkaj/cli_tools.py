@@ -17,14 +17,14 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 
 # -*- coding: utf-8 -*-
 
-from commandlines import Command
+from click import group, help_option, version_option, option, pass_context
+
 from silkaj.tx import send_transaction
 from silkaj.money import cmd_amount
 from silkaj.cert import send_certification
 from silkaj.commands import (
     currency_info,
     difficulties,
-    set_network_sort_keys,
     network_info,
     argos_info,
     list_blocks,
@@ -32,14 +32,69 @@ from silkaj.commands import (
 from silkaj.tools import message_exit
 from silkaj.wot import received_sent_certifications, id_pubkey_correspondence
 from silkaj.auth import generate_auth_file
-from silkaj.license import display_license
-from silkaj.constants import (
-    SILKAJ_VERSION,
-    G1_SYMBOL,
-    GTEST_SYMBOL,
-    G1_DEFAULT_ENDPOINT,
-    G1_TEST_DEFAULT_ENDPOINT,
+from silkaj.license import license_command
+from silkaj.constants import SILKAJ_VERSION
+
+
+@group()
+@help_option("-h", "--help")
+@version_option(SILKAJ_VERSION, "-v", "--version")
+@option(
+    "--peer",
+    "-p",
+    help="Default endpoint will reach Ğ1 currency with `https://g1.duniter.org` endpoint.\
+ Custom endpoint can be specified with `-p` option followed by <domain>:<port>",
 )
+@option(
+    "--gtest", "-gt", is_flag=True, help="ĞTest: `https://g1-test.duniter.org` endpoint"
+)
+@option(
+    "--auth-scrypt",
+    "--scrypt",
+    is_flag=True,
+    help="Scrypt authentication: default method",
+)
+@option("--nrp", help='Scrypt parameters: defaults N,r,p: "4096,16,1"')
+@option(
+    "--auth-file",
+    "-af",
+    is_flag=True,
+    help="Authentication file. Defaults to: './authfile'",
+)
+@option(
+    "--file",
+    default="authfile",
+    show_default=True,
+    help="Path file specification with '--auth-file'",
+)
+@option("--auth-seed", "--seed", is_flag=True, help="Seed hexadecimal authentication")
+@option("--auth-wif", "--wif", is_flag=True, help="WIF and EWIF authentication methods")
+@pass_context
+def cli(ctx, peer, gtest, auth_scrypt, nrp, auth_file, file, auth_seed, auth_wif):
+    ctx.obj = dict()
+    ctx.ensure_object(dict)
+    ctx.obj["PEER"] = peer
+    ctx.obj["GTEST"] = gtest
+    ctx.obj["AUTH_SCRYPT"] = auth_scrypt
+    ctx.obj["AUTH_SCRYPT_PARAMS"] = nrp
+    ctx.obj["AUTH_FILE"] = auth_file
+    ctx.obj["AUTH_FILE_PATH"] = file
+    ctx.obj["AUTH_SEED"] = auth_seed
+    ctx.obj["AUTH_WIF"] = auth_wif
+
+
+cli.add_command(argos_info)
+cli.add_command(generate_auth_file)
+cli.add_command(cmd_amount)
+cli.add_command(list_blocks)
+cli.add_command(send_certification)
+cli.add_command(difficulties)
+cli.add_command(id_pubkey_correspondence)
+cli.add_command(currency_info)
+cli.add_command(license_command)
+cli.add_command(network_info)
+cli.add_command(send_transaction)
+cli.add_command(received_sent_certifications)
 
 
 def usage():
@@ -117,83 +172,7 @@ def usage():
     )
 
 
-async def manage_cmd():
-    cli_args = Command()
-    if cli_args.is_version_request():
-        message_exit(SILKAJ_VERSION)
-
-    subcmd = [
-        "license",
-        "about",
-        "info",
-        "diffi",
-        "net",
-        "network",
-        "blocks",
-        "argos",
-        "amount",
-        "tx",
-        "transaction",
-        "cert",
-        "generate_auth_file",
-        "id",
-        "identities",
-        "wot",
-    ]
-    if (
-        cli_args.is_help_request()
-        or cli_args.is_usage_request()
-        or cli_args.subcmd not in subcmd
-    ):
-        usage()
-
-    if cli_args.subcmd == "about":
-        about()
-    elif cli_args.subcmd == "info":
-        await currency_info()
-
-    elif cli_args.subcmd == "diffi":
-        await difficulties()
-
-    elif cli_args.subcmd == "net" or cli_args.subcmd == "network":
-        if cli_args.contains_switches("sort"):
-            set_network_sort_keys(cli_args.get_definition("sort"))
-        if cli_args.contains_switches("s"):
-            set_network_sort_keys(cli_args.get_definition("s"))
-        await network_info(cli_args.contains_switches("discover"))
-
-    elif (
-        cli_args.subcmd == "blocks"
-        and cli_args.subsubcmd
-        and int(cli_args.subsubcmd) >= 0
-    ):
-        await list_blocks(int(cli_args.subsubcmd), cli_args.contains_switches("last"))
-
-    elif cli_args.subcmd == "argos":
-        await argos_info()
-
-    elif cli_args.subcmd == "amount":
-        await cmd_amount(cli_args)
-
-    elif cli_args.subcmd == "tx" or cli_args.subcmd == "transaction":
-        await send_transaction(cli_args)
-
-    elif cli_args.subcmd == "cert":
-        await send_certification(cli_args)
-
-    elif cli_args.subcmd == "generate_auth_file":
-        generate_auth_file(cli_args)
-
-    elif cli_args.subcmd == "id" or cli_args.subcmd == "identities":
-        await id_pubkey_correspondence(cli_args.subsubcmd)
-
-    elif cli_args.subcmd == "wot":
-        await received_sent_certifications(cli_args.subsubcmd)
-
-    elif cli_args.subcmd == "license":
-        display_license()
-
-
+@cli.command("about", help="Display programm information")
 def about():
     print(
         "\
