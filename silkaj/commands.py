@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from click import command, option, argument
+from click import command, option, argument, IntRange
 from datetime import datetime
 from time import sleep
 from os import system, popen
@@ -235,19 +235,28 @@ async def network_info(discover, sort):
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 
-async def list_blocks(nbr, last):
+@command("blocks", help="Display blocks: default: 0 for current window size")
+@argument("number", default=0, type=IntRange(0, 5000))
+@option(
+    "--detailed",
+    "-d",
+    is_flag=True,
+    help="Force detailed view. Compact view happen over 30 blocks",
+)
+@coroutine
+async def list_blocks(number, detailed):
     head_block = await HeadBlock().head_block
     current_nbr = head_block["number"]
-    if nbr == 0:
-        nbr = head_block["issuersFrame"]
+    if number == 0:
+        number = head_block["issuersFrame"]
     client = ClientInstance().client
-    blocks = await client(blockchain.blocks, nbr, current_nbr - nbr + 1)
+    blocks = await client(blockchain.blocks, number, current_nbr - number + 1)
     list_issuers, j = list(), 0
     issuers_dict = dict()
     while j < len(blocks):
         issuer = OrderedDict()
         issuer["pubkey"] = blocks[j]["issuer"]
-        if last or nbr <= 30:
+        if detailed or number <= 30:
             issuer["block"] = blocks[j]["number"]
             issuer["gentime"] = convert_time(blocks[j]["time"], "hour")
             issuer["mediantime"] = convert_time(blocks[j]["medianTime"], "hour")
@@ -269,11 +278,11 @@ async def list_blocks(nbr, last):
     await client.close()
     print(
         "Last {0} blocks from n°{1} to n°{2}".format(
-            nbr, current_nbr - nbr + 1, current_nbr
+            number, current_nbr - number + 1, current_nbr
         ),
         end=" ",
     )
-    if last or nbr <= 30:
+    if detailed or number <= 30:
         sorted_list = sorted(list_issuers, key=itemgetter("block"), reverse=True)
         print(
             "\n"
@@ -302,7 +311,7 @@ async def list_blocks(nbr, last):
             i += 1
         i = 0
         while i < len(list_issued):
-            list_issued[i]["percent"] = list_issued[i]["blocks"] / nbr * 100
+            list_issued[i]["percent"] = list_issued[i]["blocks"] / number * 100
             i += 1
         sorted_list = sorted(list_issued, key=itemgetter("blocks"), reverse=True)
         print(
