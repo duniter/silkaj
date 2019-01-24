@@ -125,18 +125,6 @@ async def difficulties():
     await client.close()
 
 
-network_sort_keys = ["block", "member", "diffi", "uid"]
-
-
-def set_network_sort_keys(some_keys):
-    global network_sort_keys
-    if some_keys.endswith(","):
-        message_exit(
-            "Argument 'sort' ends with a comma, you have probably inserted a space after the comma, which is incorrect."
-        )
-    network_sort_keys = some_keys.split(",")
-
-
 def get_network_sort_key(endpoint):
     t = list()
     for akey in network_sort_keys:
@@ -147,7 +135,21 @@ def get_network_sort_key(endpoint):
     return tuple(t)
 
 
-async def network_info(discover):
+@command("net", help="Display network view")
+@option(
+    "--discover", "-d", is_flag=True, help="Discover the network (could take a while)"
+)
+@option(
+    "--sort",
+    "-s",
+    default="block,member,diffi,uid",
+    show_default=True,
+    help="Sort column names comma-separated",
+)
+@coroutine
+async def network_info(discover, sort):
+    global network_sort_keys
+    network_sort_keys = sort.split(",")
     rows, columns = popen("stty size", "r").read().split()
     wide = int(columns)
     if wide < 146:
