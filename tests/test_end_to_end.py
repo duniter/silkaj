@@ -22,14 +22,14 @@ def test_wot():
 def test_id():
     """tests 'silkaj id' certification on gtest"""
 
-    output = check_output(["silkaj", "id", "elois", "--gtest"]).decode()
+    output = check_output(["silkaj", "--gtest", "id", "elois"]).decode()
     assert "D7CYHJXjaH4j7zRdWngUbsURPnSnjsCYtvo6f8dvW3C" in output
 
 
 def test_amount():
     """tests 'silkaj amount' command on gtest"""
 
-    output = check_output(["silkaj", "amount", "3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj", "--gtest"]).decode()
+    output = check_output(["silkaj", "--gtest", "balance", "3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj"]).decode()
     assert "Total amount of: 3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj" in output
     assert "Total Relative     =" in output
     assert "UD ĞTest" in output
