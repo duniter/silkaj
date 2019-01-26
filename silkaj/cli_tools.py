@@ -17,7 +17,6 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 
 # -*- coding: utf-8 -*-
 
-from sys import stderr
 from commandlines import Command
 from silkaj.tx import send_transaction
 from silkaj.money import cmd_amount
@@ -31,7 +30,6 @@ from silkaj.commands import (
     list_blocks,
 )
 from silkaj.tools import message_exit
-from silkaj.network_tools import get_request
 from silkaj.wot import received_sent_certifications, id_pubkey_correspondence
 from silkaj.auth import generate_auth_file
 from silkaj.license import display_license
@@ -119,7 +117,7 @@ def usage():
     )
 
 
-def manage_cmd():
+async def manage_cmd():
     cli_args = Command()
     if cli_args.is_version_request():
         message_exit(SILKAJ_VERSION)
@@ -152,45 +150,45 @@ def manage_cmd():
     if cli_args.subcmd == "about":
         about()
     elif cli_args.subcmd == "info":
-        currency_info()
+        await currency_info()
 
     elif cli_args.subcmd == "diffi":
-        difficulties()
+        await difficulties()
 
     elif cli_args.subcmd == "net" or cli_args.subcmd == "network":
         if cli_args.contains_switches("sort"):
             set_network_sort_keys(cli_args.get_definition("sort"))
         if cli_args.contains_switches("s"):
             set_network_sort_keys(cli_args.get_definition("s"))
-        network_info(cli_args.contains_switches("discover"))
+        await network_info(cli_args.contains_switches("discover"))
 
     elif (
         cli_args.subcmd == "blocks"
         and cli_args.subsubcmd
         and int(cli_args.subsubcmd) >= 0
     ):
-        list_blocks(int(cli_args.subsubcmd), cli_args.contains_switches("last"))
+        await list_blocks(int(cli_args.subsubcmd), cli_args.contains_switches("last"))
 
     elif cli_args.subcmd == "argos":
-        argos_info()
+        await argos_info()
 
     elif cli_args.subcmd == "amount":
-        cmd_amount(cli_args)
+        await cmd_amount(cli_args)
 
     elif cli_args.subcmd == "tx" or cli_args.subcmd == "transaction":
-        send_transaction(cli_args)
+        await send_transaction(cli_args)
 
     elif cli_args.subcmd == "cert":
-        send_certification(cli_args)
+        await send_certification(cli_args)
 
     elif cli_args.subcmd == "generate_auth_file":
         generate_auth_file(cli_args)
 
     elif cli_args.subcmd == "id" or cli_args.subcmd == "identities":
-        id_pubkey_correspondence(cli_args.subsubcmd)
+        await id_pubkey_correspondence(cli_args.subsubcmd)
 
     elif cli_args.subcmd == "wot":
-        received_sent_certifications(cli_args.subsubcmd)
+        await received_sent_certifications(cli_args.subsubcmd)
 
     elif cli_args.subcmd == "license":
         display_license()

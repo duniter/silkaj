@@ -18,8 +18,9 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 from time import time
 from tabulate import tabulate
 from collections import OrderedDict
+from duniterpy.api.bma import wot, blockchain
 
-from silkaj.network_tools import get_request
+from silkaj.network_tools import ClientInstance
 from silkaj.crypto_tools import check_public_key
 from silkaj.tools import message_exit, convert_time
 from silkaj.blockchain_tools import BlockchainParams
@@ -40,20 +41,23 @@ def get_sent_certifications(certs, time_first_block, params):
     return sent, expire
 
 
-def received_sent_certifications(id):
+async def received_sent_certifications(id):
     """
     get searched id
     get id of received and sent certifications
     display on a chart the result with the numbers
     """
-    time_first_block = get_request("blockchain/block/1")["time"]
-    id_certs = get_informations_for_identity(id)
+    client = ClientInstance().client
+    first_block = await client(blockchain.block, 1)
+    time_first_block = first_block["time"]
+    id_certs = await get_informations_for_identity(id)
     certifications = OrderedDict()
-    params = BlockchainParams().params
+    params = await BlockchainParams().params
     for certs in id_certs["uids"]:
         if certs["uid"].lower() == id.lower():
             pubkey = id_certs["pubkey"]
-            req = get_request("wot/requirements/" + pubkey)["identities"][0]
+            req = await client(wot.requirements, pubkey)
+            req = req["identities"][0]
             certifications["received_expire"] = list()
             certifications["received"] = list()
             for cert in certs["others"]:
@@ -88,7 +92,8 @@ def received_sent_certifications(id):
                     "✔: Certifications written into the blockchain",
                 )
             )
-            membership_status(certifications, certs, pubkey, req)
+            await membership_status(certifications, certs, pubkey, req)
+    await client.close()
 
 
 def cert_written_in_the_blockchain(written_certs, certifieur):
@@ -98,8 +103,8 @@ def cert_written_in_the_blockchain(written_certs, certifieur):
     return certifieur["uids"][0]
 
 
-def membership_status(certifications, certs, pubkey, req):
-    params = BlockchainParams().params
+async def membership_status(certifications, certs, pubkey, req):
+    params = await BlockchainParams().params
     if len(certifications["received"]) >= params["sigQty"]:
         print(
             "Membership expiration due to certification expirations: "
@@ -107,7 +112,7 @@ def membership_status(certifications, certs, pubkey, req):
                 len(certifications["received"]) - params["sigQty"]
             ]
         )
-    member = is_member(pubkey, certs["uid"])
+    member = await is_member(pubkey, certs["uid"])
     print("member:", member)
     if req["revoked"]:
         print(
@@ -139,15 +144,16 @@ def date_approximation(block_id, time_first_block, avgentime):
     return time_first_block + block_id * avgentime
 
 
-def id_pubkey_correspondence(id_pubkey):
+async def id_pubkey_correspondence(id_pubkey):
+    client = ClientInstance().client
     if check_public_key(id_pubkey, False):
         print(
             "{} public key corresponds to identity: {}".format(
-                id_pubkey, get_uid_from_pubkey(id_pubkey)
+                id_pubkey, await get_uid_from_pubkey(id_pubkey)
             )
         )
     else:
-        pubkeys = get_informations_for_identities(id_pubkey)
+        pubkeys = await get_informations_for_identities(id_pubkey)
         if pubkeys == NO_MATCHING_ID:
             print(NO_MATCHING_ID)
         else:
@@ -155,20 +161,20 @@ def id_pubkey_correspondence(id_pubkey):
             for pubkey in pubkeys:
                 print("→", pubkey["pubkey"], end=" ")
                 try:
-                    print(
-                        "↔ " + get_request("wot/identity-of/" + pubkey["pubkey"])["uid"]
-                    )
+                    corresponding_id = await client(wot.identity_of, pubkey["pubkey"])
+                    print("↔ " + corresponding_id["uid"])
                 except:
                     print("")
+    await client.close()
 
 
-def get_informations_for_identity(id):
+async def get_informations_for_identity(id):
     """
     Check that the id is present on the network
     many identities could match
     return the one searched
     """
-    certs_req = get_informations_for_identities(id)
+    certs_req = await get_informations_for_identities(id)
     if certs_req == NO_MATCHING_ID:
         message_exit(NO_MATCHING_ID)
     for certs_id in certs_req:
@@ -177,9 +183,10 @@ def get_informations_for_identity(id):
     message_exit(NO_MATCHING_ID)
 
 
-def get_uid_from_pubkey(pubkey):
+async def get_uid_from_pubkey(pubkey):
     try:
-        results = get_request("wot/lookup/" + pubkey)
+        client = ClientInstance().client
+        results = await client(wot.lookup, pubkey)
     except:
         return NO_MATCHING_ID
     i, results = 0, results["results"]
@@ -189,30 +196,33 @@ def get_uid_from_pubkey(pubkey):
         i += 1
 
 
-def get_informations_for_identities(identifier):
+async def get_informations_for_identities(identifier):
     """
     :identifier: identity or pubkey in part or whole
     Return received and sent certifications lists of matching identities
     if one identity found
     """
+    client = ClientInstance().client
     try:
-        results = get_request("wot/lookup/" + identifier)
+        results = await client(wot.lookup, identifier)
     except:
         return NO_MATCHING_ID
     return results["results"]
 
 
-def is_member(pubkey, uid):
-    members = get_request("wot/members")["results"]
-    for member in members:
+async def is_member(pubkey, uid):
+    client = ClientInstance().client
+    members = await client(wot.members)
+    for member in members["results"]:
         if pubkey in member["pubkey"] and uid in member["uid"]:
             return True
     return False
 
 
-def get_pubkey_from_id(uid):
-    members = get_request("wot/members")["results"]
-    for member in members:
+async def get_pubkey_from_id(uid):
+    client = ClientInstance().client
+    members = await client(wot.members)
+    for member in members["results"]:
         if uid == member["uid"]:
             return member["pubkey"]
     return NO_MATCHING_ID

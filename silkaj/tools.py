@@ -47,11 +47,14 @@ class CurrencySymbol(object):
         return CurrencySymbol.__instance
 
     def __init__(self):
-        currency = BlockchainParams().params["currency"]
-        if currency == "g1":
-            self.symbol = G1_SYMBOL
-        elif currency == "g1-test":
-            self.symbol = GTEST_SYMBOL
+        self.symbol = self.get_symbol()
+
+    async def get_symbol(self):
+        params = await BlockchainParams().params
+        if params["currency"] == "g1":
+            return G1_SYMBOL
+        elif params["currency"] == "g1-test":
+            return GTEST_SYMBOL
 
 
 def message_exit(message):

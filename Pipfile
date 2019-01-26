@@ -7,10 +7,9 @@ name = "pypi"
 commandlines = "*"
 ipaddress = "*"
 tabulate = "*"
-scrypt = "*"
-pyaes = "*"
 PyNaCl = "*"
 "e1839a8" = {path = ".", editable = true}
+duniterpy = "*"
 
 [dev-packages]
 pre-commit = "*"

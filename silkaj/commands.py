@@ -21,34 +21,23 @@ from os import system, popen
 from collections import OrderedDict
 from tabulate import tabulate
 from operator import itemgetter
+from duniterpy.api.client import Client
+from duniterpy.api.bma import blockchain, node
 
 from silkaj.wot import get_uid_from_pubkey
 from silkaj.network_tools import (
     discover_peers,
-    get_request,
     best_node,
     EndPoint,
+    ClientInstance,
     HeadBlock,
 )
 from silkaj.tools import convert_time, message_exit, CurrencySymbol
 from silkaj.constants import NO_MATCHING_ID
 
 
-def currency_info():
-    info_data = dict()
-    for info_type in [
-        "newcomers",
-        "certs",
-        "actives",
-        "leavers",
-        "excluded",
-        "ud",
-        "tx",
-    ]:
-        info_data[info_type] = get_request("blockchain/with/" + info_type)["result"][
-            "blocks"
-        ]
-    head_block = HeadBlock().head_block
+async def currency_info():
+    head_block = await HeadBlock().head_block
     ep = EndPoint().ep
     print(
         "Connected to node:",
@@ -57,7 +46,7 @@ def currency_info():
         "\nCurrent block number:",
         head_block["number"],
         "\nCurrency name:",
-        CurrencySymbol().symbol,
+        await CurrencySymbol().symbol,
         "\nNumber of members:",
         head_block["membersCount"],
         "\nMinimal Proof-of-Work:",
@@ -68,22 +57,9 @@ def currency_info():
         convert_time(head_block["medianTime"], "all"),
         "\nDifference time:",
         convert_time(head_block["time"] - head_block["medianTime"], "hour"),
-        "\nNumber of blocks containing: \
-     \n- new comers:",
-        len(info_data["newcomers"]),
-        "\n- Certifications:",
-        len(info_data["certs"]),
-        "\n- Actives (members updating their membership):",
-        len(info_data["actives"]),
-        "\n- Leavers:",
-        len(info_data["leavers"]),
-        "\n- Excluded:",
-        len(info_data["excluded"]),
-        "\n- UD created:",
-        len(info_data["ud"]),
-        "\n- transactions:",
-        len(info_data["tx"]),
     )
+    client = ClientInstance().client
+    await client.close()
 
 
 def match_pattern(pow, match="", p=1):
@@ -106,14 +82,15 @@ def power(nbr, pow=0):
     return "{0:.1f} × 10^{1}".format(nbr, pow)
 
 
-def difficulties():
+async def difficulties():
+    client = ClientInstance().client
     while True:
-        diffi = get_request("blockchain/difficulties")
+        diffi = await client(blockchain.difficulties)
         levels = [
             OrderedDict((i, d[i]) for i in ("uid", "level")) for d in diffi["levels"]
         ]
         diffi["levels"] = levels
-        current = get_request("blockchain/current")
+        current = await client(blockchain.current)
         issuers = 0
         sorted_diffi = sorted(diffi["levels"], key=itemgetter("level"), reverse=True)
         for d in diffi["levels"]:
@@ -136,6 +113,7 @@ def difficulties():
             )
         )
         sleep(5)
+    await client.close()
 
 
 network_sort_keys = ["block", "member", "diffi", "uid"]
@@ -160,7 +138,7 @@ def get_network_sort_key(endpoint):
     return tuple(t)
 
 
-def network_info(discover):
+async def network_info(discover):
     rows, columns = popen("stty size", "r").read().split()
     wide = int(columns)
     if wide < 146:
@@ -171,19 +149,26 @@ def network_info(discover):
         OrderedDict(
             (i, p.get(i, None)) for i in ("domain", "port", "ip4", "ip6", "pubkey")
         )
-        for p in discover_peers(discover)
+        for p in await discover_peers(discover)
     ]
     # Todo : renommer endpoints en info
-    diffi = get_request("blockchain/difficulties")
+    client = ClientInstance().client
+    diffi = await client(blockchain.difficulties)
     i, members = 0, 0
     print("Getting informations about nodes:")
     while i < len(endpoints):
+        ep = endpoints[i]
+        api = "BASIC_MERKLED_API " if ep["port"] != "443" else "BMAS "
+        api += ep.get("domain") + " " if ep["domain"] else ""
+        api += ep.get("ip4") + " " if ep["ip4"] else ""
+        api += ep.get("ip6") + " " if ep["ip6"] else ""
+        api += ep.get("port")
         print("{0:.0f}%".format(i / len(endpoints) * 100, 1), end=" ")
         best_ep = best_node(endpoints[i], False)
         print(best_ep if best_ep is None else endpoints[i][best_ep], end=" ")
         print(endpoints[i]["port"])
         try:
-            endpoints[i]["uid"] = get_uid_from_pubkey(ep, endpoints[i]["pubkey"])
+            endpoints[i]["uid"] = await get_uid_from_pubkey(ep, endpoints[i]["pubkey"])
             if endpoints[i]["uid"] is NO_MATCHING_ID:
                 endpoints[i]["uid"] = None
             else:
@@ -194,15 +179,14 @@ def network_info(discover):
         if endpoints[i].get("member") is None:
             endpoints[i]["member"] = "no"
         endpoints[i]["pubkey"] = endpoints[i]["pubkey"][:5] + "…"
-        # Todo: request difficulty from node point of view: two nodes with same pubkey id could be on diffrent branches and have different difficulties
-        #        diffi = get_request(endpoints[i], "blockchain/difficulties") # super long, doit être requetté uniquement pour les nœuds d’une autre branche
         for d in diffi["levels"]:
             if endpoints[i].get("uid") is not None:
                 if endpoints[i]["uid"] == d["uid"]:
                     endpoints[i]["diffi"] = d["level"]
                 if len(endpoints[i]["uid"]) > 10:
                     endpoints[i]["uid"] = endpoints[i]["uid"][:9] + "…"
-        current_blk = get_request("blockchain/current", endpoints[i])
+        sub_client = Client(api)
+        current_blk = await sub_client(blockchain.current)
         if current_blk is not None:
             endpoints[i]["gen_time"] = convert_time(current_blk["time"], "hour")
             if wide > 171:
@@ -215,9 +199,9 @@ def network_info(discover):
                 )
             endpoints[i]["block"] = current_blk["number"]
             endpoints[i]["hash"] = current_blk["hash"][:10] + "…"
-            endpoints[i]["version"] = get_request("node/summary", endpoints[i])[
-                "duniter"
-            ]["version"]
+            summary = await sub_client(node.summary)
+            endpoints[i]["version"] = summary["duniter"]["version"]
+        await sub_client.close()
         if endpoints[i].get("domain") is not None and len(endpoints[i]["domain"]) > 20:
             endpoints[i]["domain"] = "…" + endpoints[i]["domain"][-20:]
         if endpoints[i].get("ip6") is not None:
@@ -226,6 +210,7 @@ def network_info(discover):
             else:
                 endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
         i += 1
+    await client.close()
     print(
         len(endpoints),
         "peers ups, with",
@@ -239,13 +224,14 @@ def network_info(discover):
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 
-def list_blocks(nbr, last):
-    head_block = HeadBlock().head_block
+async def list_blocks(nbr, last):
+    head_block = await HeadBlock().head_block
     current_nbr = head_block["number"]
     if nbr == 0:
         nbr = head_block["issuersFrame"]
-    url = "blockchain/blocks/" + str(nbr) + "/" + str(current_nbr - nbr + 1)
-    blocks, list_issuers, j = get_request(url), list(), 0
+    client = ClientInstance().client
+    blocks = await client(blockchain.blocks, nbr, current_nbr - nbr + 1)
+    list_issuers, j = list(), 0
     issuers_dict = dict()
     while j < len(blocks):
         issuer = OrderedDict()
@@ -260,7 +246,7 @@ def list_blocks(nbr, last):
         j += 1
     for pubkey in issuers_dict.keys():
         issuer = issuers_dict[pubkey]
-        uid = get_uid_from_pubkey(issuer["pubkey"])
+        uid = await get_uid_from_pubkey(issuer["pubkey"])
         for issuer2 in list_issuers:
             if (
                 issuer2.get("pubkey") is not None
@@ -269,6 +255,7 @@ def list_blocks(nbr, last):
             ):
                 issuer2["uid"] = uid
                 issuer2.pop("pubkey")
+    await client.close()
     print(
         "Last {0} blocks from n°{1} to n°{2}".format(
             nbr, current_nbr - nbr + 1, current_nbr
@@ -321,16 +308,9 @@ def list_blocks(nbr, last):
         )
 
 
-def argos_info():
-    info_type = ["newcomers", "certs", "actives", "leavers", "excluded", "ud", "tx"]
+async def argos_info():
     pretty_names = {"g1": "Ğ1", "gtest": "Ğtest"}
-    i, info_data = 0, dict()
-    while i < len(info_type):
-        info_data[info_type[i]] = get_request("blockchain/with/" + info_type[i])[
-            "result"
-        ]["blocks"]
-        i += 1
-    head_block = HeadBlock().head_block
+    head_block = await HeadBlock().head_block
     pretty = head_block["currency"]
     if head_block["currency"] in pretty_names:
         pretty = pretty_names[head_block["currency"]]
@@ -347,7 +327,7 @@ def argos_info():
         "\nCurrent block number:",
         head_block["number"],
         "\nCurrency name:",
-        CurrencySymbol().symbol,
+        await CurrencySymbol().symbol,
         "\nNumber of members:",
         head_block["membersCount"],
         "\nMinimal Proof-of-Work:",
@@ -358,19 +338,6 @@ def argos_info():
         convert_time(head_block["medianTime"], "all"),
         "\nDifference time:",
         convert_time(head_block["time"] - head_block["medianTime"], "hour"),
-        "\nNumber of blocks containing… \
-     \n-- new comers:",
-        len(info_data["newcomers"]),
-        "\n-- Certifications:",
-        len(info_data["certs"]),
-        "\n-- Actives (members updating their membership):",
-        len(info_data["actives"]),
-        "\n-- Leavers:",
-        len(info_data["leavers"]),
-        "\n-- Excluded:",
-        len(info_data["excluded"]),
-        "\n-- UD created:",
-        len(info_data["ud"]),
-        "\n-- transactions:",
-        len(info_data["tx"]),
     )
+    client = ClientInstance().client
+    await client.close()

@@ -15,14 +15,16 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from silkaj.network_tools import get_request, HeadBlock
-from silkaj.crypto_tools import get_publickey_from_seed
+from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.tools import CurrencySymbol
 from silkaj.auth import auth_method
 from silkaj.wot import check_public_key
+from duniterpy.api.bma import tx, blockchain
+from duniterpy.documents.transaction import InputSource
 
 
-def cmd_amount(cli_args):
+async def cmd_amount(cli_args):
+    client = ClientInstance().client
     if not cli_args.subsubcmd.startswith("--auth-"):
         pubkeys = cli_args.subsubcmd.split(":")
         for pubkey in pubkeys:
@@ -31,26 +33,27 @@ def cmd_amount(cli_args):
                 return
         total = [0, 0]
         for pubkey in pubkeys:
-            value = get_amount_from_pubkey(pubkey)
-            show_amount_from_pubkey(pubkey, value)
+            value = await get_amount_from_pubkey(pubkey)
+            await show_amount_from_pubkey(pubkey, value)
             total[0] += value[0]
             total[1] += value[1]
         if len(pubkeys) > 1:
-            show_amount_from_pubkey("Total", total)
+            await show_amount_from_pubkey("Total", total)
     else:
-        seed = auth_method(cli_args)
-        pubkey = get_publickey_from_seed(seed)
-        show_amount_from_pubkey(pubkey, get_amount_from_pubkey(pubkey))
+        key = auth_method(cli_args)
+        pubkey = key.pubkey
+        await show_amount_from_pubkey(pubkey, await get_amount_from_pubkey(pubkey))
+    await client.close()
 
 
-def show_amount_from_pubkey(pubkey, value):
+async def show_amount_from_pubkey(pubkey, value):
     totalAmountInput = value[0]
     amount = value[1]
     # output
 
-    currency_symbol = CurrencySymbol().symbol
-    ud_value = UDValue().ud_value
-    average, monetary_mass = get_average()
+    currency_symbol = await CurrencySymbol().symbol
+    ud_value = await UDValue().ud_value
+    average, monetary_mass = await get_average()
     if totalAmountInput - amount != 0:
         print("Blockchain:")
         print("-----------")
@@ -92,51 +95,50 @@ def show_amount_from_pubkey(pubkey, value):
     )
 
 
-def get_average():
-    head = HeadBlock().head_block
+async def get_average():
+    head = await HeadBlock().head_block
     monetary_mass = head["monetaryMass"]
     members_count = head["membersCount"]
     average = monetary_mass / members_count
     return average, monetary_mass
 
 
-def get_amount_from_pubkey(pubkey):
-    listinput, amount = get_sources(pubkey)
+async def get_amount_from_pubkey(pubkey):
+    listinput, amount = await get_sources(pubkey)
 
     totalAmountInput = 0
     for input in listinput:
-        inputsplit = input.split(":")
-        totalAmountInput += int(inputsplit[0]) * 10 ** int(inputsplit[1])
-
+        totalAmountInput += input.amount * 10 ** input.base
     return totalAmountInput, amount
 
 
-def get_sources(pubkey):
+async def get_sources(pubkey):
+    client = ClientInstance().client
     # Sources written into the blockchain
-    sources = get_request("tx/sources/" + pubkey)["sources"]
+    sources = await client(tx.sources, pubkey)
 
     listinput = []
     amount = 0
-    for source in sources:
+    for source in sources["sources"]:
         if source["conditions"] == "SIG(" + pubkey + ")":
             amount += source["amount"] * 10 ** source["base"]
             listinput.append(
-                str(source["amount"])
-                + ":"
-                + str(source["base"])
-                + ":"
-                + source["type"]
-                + ":"
-                + source["identifier"]
-                + ":"
-                + str(source["noffset"])
+                InputSource(
+                    amount=source["amount"],
+                    base=source["base"],
+                    source=source["type"],
+                    origin_id=source["identifier"],
+                    index=source["noffset"],
+                )
             )
 
     # pending source
-    history = get_request("tx/history/" + pubkey + "/pending")["history"]
+    history = await client(tx.pending, pubkey)
+    history = history["history"]
     pendings = history["sending"] + history["receiving"] + history["pending"]
 
-    last_block_number = HeadBlock().head_block["number"]
+    head_block = await HeadBlock().head_block
+    last_block_number = head_block["number"]
 
     # add pending output
     for pending in pendings:
@@ -149,14 +151,12 @@ def get_sources(pubkey):
             for output in pending["outputs"]:
                 outputsplited = output.split(":")
                 if outputsplited[2] == "SIG(" + pubkey + ")":
-                    inputgenerated = (
-                        outputsplited[0]
-                        + ":"
-                        + outputsplited[1]
-                        + ":T:"
-                        + identifier
-                        + ":"
-                        + str(i)
+                    inputgenerated = InputSource(
+                        amount=int(outputsplited[0]),
+                        base=int(outputsplited[1]),
+                        source="T",
+                        origin_id=identifier,
+                        index=i,
                     )
                     if inputgenerated not in listinput:
                         listinput.append(inputgenerated)
@@ -184,7 +184,11 @@ class UDValue(object):
         return UDValue.__instance
 
     def __init__(self):
-        blockswithud = get_request("blockchain/with/ud")["result"]
-        NBlastUDblock = blockswithud["blocks"][-1]
-        lastUDblock = get_request("blockchain/block/" + str(NBlastUDblock))
-        self.ud_value = lastUDblock["dividend"] * 10 ** lastUDblock["unitbase"]
+        self.ud_value = self.get_ud_value()
+
+    async def get_ud_value(self):
+        client = ClientInstance().client
+        blockswithud = await client(blockchain.ud)
+        NBlastUDblock = blockswithud["result"]["blocks"][-1]
+        lastUDblock = await client(blockchain.block, NBlastUDblock)
+        return lastUDblock["dividend"] * 10 ** lastUDblock["unitbase"]
