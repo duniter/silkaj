@@ -86,13 +86,7 @@ async def send_transaction(
         == "yes"
     ):
         await generate_and_send_transaction(
-            key,
-            issuer_pubkey,
-            tx_amount,
-            outputAddresses,
-            comment,
-            allsources,
-            outputbackchange,
+            key, issuer_pubkey, tx_amount, outputAddresses, comment, outputbackchange
         )
 
 
@@ -174,19 +168,12 @@ async def transaction_confirmation(
 
 
 async def generate_and_send_transaction(
-    key,
-    issuers,
-    AmountTransfered,
-    outputAddresses,
-    Comment="",
-    all_input=False,
-    OutputbackChange=None,
+    key, issuers, AmountTransfered, outputAddresses, Comment="", OutputbackChange=None
 ):
-
     client = ClientInstance().client
     while True:
         listinput_and_amount = await get_list_input_for_transaction(
-            issuers, AmountTransfered * len(outputAddresses), all_input
+            issuers, AmountTransfered * len(outputAddresses)
         )
         intermediatetransaction = listinput_and_amount[2]
 
@@ -221,13 +208,7 @@ async def generate_and_send_transaction(
             print("   - From:    " + issuers)
             for outputAddress in outputAddresses:
                 print("   - To:      " + outputAddress)
-            if all_input:
-                print("   - Amount:  " + str(listinput_and_amount[1] / 100))
-            else:
-                print(
-                    "   - Amount:  "
-                    + str(AmountTransfered / 100 * len(outputAddresses))
-                )
+            print("   - Amount:  " + str(AmountTransfered / 100 * len(outputAddresses)))
             transaction = await generate_transaction_document(
                 issuers,
                 AmountTransfered,
@@ -336,7 +317,7 @@ def generate_output(listoutput, unitbase, rest, recipient_address):
         unitbase = unitbase - 1
 
 
-async def get_list_input_for_transaction(pubkey, TXamount, allinput=False):
+async def get_list_input_for_transaction(pubkey, TXamount):
     listinput, amount = await get_sources(pubkey)
 
     # generate final list source
@@ -351,7 +332,7 @@ async def get_list_input_for_transaction(pubkey, TXamount, allinput=False):
         if len(listinputfinal) >= 40:
             intermediatetransaction = True
             break
-        if TXamount <= 0 and not allinput:
+        if TXamount <= 0:
             break
     if TXamount > 0 and not intermediatetransaction:
         message_exit("Error: you don't have enough money")
