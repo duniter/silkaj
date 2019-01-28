@@ -153,13 +153,12 @@ async def get_sources(pubkey):
     last_block_number = head_block["number"]
 
     # add pending output
-    for pending in pendings:
+    for i, pending in enumerate(pendings):
         blockstamp = pending["blockstamp"]
         block_number = int(blockstamp.split("-")[0])
         # if it's not an old transaction (bug in mirror node)
         if block_number >= last_block_number - 3:
             identifier = pending["hash"]
-            i = 0
             for output in pending["outputs"]:
                 outputsplited = output.split(":")
                 if outputsplited[2] == "SIG(" + pubkey + ")":
@@ -172,7 +171,6 @@ async def get_sources(pubkey):
                     )
                     if inputgenerated not in listinput:
                         listinput.append(inputgenerated)
-                i += 1
 
     # remove input already used
     for pending in pendings:
