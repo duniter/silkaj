@@ -26,7 +26,12 @@ from silkaj.crypto_tools import check_public_key
 from silkaj.tools import message_exit, CurrencySymbol, coroutine
 from silkaj.auth import auth_method
 from silkaj.wot import get_uid_from_pubkey
-from silkaj.money import get_sources, get_amount_from_pubkey, UDValue
+from silkaj.money import (
+    get_sources,
+    get_amount_from_pubkey,
+    UDValue,
+    amount_in_current_base,
+)
 from silkaj.constants import NO_MATCHING_ID
 
 from duniterpy.api.bma.tx import process
@@ -326,8 +331,8 @@ async def get_list_input_for_transaction(pubkey, TXamount):
     intermediatetransaction = False
     for input in listinput:
         listinputfinal.append(input)
-        totalAmountInput += input.amount * 10 ** input.base
-        TXamount -= input.amount * 10 ** input.base
+        totalAmountInput += amount_in_current_base(input)
+        TXamount -= amount_in_current_base(input)
         # if more 40 sources, it's an intermediate transaction
         if len(listinputfinal) >= 40:
             intermediatetransaction = True

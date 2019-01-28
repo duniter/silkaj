@@ -120,7 +120,7 @@ async def get_amount_from_pubkey(pubkey):
 
     totalAmountInput = 0
     for input in listinput:
-        totalAmountInput += input.amount * 10 ** input.base
+        totalAmountInput += amount_in_current_base(input)
     return totalAmountInput, amount
 
 
@@ -133,7 +133,6 @@ async def get_sources(pubkey):
     amount = 0
     for source in sources["sources"]:
         if source["conditions"] == "SIG(" + pubkey + ")":
-            amount += source["amount"] * 10 ** source["base"]
             listinput.append(
                 InputSource(
                     amount=source["amount"],
@@ -143,6 +142,7 @@ async def get_sources(pubkey):
                     index=source["noffset"],
                 )
             )
+            amount += amount_in_current_base(listinput[-1])
 
     # pending source
     history = await client(tx.pending, pubkey)
@@ -204,3 +204,10 @@ class UDValue(object):
         NBlastUDblock = blockswithud["result"]["blocks"][-1]
         lastUDblock = await client(blockchain.block, NBlastUDblock)
         return lastUDblock["dividend"] * 10 ** lastUDblock["unitbase"]
+
+
+def amount_in_current_base(source):
+    """
+    Get amount in current base from input or output source
+    """
+    return source.amount * 10 ** source.base
