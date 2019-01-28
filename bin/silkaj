@@ -17,9 +17,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from asyncio import get_event_loop
-
-from silkaj.cli_tools import manage_cmd
+from silkaj.cli_tools import cli
 
 if __name__ == "__main__":
-    get_event_loop().run_until_complete(manage_cmd())
+    cli(obj={})

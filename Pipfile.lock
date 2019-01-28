@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2e209d428ac040de3bbcb1d6166f6ee0e1e20741913b75f8b01bc703469b9e9b"
+            "sha256": "52d928682e98b0179c9a450c61cac3c22051596232760700cafa68823d718822"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -116,13 +116,13 @@
             ],
             "version": "==3.0.4"
         },
-        "commandlines": {
+        "click": {
             "hashes": [
-                "sha256:86b650b78470ac95966d7b1a9d215c16591bccb34b28ae2bb9026c3b4166fd64",
-                "sha256:b7dbf71b8dec42c16e9694b87e0e121d288e5a40d5d4f0dd1c0651ab7af06837"
+                "sha256:2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13",
+                "sha256:5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7"
             ],
             "index": "pypi",
-            "version": "==0.4.1"
+            "version": "==7.0"
         },
         "duniterpy": {
             "hashes": [
@@ -355,6 +355,7 @@
                 "sha256:2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13",
                 "sha256:5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7"
             ],
+            "index": "pypi",
             "version": "==7.0"
         },
         "coverage": {

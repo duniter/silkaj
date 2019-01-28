@@ -4,12 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-commandlines = "*"
 ipaddress = "*"
 tabulate = "*"
 PyNaCl = "*"
-"e1839a8" = {path = ".", editable = true}
+e1839a8 = {path = ".",editable = true}
 duniterpy = "*"
+click = "*"
 
 [dev-packages]
 pre-commit = "*"

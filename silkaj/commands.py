@@ -15,6 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
+from click import command, option, argument, IntRange
 from datetime import datetime
 from time import sleep
 from os import system, popen
@@ -24,6 +25,7 @@ from operator import itemgetter
 from duniterpy.api.client import Client
 from duniterpy.api.bma import blockchain, node
 
+from silkaj.tools import coroutine
 from silkaj.wot import get_uid_from_pubkey
 from silkaj.network_tools import (
     discover_peers,
@@ -36,6 +38,8 @@ from silkaj.tools import convert_time, message_exit, CurrencySymbol
 from silkaj.constants import NO_MATCHING_ID
 
 
+@command("info", help="Display information about currency")
+@coroutine
 async def currency_info():
     head_block = await HeadBlock().head_block
     ep = EndPoint().ep
@@ -82,6 +86,11 @@ def power(nbr, pow=0):
     return "{0:.1f} × 10^{1}".format(nbr, pow)
 
 
+@command(
+    "diffi",
+    help="Display the current Proof of Work difficulty level to generate the next block",
+)
+@coroutine
 async def difficulties():
     client = ClientInstance().client
     while True:
@@ -116,18 +125,6 @@ async def difficulties():
     await client.close()
 
 
-network_sort_keys = ["block", "member", "diffi", "uid"]
-
-
-def set_network_sort_keys(some_keys):
-    global network_sort_keys
-    if some_keys.endswith(","):
-        message_exit(
-            "Argument 'sort' ends with a comma, you have probably inserted a space after the comma, which is incorrect."
-        )
-    network_sort_keys = some_keys.split(",")
-
-
 def get_network_sort_key(endpoint):
     t = list()
     for akey in network_sort_keys:
@@ -138,7 +135,21 @@ def get_network_sort_key(endpoint):
     return tuple(t)
 
 
-async def network_info(discover):
+@command("net", help="Display network view")
+@option(
+    "--discover", "-d", is_flag=True, help="Discover the network (could take a while)"
+)
+@option(
+    "--sort",
+    "-s",
+    default="block,member,diffi,uid",
+    show_default=True,
+    help="Sort column names comma-separated",
+)
+@coroutine
+async def network_info(discover, sort):
+    global network_sort_keys
+    network_sort_keys = sort.split(",")
     rows, columns = popen("stty size", "r").read().split()
     wide = int(columns)
     if wide < 146:
@@ -224,19 +235,28 @@ async def network_info(discover):
     print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 
-async def list_blocks(nbr, last):
+@command("blocks", help="Display blocks: default: 0 for current window size")
+@argument("number", default=0, type=IntRange(0, 5000))
+@option(
+    "--detailed",
+    "-d",
+    is_flag=True,
+    help="Force detailed view. Compact view happen over 30 blocks",
+)
+@coroutine
+async def list_blocks(number, detailed):
     head_block = await HeadBlock().head_block
     current_nbr = head_block["number"]
-    if nbr == 0:
-        nbr = head_block["issuersFrame"]
+    if number == 0:
+        number = head_block["issuersFrame"]
     client = ClientInstance().client
-    blocks = await client(blockchain.blocks, nbr, current_nbr - nbr + 1)
+    blocks = await client(blockchain.blocks, number, current_nbr - number + 1)
     list_issuers, j = list(), 0
     issuers_dict = dict()
     while j < len(blocks):
         issuer = OrderedDict()
         issuer["pubkey"] = blocks[j]["issuer"]
-        if last or nbr <= 30:
+        if detailed or number <= 30:
             issuer["block"] = blocks[j]["number"]
             issuer["gentime"] = convert_time(blocks[j]["time"], "hour")
             issuer["mediantime"] = convert_time(blocks[j]["medianTime"], "hour")
@@ -258,11 +278,11 @@ async def list_blocks(nbr, last):
     await client.close()
     print(
         "Last {0} blocks from n°{1} to n°{2}".format(
-            nbr, current_nbr - nbr + 1, current_nbr
+            number, current_nbr - number + 1, current_nbr
         ),
         end=" ",
     )
-    if last or nbr <= 30:
+    if detailed or number <= 30:
         sorted_list = sorted(list_issuers, key=itemgetter("block"), reverse=True)
         print(
             "\n"
@@ -291,7 +311,7 @@ async def list_blocks(nbr, last):
             i += 1
         i = 0
         while i < len(list_issued):
-            list_issued[i]["percent"] = list_issued[i]["blocks"] / nbr * 100
+            list_issued[i]["percent"] = list_issued[i]["blocks"] / number * 100
             i += 1
         sorted_list = sorted(list_issued, key=itemgetter("blocks"), reverse=True)
         print(
@@ -308,6 +328,8 @@ async def list_blocks(nbr, last):
         )
 
 
+@command("argos", help="Display currency information formated for Argos or BitBar")
+@coroutine
 async def argos_info():
     pretty_names = {"g1": "Ğ1", "gtest": "Ğtest"}
     head_block = await HeadBlock().head_block

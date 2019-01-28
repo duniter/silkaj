@@ -15,6 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
+from click import command, argument
 from time import time
 from tabulate import tabulate
 from collections import OrderedDict
@@ -22,7 +23,7 @@ from duniterpy.api.bma import wot, blockchain
 
 from silkaj.network_tools import ClientInstance
 from silkaj.crypto_tools import check_public_key
-from silkaj.tools import message_exit, convert_time
+from silkaj.tools import message_exit, convert_time, coroutine
 from silkaj.blockchain_tools import BlockchainParams
 from silkaj.constants import NO_MATCHING_ID
 
@@ -41,6 +42,12 @@ def get_sent_certifications(certs, time_first_block, params):
     return sent, expire
 
 
+@command(
+    "wot",
+    help="Check received and sent certifications and consult the membership status of any given identity",
+)
+@argument("id")
+@coroutine
 async def received_sent_certifications(id):
     """
     get searched id
@@ -144,6 +151,9 @@ def date_approximation(block_id, time_first_block, avgentime):
     return time_first_block + block_id * avgentime
 
 
+@command("id", help="Find corresponding identity or pubkey from pubkey or identity")
+@argument("id_pubkey")
+@coroutine
 async def id_pubkey_correspondence(id_pubkey):
     client = ClientInstance().client
     if check_public_key(id_pubkey, False):

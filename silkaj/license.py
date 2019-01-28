@@ -18,6 +18,7 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 import webbrowser
 from pydoc import pager
 from sys import exit
+from click import command
 
 
 def license_approval(currency):
@@ -26,6 +27,11 @@ def license_approval(currency):
     display_license()
     if input("Do you approve Ğ1 license [yes/no]? ") != "yes":
         exit(1)
+
+
+@command("license", help="Display Ğ1 license")
+def license_command():
+    display_license()
 
 
 def display_license():

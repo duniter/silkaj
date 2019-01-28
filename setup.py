@@ -24,7 +24,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ),
     install_requires=[
-        "commandlines",
+        "Click",
         "duniterpy",
         "ipaddress",
         "tabulate",

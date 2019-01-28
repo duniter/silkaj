@@ -18,11 +18,12 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 from re import compile, search
 import math
 from time import sleep
+from click import command, option, FloatRange
 
 from tabulate import tabulate
 from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.crypto_tools import check_public_key
-from silkaj.tools import message_exit, CurrencySymbol
+from silkaj.tools import message_exit, CurrencySymbol, coroutine
 from silkaj.auth import auth_method
 from silkaj.wot import get_uid_from_pubkey
 from silkaj.money import get_sources, get_amount_from_pubkey, UDValue
@@ -33,29 +34,46 @@ from duniterpy.documents import BlockUID, Transaction
 from duniterpy.documents.transaction import OutputSource, Unlock, SIGParameter
 
 
-async def send_transaction(cli_args):
+@command("tx", help="Send transaction")
+@option("--amount", type=FloatRange(0.01), help="Quantitative value")
+@option("--amountUD", type=float, help="Relative value")
+@option("--allSources", is_flag=True, help="Send all sources")
+@option(
+    "--output",
+    required=True,
+    help="Pubkey(s)’ recipients + optional checksum: <pubkey>[!checksum]:[<pubkey>[!checksum]]",
+)
+@option("--comment", default="", help="Comment")
+@option(
+    "--outputBackChange",
+    help="Pubkey recipient to send the rest of the transaction: <pubkey[!checksum]>",
+)
+@option("--yes", "-y", is_flag=True, help="Assume yes. Do not prompt confirmation")
+@coroutine
+async def send_transaction(
+    amount, amountud, allsources, output, comment, outputbackchange, yes
+):
     """
     Main function
     """
-    tx_amount, output, comment, allSources, outputBackChange = await cmd_transaction(
-        cli_args
-    )
-    key = auth_method(cli_args)
+    tx_amount = await transaction_amount(amount, amountud, allsources)
+    key = auth_method()
     issuer_pubkey = key.pubkey
 
     pubkey_amount = await get_amount_from_pubkey(issuer_pubkey)
+    if allsources:
+        tx_amount = pubkey_amount[0]
     outputAddresses = output.split(":")
     check_transaction_values(
         comment,
         outputAddresses,
-        outputBackChange,
+        outputbackchange,
         pubkey_amount[0] < tx_amount * len(outputAddresses),
         issuer_pubkey,
     )
 
     if (
-        cli_args.contains_switches("yes")
-        or cli_args.contains_switches("y")
+        yes
         or input(
             tabulate(
                 await transaction_confirmation(
@@ -73,43 +91,22 @@ async def send_transaction(cli_args):
             tx_amount,
             outputAddresses,
             comment,
-            allSources,
-            outputBackChange,
+            allsources,
+            outputbackchange,
         )
 
 
-async def cmd_transaction(cli_args):
+async def transaction_amount(amount, amountUD, allSources):
     """
-    Retrieve values from command line interface
+    Check command line interface amount option
+    Return transaction amount
     """
-    if not (
-        cli_args.contains_definitions("amount")
-        or cli_args.contains_definitions("amountUD")
-    ):
-        message_exit("--amount or --amountUD is not set")
-    if not cli_args.contains_definitions("output"):
-        message_exit("--output is not set")
-
-    if cli_args.contains_definitions("amount"):
-        tx_amount = float(cli_args.get_definition("amount")) * 100
-    if cli_args.contains_definitions("amountUD"):
-        tx_amount = (
-            float(cli_args.get_definition("amountUD")) * await UDValue().ud_value
-        )
-
-    output = cli_args.get_definition("output")
-    comment = (
-        cli_args.get_definition("comment")
-        if cli_args.contains_definitions("comment")
-        else ""
-    )
-    allSources = cli_args.contains_switches("allSources")
-
-    if cli_args.contains_definitions("outputBackChange"):
-        outputBackChange = cli_args.get_definition("outputBackChange")
-    else:
-        outputBackChange = None
-    return tx_amount, output, comment, allSources, outputBackChange
+    if not (amount or amountUD or allSources):
+        message_exit("--amount nor --amountUD nor --allSources is set")
+    if amount:
+        return amount * 100
+    if amountUD:
+        return amountUD * await UDValue().ud_value
 
 
 def check_transaction_values(

@@ -22,7 +22,7 @@ check_branch() {
 }
 
 update_version() {
-	sed -i "s/SILKAJ_VERSION = \"silkaj.*\"/SILKAJ_VERSION = \"silkaj $VERSION\"/" silkaj/constants.py
+	sed -i "s/SILKAJ_VERSION = \".*\"/SILKAJ_VERSION = \"$VERSION\"/" silkaj/constants.py
 	sed -i "s/version=\".*\",/version=\"$VERSION\",/" setup.py
 	git diff
 }

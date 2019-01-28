@@ -20,7 +20,7 @@ from ipaddress import ip_address
 import socket
 import logging
 from sys import exit, stderr
-from commandlines import Command
+from click import pass_context
 from duniterpy.api.client import Client
 from duniterpy.api.bma import blockchain, network
 
@@ -123,20 +123,18 @@ def singleton(class_):
 
 @singleton
 class EndPoint(object):
-    def __init__(self):
-        cli_args = Command()
+    @pass_context
+    def __init__(ctx, self):
         ep = dict()
-        if cli_args.contains_switches("p"):
-            peer = cli_args.get_definition("p")
+        peer = ctx.obj["PEER"]
+        if peer:
             if ":" in peer:
                 ep["domain"], ep["port"] = peer.rsplit(":", 1)
             else:
                 ep["domain"], ep["port"] = peer, "443"
         else:
             ep["domain"], ep["port"] = (
-                G1_TEST_DEFAULT_ENDPOINT
-                if cli_args.contains_switches("gtest")
-                else G1_DEFAULT_ENDPOINT
+                G1_TEST_DEFAULT_ENDPOINT if ctx.obj["GTEST"] else G1_DEFAULT_ENDPOINT
             )
         if ep["domain"].startswith("[") and ep["domain"].endswith("]"):
             ep["domain"] = ep["domain"][1:-1]

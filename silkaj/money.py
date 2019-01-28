@@ -15,18 +15,30 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
+from click import command, argument, pass_context
+
 from silkaj.network_tools import ClientInstance, HeadBlock
-from silkaj.tools import CurrencySymbol
+from silkaj.tools import CurrencySymbol, message_exit, coroutine
 from silkaj.auth import auth_method
 from silkaj.wot import check_public_key
 from duniterpy.api.bma import tx, blockchain
 from duniterpy.documents.transaction import InputSource
 
 
-async def cmd_amount(cli_args):
+@command("balance", help="Get wallet balance")
+@argument("pubkeys", nargs=-1)
+@pass_context
+@coroutine
+async def cmd_amount(ctx, pubkeys):
     client = ClientInstance().client
-    if not cli_args.subsubcmd.startswith("--auth-"):
-        pubkeys = cli_args.subsubcmd.split(":")
+    if not (
+        ctx.obj["AUTH_SCRYPT"]
+        or ctx.obj["AUTH_FILE"]
+        or ctx.obj["AUTH_SEED"]
+        or ctx.obj["AUTH_WIF"]
+    ):
+        if not pubkeys:
+            message_exit("You should specify one or many pubkeys")
         for pubkey in pubkeys:
             pubkey = check_public_key(pubkey, True)
             if not pubkey:
@@ -40,7 +52,7 @@ async def cmd_amount(cli_args):
         if len(pubkeys) > 1:
             await show_amount_from_pubkey("Total", total)
     else:
-        key = auth_method(cli_args)
+        key = auth_method()
         pubkey = key.pubkey
         await show_amount_from_pubkey(pubkey, await get_amount_from_pubkey(pubkey))
     await client.close()
