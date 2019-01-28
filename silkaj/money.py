@@ -149,38 +149,27 @@ async def get_sources(pubkey):
     history = history["history"]
     pendings = history["sending"] + history["receiving"] + history["pending"]
 
-    head_block = await HeadBlock().head_block
-    last_block_number = head_block["number"]
-
     # add pending output
     for i, pending in enumerate(pendings):
-        blockstamp = pending["blockstamp"]
-        block_number = int(blockstamp.split("-")[0])
-        # if it's not an old transaction (bug in mirror node)
-        if block_number >= last_block_number - 3:
-            identifier = pending["hash"]
-            for output in pending["outputs"]:
-                outputsplited = output.split(":")
-                if outputsplited[2] == "SIG(" + pubkey + ")":
-                    inputgenerated = InputSource(
-                        amount=int(outputsplited[0]),
-                        base=int(outputsplited[1]),
-                        source="T",
-                        origin_id=identifier,
-                        index=i,
-                    )
-                    if inputgenerated not in listinput:
-                        listinput.append(inputgenerated)
+        identifier = pending["hash"]
+        for output in pending["outputs"]:
+            outputsplited = output.split(":")
+            if outputsplited[2] == "SIG(" + pubkey + ")":
+                inputgenerated = InputSource(
+                    amount=int(outputsplited[0]),
+                    base=int(outputsplited[1]),
+                    source="T",
+                    origin_id=identifier,
+                    index=i,
+                )
+                if inputgenerated not in listinput:
+                    listinput.append(inputgenerated)
 
     # remove input already used
     for pending in pendings:
-        blockstamp = pending["blockstamp"]
-        block_number = int(blockstamp.split("-")[0])
-        # if it's not an old transaction (bug in mirror node)
-        if block_number >= last_block_number - 3:
-            for input in pending["inputs"]:
-                if input in listinput:
-                    listinput.remove(input)
+        for input in pending["inputs"]:
+            if input in listinput:
+                listinput.remove(input)
 
     return listinput, amount
 
