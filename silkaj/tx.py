@@ -90,7 +90,7 @@ async def send_transaction(
         )
         == "yes"
     ):
-        await generate_and_send_transaction(
+        await handle_intermediaries_transactions(
             key, issuer_pubkey, tx_amount, outputAddresses, comment, outputbackchange
         )
 
@@ -172,7 +172,7 @@ async def transaction_confirmation(
     return tx
 
 
-async def generate_and_send_transaction(
+async def handle_intermediaries_transactions(
     key, issuers, AmountTransfered, outputAddresses, Comment="", OutputbackChange=None
 ):
     client = ClientInstance().client
@@ -184,37 +184,19 @@ async def generate_and_send_transaction(
 
         if intermediatetransaction:
             totalAmountInput = listinput_and_amount[1]
-            print("Generate Change Transaction")
-            print("   - From:    " + issuers)
-            print("   - To:      " + issuers)
-            print("   - Amount:  " + str(totalAmountInput / 100))
-            transaction = await generate_transaction_document(
+            await generate_and_send_transaction(
+                key,
                 issuers,
                 totalAmountInput,
                 listinput_and_amount,
                 issuers,
                 "Change operation",
             )
-            transaction.sign([key])
-            response = await client(process, transaction.signed_raw())
-            if response.status == 200:
-                print("Change Transaction successfully sent.")
-            else:
-                print(
-                    "Error while publishing transaction: {0}".format(
-                        await response.text()
-                    )
-                )
-
             sleep(1)  # wait 1 second before sending a new transaction
 
         else:
-            print("Generate Transaction:")
-            print("   - From:    " + issuers)
-            for outputAddress in outputAddresses:
-                print("   - To:      " + outputAddress)
-            print("   - Amount:  " + str(AmountTransfered / 100 * len(outputAddresses)))
-            transaction = await generate_transaction_document(
+            await generate_and_send_transaction(
+                key,
                 issuers,
                 AmountTransfered,
                 listinput_and_amount,
@@ -222,19 +204,58 @@ async def generate_and_send_transaction(
                 Comment,
                 OutputbackChange,
             )
-            transaction.sign([key])
-            response = await client(process, transaction.signed_raw())
-            if response.status == 200:
-                print("Transaction successfully sent.")
-            else:
-                print(
-                    "Error while publishing transaction: {0}".format(
-                        await response.text()
-                    )
-                )
-
             await client.close()
             break
+
+
+async def generate_and_send_transaction(
+    key,
+    issuers,
+    amount,
+    listinput_and_amount,
+    outputAddresses,
+    Comment,
+    OutputbackChange=None,
+):
+    """
+    Display sent transaction
+    Generate, sign, and send transaction document
+    """
+    intermediate_tx = listinput_and_amount[2]
+    if intermediate_tx:
+        print("Generate Change Transaction")
+    else:
+        print("Generate Transaction:")
+    print("   - From:    " + issuers)
+    if isinstance(outputAddresses, str):
+        display_sent_tx(outputAddresses, amount)
+    else:
+        for outputAddress in outputAddresses:
+            display_sent_tx(outputAddress, amount)
+        if len(outputAddresses) > 1:
+            print("   - Total:   " + str(amount / 100 * len(outputAddresses)))
+
+    client = ClientInstance().client
+    transaction = await generate_transaction_document(
+        issuers,
+        amount,
+        listinput_and_amount,
+        outputAddresses,
+        Comment,
+        OutputbackChange,
+    )
+    transaction.sign([key])
+    response = await client(process, transaction.signed_raw())
+    if response.status == 200:
+        print("Transaction successfully sent.")
+    else:
+        message_exit(
+            "Error while publishing transaction: {0}".format(await response.text())
+        )
+
+
+def display_sent_tx(outputAddress, amount):
+    print("   - To:     ", outputAddress, "\n   - Amount: ", amount / 100)
 
 
 async def generate_transaction_document(
