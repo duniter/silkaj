@@ -16,7 +16,7 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
 from silkaj.tools import message_exit
-from click import command, option, pass_context
+from click import command, option, pass_context, confirm
 from getpass import getpass
 from pathlib import Path
 from re import compile, search
@@ -40,6 +40,16 @@ def auth_method(ctx):
 @option("--file", default="authfile", show_default=True, help="Path file")
 def generate_auth_file(file):
     key = auth_method()
+    authfile = Path(file)
+    if authfile.is_file():
+        confirm(
+            "Would you like to erase "
+            + file
+            + " by an authfile corresponding to following pubkey `"
+            + key.pubkey
+            + "`?",
+            abort=True,
+        )
     key.save_seedhex_file(file)
     print(
         "Authentication file 'authfile' generated and stored in current\
