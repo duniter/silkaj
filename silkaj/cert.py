@@ -73,7 +73,7 @@ async def send_certification(id_to_certify):
             message_exit("Certification is currently been processed")
 
     # Certification confirmation
-    certification_confirmation(
+    await certification_confirmation(
         issuer_id, issuer_pubkey, id_to_certify, main_id_to_certify
     )
 
@@ -109,12 +109,16 @@ async def send_certification(id_to_certify):
     await client.close()
 
 
-def certification_confirmation(
+async def certification_confirmation(
     issuer_id, issuer_pubkey, id_to_certify, main_id_to_certify
 ):
     cert = list()
     cert.append(["Cert", "From", "–>", "To"])
     cert.append(["ID", issuer_id, "–>", main_id_to_certify["uid"]])
     cert.append(["Pubkey", issuer_pubkey, "–>", id_to_certify["pubkey"]])
+    params = await BlockchainParams().params
+    cert_begins = convert_time(time(), "date")
+    cert_ends = convert_time(time() + params["sigValidity"], "date")
+    cert.append(["Valid", cert_begins, "—>", cert_ends])
     echo(tabulate(cert, tablefmt="fancy_grid"))
     confirm("Do you confirm sending this certification?", abort=True)
