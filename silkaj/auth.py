@@ -18,7 +18,7 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 from silkaj.tools import message_exit
 from click import command, option, pass_context
 from getpass import getpass
-from os import path
+from pathlib import Path
 from re import compile, search
 from duniterpy.key import SigningKey
 from duniterpy.key import ScryptParams
@@ -51,10 +51,10 @@ def generate_auth_file(file):
 @pass_context
 def auth_by_auth_file(ctx):
     file = ctx.obj["AUTH_FILE_PATH"]
-    if not path.isfile(file):
+    authfile = Path(file)
+    if not authfile.is_file():
         message_exit('Error: the file "' + file + '" does not exist')
-    with open(file) as f:
-        filetxt = f.read()
+    filetxt = authfile.open("r").read()
     regex_seed = compile("^[0-9a-fA-F]{64}$")
     regex_gannonce = compile(
         "^pub: [1-9A-HJ-NP-Za-km-z]{43,44}\nsec: [1-9A-HJ-NP-Za-km-z]{88,90}.*$"
