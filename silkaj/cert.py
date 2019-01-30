@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from click import command, argument
+from click import command, argument, echo, confirm
 from time import time
 from tabulate import tabulate
 from duniterpy.api.bma import wot
@@ -73,11 +73,9 @@ async def send_certification(id_to_certify):
             message_exit("Certification is currently been processed")
 
     # Certification confirmation
-    if not certification_confirmation(
+    certification_confirmation(
         issuer_id, issuer_pubkey, id_to_certify, main_id_to_certify
-    ):
-        await client.close()
-        return
+    )
 
     identity = Identity(
         version=10,
@@ -118,11 +116,5 @@ def certification_confirmation(
     cert.append(["Cert", "From", "–>", "To"])
     cert.append(["ID", issuer_id, "–>", main_id_to_certify["uid"]])
     cert.append(["Pubkey", issuer_pubkey, "–>", id_to_certify["pubkey"]])
-    if (
-        input(
-            tabulate(cert, tablefmt="fancy_grid")
-            + "\nDo you confirm sending this certification? [yes/no]: "
-        )
-        == "yes"
-    ):
-        return True
+    echo(tabulate(cert, tablefmt="fancy_grid"))
+    confirm("Do you confirm sending this certification?", abort=True)
