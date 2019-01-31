@@ -16,16 +16,14 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
 import webbrowser
-from sys import exit
-from click import command, echo_via_pager
+from click import command, echo_via_pager, confirm
 
 
 def license_approval(currency):
     if currency != "g1":
         return
     display_license()
-    if input("Do you approve Ğ1 license [yes/no]? ") != "yes":
-        exit(1)
+    confirm("Do you approve Ğ1 license?", abort=True)
 
 
 @command("license", help="Display Ğ1 license")
