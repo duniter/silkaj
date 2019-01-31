@@ -37,11 +37,6 @@ async def send_certification(id_to_certify):
     id_to_certify = await get_informations_for_identity(id_to_certify)
     main_id_to_certify = id_to_certify["uids"][0]
 
-    # Display license and ask for confirmation
-    head = await HeadBlock().head_block
-    currency = head["currency"]
-    license_approval(currency)
-
     # Authentication
     key = auth_method()
 
@@ -71,6 +66,11 @@ async def send_certification(id_to_certify):
     for pending_cert in req["pendingCerts"]:
         if pending_cert["from"] == issuer_pubkey:
             message_exit("Certification is currently been processed")
+
+    # Display license and ask for confirmation
+    head = await HeadBlock().head_block
+    currency = head["currency"]
+    license_approval(currency)
 
     # Certification confirmation
     await certification_confirmation(
