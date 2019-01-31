@@ -22,7 +22,10 @@ from click import command, echo_via_pager, confirm
 def license_approval(currency):
     if currency != "g1":
         return
-    display_license()
+    if confirm(
+        "You will be asked to approve Ğ1 license. Would you like to display it?"
+    ):
+        display_license()
     confirm("Do you approve Ğ1 license?", abort=True)
 
 
