@@ -16,9 +16,8 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
 import webbrowser
-from pydoc import pager
 from sys import exit
-from click import command
+from click import command, echo_via_pager
 
 
 def license_approval(currency):
@@ -38,7 +37,7 @@ def display_license():
     language = input("In which language would you like to display Ğ1 license [en/fr]? ")
     if language == "en":
         if not webbrowser.open("https://duniter.org/en/wiki/g1-license/"):
-            pager(open("licence-G1/license/license_g1-en.rst").read())
+            echo_via_pager(open("licence-G1/license/license_g1-en.rst").read())
     else:
         if not webbrowser.open("https://duniter.org/fr/wiki/licence-g1/"):
-            pager(open("licence-G1/license/license_g1-fr-FR.rst").read())
+            echo_via_pager(open("licence-G1/license/license_g1-fr-FR.rst").read())
