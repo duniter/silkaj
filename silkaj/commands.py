@@ -171,7 +171,7 @@ async def network_info(discover, sort):
     network_sort_keys = sort.split(",")
     width = get_terminal_size()[0]
     if width < 146:
-        message_exit("Wide screen need to be larger than 146. Current width: " + width)
+        message_exit("Wide screen need to be larger than 146. Current width: " + str(width))
     # discover peers
     # and make sure fields are always ordered the same
     endpoints = [
