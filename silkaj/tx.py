@@ -82,7 +82,12 @@ async def send_transaction(
         or input(
             tabulate(
                 await transaction_confirmation(
-                    issuer_pubkey, pubkey_amount[0], tx_amount, outputAddresses, comment
+                    issuer_pubkey,
+                    pubkey_amount[0],
+                    tx_amount,
+                    outputAddresses,
+                    outputbackchange,
+                    comment,
                 ),
                 tablefmt="fancy_grid",
             )
@@ -126,7 +131,7 @@ def check_transaction_values(
 
 
 async def transaction_confirmation(
-    issuer_pubkey, pubkey_amount, tx_amount, outputAddresses, comment
+    issuer_pubkey, pubkey_amount, tx_amount, outputAddresses, outputBackChange, comment
 ):
     """
     Generate transaction confirmation
@@ -168,6 +173,11 @@ async def transaction_confirmation(
         id_to = await get_uid_from_pubkey(outputAddress)
         if id_to is not NO_MATCHING_ID:
             tx.append(["to (id)", id_to])
+    if outputBackChange:
+        tx.append(["Backchange (pubkey)", outputBackChange])
+        id_backchange = await get_uid_from_pubkey(outputBackChange)
+        if id_backchange is not NO_MATCHING_ID:
+            tx.append(["Backchange (id)", id_backchange])
     tx.append(["comment", comment])
     return tx
 
