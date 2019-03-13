@@ -51,6 +51,9 @@ silkaj <sub-command> -p <address>:<port>
 - [Install as a drop-down for GNOME Shell with Argos](doc/argos.md)
 - [How-to: automate transactions and multi-output](doc/how-to_automate_transactions_and_multi-output.md)
 - [Transaction generator written in Shell](https://gitlab.com/jytou/tgen)
+- [Ğ1Cotis](https://git.duniter.org/matograine/g1-cotis)
+- [Ğ1SMS](https://git.duniter.org/clients/G1SMS/)
+- [Ğmixer](https://git.duniter.org/tuxmain/gmixer-py/)
 
 ### Dependencies
 Silkaj is based on Python dependencies:
