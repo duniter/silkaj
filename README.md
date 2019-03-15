@@ -16,16 +16,16 @@ pip3 install silkaj --user
 - [Build an executable with Pyinstaller](doc/build_with_pyinstaller.md)
 
 ## Usage
-- Get help usage with `-h`, `--help` or `--usage` options, then run:
+- Get help usage with `-h` or `--help` options, then run:
 ```bash
 silkaj <sub-command>
 ```
 
-- Will automatically request and post data on `duniter.org 10901` main Ğ1 node.
+- Will automatically request and post data on `duniter.org 443` main Ğ1 node.
 
 - Specify a custom node with `-p` option:
 ```bash
-silkaj <sub-command> -p <address>:<port>
+silkaj -p <address>:<port> <sub-command>
 ```
 
 ## Features
