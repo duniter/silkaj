@@ -22,8 +22,12 @@ from os import system, popen
 from collections import OrderedDict
 from tabulate import tabulate
 from operator import itemgetter
-from duniterpy.api.client import Client
-from duniterpy.api.bma import blockchain, node
+import aiohttp
+from _socket import gaierror
+import jsonschema
+
+from duniterpy.api.client import Client, parse_text
+from duniterpy.api.bma import blockchain, node, ws
 
 from silkaj.tools import coroutine
 from silkaj.wot import get_uid_from_pubkey
@@ -93,36 +97,51 @@ def power(nbr, pow=0):
 @coroutine
 async def difficulties():
     client = ClientInstance().client
-    while True:
-        diffi = await client(blockchain.difficulties)
-        levels = [
-            OrderedDict((i, d[i]) for i in ("uid", "level")) for d in diffi["levels"]
-        ]
-        diffi["levels"] = levels
-        current = await client(blockchain.current)
-        issuers = 0
-        sorted_diffi = sorted(diffi["levels"], key=itemgetter("level"), reverse=True)
-        for d in diffi["levels"]:
-            if d["level"] / 2 < current["powMin"]:
-                issuers += 1
-            d["match"] = match_pattern(d["level"])[0][:20]
-            d["Π diffi"] = power(match_pattern(d["level"])[1])
-            d["Σ diffi"] = d.pop("level")
-        system("cls||clear")
-        print(
-            "Minimal Proof-of-Work: {0} to match `{1}`\nDifficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}".format(
-                current["powMin"],
-                match_pattern(int(current["powMin"]))[0],
-                diffi["block"],
-                issuers,
-                len(diffi["levels"]),
-                tabulate(
-                    sorted_diffi, headers="keys", tablefmt="orgtbl", stralign="center"
-                ),
-            )
+    try:
+        ws_connection = client(ws.block)
+        async with ws_connection as ws_c:
+            async for msg in ws_c:
+                if msg.type == aiohttp.WSMsgType.CLOSED:
+                    message_exit("Web socket connection closed!")
+                elif msg.type == aiohttp.WSMsgType.ERROR:
+                    message_exit("Web socket connection error!")
+                elif msg.type == aiohttp.WSMsgType.TEXT:
+                    current = parse_text(msg.data, ws.WS_BLOCK_SCHEMA)
+                    diffi = await client(blockchain.difficulties)
+                    await display_diffi(current, diffi)
+
+    except (aiohttp.WSServerHandshakeError, ValueError) as e:
+        print("Websocket block {0} : {1}".format(type(e).__name__, str(e)))
+    except (aiohttp.ClientError, gaierror, TimeoutError) as e:
+        print("{0} : {1}".format(str(e), BMAS_ENDPOINT))
+    except jsonschema.ValidationError as e:
+        print("{:}:{:}".format(str(e.__class__.__name__), str(e)))
+
+
+async def display_diffi(current, diffi):
+    levels = [OrderedDict((i, d[i]) for i in ("uid", "level")) for d in diffi["levels"]]
+    diffi["levels"] = levels
+    issuers = 0
+    sorted_diffi = sorted(diffi["levels"], key=itemgetter("level"), reverse=True)
+    for d in diffi["levels"]:
+        if d["level"] / 2 < current["powMin"]:
+            issuers += 1
+        d["match"] = match_pattern(d["level"])[0][:20]
+        d["Π diffi"] = power(match_pattern(d["level"])[1])
+        d["Σ diffi"] = d.pop("level")
+    system("cls||clear")
+    print(
+        "Minimal Proof-of-Work: {0} to match `{1}`\nDifficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}".format(
+            current["powMin"],
+            match_pattern(int(current["powMin"]))[0],
+            diffi["block"],
+            issuers,
+            len(diffi["levels"]),
+            tabulate(
+                sorted_diffi, headers="keys", tablefmt="orgtbl", stralign="center"
+            ),
         )
-        sleep(5)
-    await client.close()
+    )
 
 
 def get_network_sort_key(endpoint):
