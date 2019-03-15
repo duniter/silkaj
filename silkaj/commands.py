@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from click import command, option, argument, IntRange
+from click import command, option, argument, IntRange, get_terminal_size
 from datetime import datetime
 from time import sleep
 from os import system, popen
@@ -150,10 +150,9 @@ def get_network_sort_key(endpoint):
 async def network_info(discover, sort):
     global network_sort_keys
     network_sort_keys = sort.split(",")
-    rows, columns = popen("stty size", "r").read().split()
-    wide = int(columns)
-    if wide < 146:
-        message_exit("Wide screen need to be larger than 146. Current wide: " + wide)
+    width = get_terminal_size()[0]
+    if width < 146:
+        message_exit("Wide screen need to be larger than 146. Current width: " + width)
     # discover peers
     # and make sure fields are always ordered the same
     endpoints = [
@@ -200,11 +199,11 @@ async def network_info(discover, sort):
         current_blk = await sub_client(blockchain.current)
         if current_blk is not None:
             endpoints[i]["gen_time"] = convert_time(current_blk["time"], "hour")
-            if wide > 171:
+            if width > 171:
                 endpoints[i]["mediantime"] = convert_time(
                     current_blk["medianTime"], "hour"
                 )
-            if wide > 185:
+            if width > 185:
                 endpoints[i]["difftime"] = convert_time(
                     current_blk["time"] - current_blk["medianTime"], "hour"
                 )
@@ -216,7 +215,7 @@ async def network_info(discover, sort):
         if endpoints[i].get("domain") is not None and len(endpoints[i]["domain"]) > 20:
             endpoints[i]["domain"] = "…" + endpoints[i]["domain"][-20:]
         if endpoints[i].get("ip6") is not None:
-            if wide < 156:
+            if width < 156:
                 endpoints[i].pop("ip6")
             else:
                 endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
