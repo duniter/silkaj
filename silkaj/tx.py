@@ -135,7 +135,7 @@ async def transaction_confirmation(
     currency_symbol = await CurrencySymbol().symbol
     tx = list()
     tx.append(
-        ["pubkey’s amount before tx", str(pubkey_amount / 100) + " " + currency_symbol]
+        ["pubkey’s balance before tx", str(pubkey_amount / 100) + " " + currency_symbol]
     )
     tx.append(
         [
@@ -153,7 +153,7 @@ async def transaction_confirmation(
     )
     tx.append(
         [
-            "pubkey’s amount after tx",
+            "pubkey’s balance after tx",
             str(((pubkey_amount - tx_amount * len(outputAddresses)) / 100))
             + " "
             + currency_symbol,
