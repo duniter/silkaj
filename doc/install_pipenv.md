@@ -52,10 +52,10 @@ or
 
 ### Install Python version required
 
-    pyenv install 3.6.0
+    pyenv install 3.7.2
 
 ### Select Python version for the current shell
 
-    pyenv shell 3.6.0
+    pyenv shell 3.7.2
 
 Pipenv will search the `Pyenv` Python version chosen before the system version.
