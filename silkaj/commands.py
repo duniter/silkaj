@@ -174,83 +174,81 @@ async def network_info(discover, sort):
         message_exit("Wide screen need to be larger than 146. Current width: " + str(width))
     # discover peers
     # and make sure fields are always ordered the same
-    endpoints = [
+    infos = [
         OrderedDict(
             (i, p.get(i, None)) for i in ("domain", "port", "ip4", "ip6", "pubkey")
         )
         for p in await discover_peers(discover)
     ]
-    # Todo : renommer endpoints en info
     client = ClientInstance().client
     diffi = await client(blockchain.difficulties)
     i, members = 0, 0
     print("Getting informations about nodes:")
-    while i < len(endpoints):
-        ep = endpoints[i]
+    for info in infos:
+        ep = info
         api = "BASIC_MERKLED_API " if ep["port"] != "443" else "BMAS "
         api += ep.get("domain") + " " if ep["domain"] else ""
         api += ep.get("ip4") + " " if ep["ip4"] else ""
         api += ep.get("ip6") + " " if ep["ip6"] else ""
         api += ep.get("port")
-        print("{0:.0f}%".format(i / len(endpoints) * 100, 1), end=" ")
-        best_ep = best_node(endpoints[i], False)
-        print(best_ep if best_ep is None else endpoints[i][best_ep], end=" ")
-        print(endpoints[i]["port"])
+        print("{0:.0f}%".format(i / len(infos) * 100, 1), end=" ")
+        best_ep = best_node(info, False)
+        print(best_ep if best_ep is None else info[best_ep], end=" ")
+        print(info["port"])
         try:
-            endpoints[i]["uid"] = await get_uid_from_pubkey(ep, endpoints[i]["pubkey"])
-            if endpoints[i]["uid"] is NO_MATCHING_ID:
-                endpoints[i]["uid"] = None
+            info["uid"] = await get_uid_from_pubkey(ep, info["pubkey"])
+            if info["uid"] is NO_MATCHING_ID:
+                info["uid"] = None
             else:
-                endpoints[i]["member"] = "yes"
+                info["member"] = "yes"
                 members += 1
         except:
             pass
-        if endpoints[i].get("member") is None:
-            endpoints[i]["member"] = "no"
-        endpoints[i]["pubkey"] = endpoints[i]["pubkey"][:5] + "…"
+        if info.get("member") is None:
+            info["member"] = "no"
+        info["pubkey"] = info["pubkey"][:5] + "…"
         for d in diffi["levels"]:
-            if endpoints[i].get("uid") is not None:
-                if endpoints[i]["uid"] == d["uid"]:
-                    endpoints[i]["diffi"] = d["level"]
-                if len(endpoints[i]["uid"]) > 10:
-                    endpoints[i]["uid"] = endpoints[i]["uid"][:9] + "…"
+            if info.get("uid") is not None:
+                if info["uid"] == d["uid"]:
+                    info["diffi"] = d["level"]
+                if len(info["uid"]) > 10:
+                    info["uid"] = info["uid"][:9] + "…"
         sub_client = Client(api)
         current_blk = await sub_client(blockchain.current)
         if current_blk is not None:
-            endpoints[i]["gen_time"] = convert_time(current_blk["time"], "hour")
+            info["gen_time"] = convert_time(current_blk["time"], "hour")
             if width > 171:
-                endpoints[i]["mediantime"] = convert_time(
+                info["mediantime"] = convert_time(
                     current_blk["medianTime"], "hour"
                 )
             if width > 185:
-                endpoints[i]["difftime"] = convert_time(
+                info["difftime"] = convert_time(
                     current_blk["time"] - current_blk["medianTime"], "hour"
                 )
-            endpoints[i]["block"] = current_blk["number"]
-            endpoints[i]["hash"] = current_blk["hash"][:10] + "…"
+            info["block"] = current_blk["number"]
+            info["hash"] = current_blk["hash"][:10] + "…"
             summary = await sub_client(node.summary)
-            endpoints[i]["version"] = summary["duniter"]["version"]
+            info["version"] = summary["duniter"]["version"]
         await sub_client.close()
-        if endpoints[i].get("domain") is not None and len(endpoints[i]["domain"]) > 20:
-            endpoints[i]["domain"] = "…" + endpoints[i]["domain"][-20:]
-        if endpoints[i].get("ip6") is not None:
+        if info.get("domain") is not None and len(info["domain"]) > 20:
+            info["domain"] = "…" + info["domain"][-20:]
+        if info.get("ip6") is not None:
             if width < 156:
-                endpoints[i].pop("ip6")
+                info.pop("ip6")
             else:
-                endpoints[i]["ip6"] = endpoints[i]["ip6"][:8] + "…"
-        i += 1
+                info["ip6"] = info["ip6"][:8] + "…"
     await client.close()
     print(
-        len(endpoints),
+        len(infos),
         "peers ups, with",
         members,
         "members and",
-        len(endpoints) - members,
+        len(infos) - members,
         "non-members at",
         datetime.now().strftime("%H:%M:%S"),
     )
-    endpoints = sorted(endpoints, key=get_network_sort_key)
-    print(tabulate(endpoints, headers="keys", tablefmt="orgtbl", stralign="center"))
+    infos = sorted(infos, key=get_network_sort_key)
+    print(tabulate(infos, headers="keys", tablefmt="orgtbl", stralign="center"))
 
 
 @command("blocks", help="Display blocks: default: 0 for current window size")
