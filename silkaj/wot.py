@@ -196,14 +196,12 @@ async def get_informations_for_identity(id):
 async def get_uid_from_pubkey(pubkey):
     try:
         client = ClientInstance().client
-        results = await client(wot.lookup, pubkey)
+        lookups = await client(wot.lookup, pubkey)
     except:
         return NO_MATCHING_ID
-    i, results = 0, results["results"]
-    while i < len(results):
-        if results[i]["uids"][0]["uid"] != pubkey:
-            return results[i]["uids"][0]["uid"]
-        i += 1
+    for lookup in lookups["results"]:
+        if lookup["uids"][0]["uid"] != pubkey:
+            return lookup["uids"][0]["uid"]
 
 
 async def get_informations_for_identities(identifier):
