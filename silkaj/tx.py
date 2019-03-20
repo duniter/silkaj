@@ -182,6 +182,28 @@ async def transaction_confirmation(
     return tx
 
 
+async def get_list_input_for_transaction(pubkey, TXamount):
+    listinput, amount = await get_sources(pubkey)
+
+    # generate final list source
+    listinputfinal = []
+    totalAmountInput = 0
+    intermediatetransaction = False
+    for input in listinput:
+        listinputfinal.append(input)
+        totalAmountInput += amount_in_current_base(input)
+        TXamount -= amount_in_current_base(input)
+        # if more 40 sources, it's an intermediate transaction
+        if len(listinputfinal) >= 40:
+            intermediatetransaction = True
+            break
+        if TXamount <= 0:
+            break
+    if TXamount > 0 and not intermediatetransaction:
+        message_exit("Error: you don't have enough money")
+    return listinputfinal, totalAmountInput, intermediatetransaction
+
+
 async def handle_intermediaries_transactions(
     key, issuers, AmountTransfered, outputAddresses, Comment="", OutputbackChange=None
 ):
@@ -351,28 +373,6 @@ def generate_output(listoutput, unitbase, rest, recipient_address):
                 )
             )
         unitbase = unitbase - 1
-
-
-async def get_list_input_for_transaction(pubkey, TXamount):
-    listinput, amount = await get_sources(pubkey)
-
-    # generate final list source
-    listinputfinal = []
-    totalAmountInput = 0
-    intermediatetransaction = False
-    for input in listinput:
-        listinputfinal.append(input)
-        totalAmountInput += amount_in_current_base(input)
-        TXamount -= amount_in_current_base(input)
-        # if more 40 sources, it's an intermediate transaction
-        if len(listinputfinal) >= 40:
-            intermediatetransaction = True
-            break
-        if TXamount <= 0:
-            break
-    if TXamount > 0 and not intermediatetransaction:
-        message_exit("Error: you don't have enough money")
-    return listinputfinal, totalAmountInput, intermediatetransaction
 
 
 def checkComment(Comment):
