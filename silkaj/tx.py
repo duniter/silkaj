@@ -32,7 +32,7 @@ from silkaj.money import (
     UDValue,
     amount_in_current_base,
 )
-from silkaj.constants import NO_MATCHING_ID
+from silkaj.constants import NO_MATCHING_ID, SOURCES_PER_TX
 
 from duniterpy.api.bma.tx import process
 from duniterpy.documents import BlockUID, Transaction
@@ -193,8 +193,8 @@ async def get_list_input_for_transaction(pubkey, TXamount):
         listinputfinal.append(input)
         totalAmountInput += amount_in_current_base(input)
         TXamount -= amount_in_current_base(input)
-        # if more 40 sources, it's an intermediate transaction
-        if len(listinputfinal) >= 40:
+        # if more than 40 sources, it's an intermediate transaction
+        if len(listinputfinal) >= SOURCES_PER_TX:
             intermediatetransaction = True
             break
         if TXamount <= 0:
