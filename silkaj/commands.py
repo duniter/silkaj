@@ -131,7 +131,9 @@ async def display_diffi(current, diffi):
         d["Σ diffi"] = d.pop("level")
     system("cls||clear")
     print(
-        "Minimal Proof-of-Work: {0} to match `{1}`\nDifficulty to generate next block n°{2} for {3}/{4} nodes:\n{5}".format(
+        "Current block: n°{0}, generated on the {1}\nMinimal Proof-of-Work: {2} to match `{3}`\nDifficulty to generate next block n°{4} for {5}/{6} nodes:\n{7}".format(
+            current["number"],
+            convert_time(current["time"], "all"),
             current["powMin"],
             match_pattern(int(current["powMin"]))[0],
             diffi["block"],
@@ -171,7 +173,9 @@ async def network_info(discover, sort):
     network_sort_keys = sort.split(",")
     width = get_terminal_size()[0]
     if width < 146:
-        message_exit("Wide screen need to be larger than 146. Current width: " + str(width))
+        message_exit(
+            "Wide screen need to be larger than 146. Current width: " + str(width)
+        )
     # discover peers
     # and make sure fields are always ordered the same
     infos = [
@@ -218,9 +222,7 @@ async def network_info(discover, sort):
         if current_blk is not None:
             info["gen_time"] = convert_time(current_blk["time"], "hour")
             if width > 171:
-                info["mediantime"] = convert_time(
-                    current_blk["medianTime"], "hour"
-                )
+                info["mediantime"] = convert_time(current_blk["medianTime"], "hour")
             if width > 185:
                 info["difftime"] = convert_time(
                     current_blk["time"] - current_blk["medianTime"], "hour"
