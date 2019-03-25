@@ -131,14 +131,16 @@ async def display_diffi(current, diffi):
         d["Σ diffi"] = d.pop("level")
     system("cls||clear")
     print(
-        "Current block: n°{0}, generated on the {1}\nMinimal Proof-of-Work: {2} to match `{3}`\nDifficulty to generate next block n°{4} for {5}/{6} nodes:\n{7}".format(
+        "Current block: n°{0}, generated on the {1}\n\
+Generation of next block n°{2} possible by at least {3}/{4} members\n\
+Common Proof-of-Work difficulty level: {5}, hash starting with `{6}`\n{7}".format(
             current["number"],
             convert_time(current["time"], "all"),
-            current["powMin"],
-            match_pattern(int(current["powMin"]))[0],
             diffi["block"],
             issuers,
             len(diffi["levels"]),
+            current["powMin"],
+            match_pattern(int(current["powMin"]))[0],
             tabulate(
                 sorted_diffi, headers="keys", tablefmt="orgtbl", stralign="center"
             ),
