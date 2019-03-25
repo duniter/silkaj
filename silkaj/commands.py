@@ -188,9 +188,9 @@ async def network_info(discover, sort):
     ]
     client = ClientInstance().client
     diffi = await client(blockchain.difficulties)
-    i, members = 0, 0
+    members = 0
     print("Getting informations about nodes:")
-    for info in infos:
+    for i, info in enumerate(infos):
         ep = info
         api = "BASIC_MERKLED_API " if ep["port"] != "443" else "BMAS "
         api += ep.get("domain") + " " if ep["domain"] else ""
