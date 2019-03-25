@@ -61,8 +61,6 @@ async def cmd_amount(ctx, pubkeys):
 async def show_amount_from_pubkey(pubkey, value):
     totalAmountInput = value[0]
     amount = value[1]
-    # output
-
     currency_symbol = await CurrencySymbol().symbol
     ud_value = await UDValue().ud_value
     average, monetary_mass = await get_average()

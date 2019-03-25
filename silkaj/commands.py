@@ -33,7 +33,7 @@ from silkaj.tools import coroutine
 from silkaj.wot import get_uid_from_pubkey
 from silkaj.network_tools import (
     discover_peers,
-    best_node,
+    best_endpoint_address,
     EndPoint,
     ClientInstance,
     HeadBlock,
@@ -49,7 +49,7 @@ async def currency_info():
     ep = EndPoint().ep
     print(
         "Connected to node:",
-        ep[best_node(ep, False)],
+        ep[best_endpoint_address(ep, False)],
         ep["port"],
         "\nCurrent block number:",
         head_block["number"],
@@ -198,7 +198,7 @@ async def network_info(discover, sort):
         api += ep.get("ip6") + " " if ep["ip6"] else ""
         api += ep.get("port")
         print("{0:.0f}%".format(i / len(infos) * 100, 1), end=" ")
-        best_ep = best_node(info, False)
+        best_ep = best_endpoint_address(info, False)
         print(best_ep if best_ep is None else info[best_ep], end=" ")
         print(info["port"])
         try:
@@ -351,18 +351,18 @@ async def list_blocks(number, detailed):
 @command("argos", help="Display currency information formated for Argos or BitBar")
 @coroutine
 async def argos_info():
-    pretty_names = {"g1": "Ğ1", "gtest": "Ğtest"}
     head_block = await HeadBlock().head_block
-    pretty = head_block["currency"]
-    if head_block["currency"] in pretty_names:
-        pretty = pretty_names[head_block["currency"]]
-    print(pretty, "|")
+    print(await CurrencySymbol().symbol, "|")
     print("---")
     ep = EndPoint().ep
-    href = "href=http://%s:%s/" % (ep[best_node(ep, False)], ep["port"])
+    endpoint_address = ep[best_endpoint_address(ep, False)]
+    if ep["port"] == "443":
+        href = "href=https://%s/" % (endpoint_address)
+    else:
+        href = "href=http://%s:%s/" % (endpoint_address, ep["port"])
     print(
         "Connected to node:",
-        ep[best_node(ep, False)],
+        ep[best_endpoint_address(ep, False)],
         ep["port"],
         "|",
         href,

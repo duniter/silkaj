@@ -45,7 +45,7 @@ async def discover_peers(discover):
     for i, endpoint in enumerate(endpoints):
         if discover:
             print("{0:.0f}%".format(i / len(endpoints) * 100))
-        if best_node(endpoint, False) is None:
+        if best_endpoint_address(endpoint, False) is None:
             endpoints.remove(endpoint)
         elif discover:
             endpoints = await recursive_discovering(endpoints, endpoint)
@@ -62,7 +62,7 @@ async def recursive_discovering(endpoints, endpoint):
     news = await get_peers_among_leaves(sub_client)
     await sub_client.close()
     for new in news:
-        if best_node(new, False) is not None and new not in endpoints:
+        if best_endpoint_address(new, False) is not None and new not in endpoints:
             endpoints.append(new)
             await recursive_discovering(endpoints, new)
     return endpoints
@@ -193,7 +193,7 @@ def check_ip(address):
         return 0
 
 
-def best_node(ep, main):
+def best_endpoint_address(ep, main):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(CONNECTION_TIMEOUT)
     addresses, port = ("domain", "ip6", "ip4"), int(ep["port"])

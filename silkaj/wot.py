@@ -52,7 +52,7 @@ async def received_sent_certifications(id):
     """
     get searched id
     get id of received and sent certifications
-    display on a chart the result with the numbers
+    display in a table the result with the numbers
     """
     client = ClientInstance().client
     first_block = await client(blockchain.block, 1)
