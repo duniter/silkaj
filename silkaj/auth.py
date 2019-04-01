@@ -21,7 +21,7 @@ from getpass import getpass
 from pathlib import Path
 from re import compile, search
 from duniterpy.key import SigningKey
-from duniterpy.key import ScryptParams
+from duniterpy.key.scrypt_params import ScryptParams
 
 
 @pass_context
