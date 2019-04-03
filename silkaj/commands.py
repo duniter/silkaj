@@ -278,8 +278,8 @@ async def list_blocks(number, detailed):
         issuer["pubkey"] = blocks[j]["issuer"]
         if detailed or number <= 30:
             issuer["block"] = blocks[j]["number"]
-            issuer["gentime"] = convert_time(blocks[j]["time"], "hour")
-            issuer["mediantime"] = convert_time(blocks[j]["medianTime"], "hour")
+            issuer["gentime"] = convert_time(blocks[j]["time"], "all")
+            issuer["mediantime"] = convert_time(blocks[j]["medianTime"], "all")
             issuer["hash"] = blocks[j]["hash"][:10]
         issuers_dict[issuer["pubkey"]] = issuer
         list_issuers.append(issuer)
