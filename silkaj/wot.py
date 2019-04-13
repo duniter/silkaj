@@ -225,12 +225,3 @@ async def is_member(pubkey, uid):
         if pubkey in member["pubkey"] and uid in member["uid"]:
             return True
     return False
-
-
-async def get_pubkey_from_id(uid):
-    client = ClientInstance().client
-    members = await client(wot.members)
-    for member in members["results"]:
-        if uid == member["uid"]:
-            return member["pubkey"]
-    return NO_MATCHING_ID
