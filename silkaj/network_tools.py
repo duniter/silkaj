@@ -21,6 +21,7 @@ import socket
 import logging
 from sys import exit, stderr
 from click import pass_context
+from asyncio import sleep
 from duniterpy.api.client import Client
 from duniterpy.api.bma import blockchain, network
 
@@ -28,6 +29,7 @@ from silkaj.constants import (
     G1_DEFAULT_ENDPOINT,
     G1_TEST_DEFAULT_ENDPOINT,
     CONNECTION_TIMEOUT,
+    ASYNC_SLEEP,
 )
 
 
@@ -75,6 +77,7 @@ async def get_peers_among_leaves(client):
     leaves = await client(network.peers, leaves=True)
     peers = list()
     for leaf in leaves["leaves"]:
+        await sleep(ASYNC_SLEEP + 0.05)
         leaf_response = await client(network.peers, leaf=leaf)
         peers.append(leaf_response["leaf"]["value"])
     return parse_endpoints(peers)

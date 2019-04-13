@@ -25,14 +25,14 @@ from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.crypto_tools import check_public_key
 from silkaj.tools import message_exit, CurrencySymbol, coroutine
 from silkaj.auth import auth_method
-from silkaj.wot import get_uid_from_pubkey
+from silkaj.wot import is_member
 from silkaj.money import (
     get_sources,
     get_amount_from_pubkey,
     UDValue,
     amount_in_current_base,
 )
-from silkaj.constants import NO_MATCHING_ID, SOURCES_PER_TX
+from silkaj.constants import SOURCES_PER_TX
 
 from duniterpy.api.bma.tx import process
 from duniterpy.documents import BlockUID, Transaction
@@ -165,19 +165,19 @@ async def transaction_confirmation(
         ]
     )
     tx.append(["from (pubkey)", issuer_pubkey])
-    id_from = await get_uid_from_pubkey(issuer_pubkey)
-    if id_from is not NO_MATCHING_ID:
-        tx.append(["from (id)", id_from])
+    id_from = await is_member(issuer_pubkey)
+    if id_from:
+        tx.append(["from (id)", id_from["uid"]])
     for outputAddress in outputAddresses:
         tx.append(["to (pubkey)", outputAddress])
-        id_to = await get_uid_from_pubkey(outputAddress)
-        if id_to is not NO_MATCHING_ID:
-            tx.append(["to (id)", id_to])
+        id_to = await is_member(outputAddress)
+        if id_to:
+            tx.append(["to (id)", id_to["uid"]])
     if outputBackChange:
         tx.append(["Backchange (pubkey)", outputBackChange])
-        id_backchange = await get_uid_from_pubkey(outputBackChange)
-        if id_backchange is not NO_MATCHING_ID:
-            tx.append(["Backchange (id)", id_backchange])
+        id_backchange = await is_member(outputBackChange)
+        if id_backchange:
+            tx.append(["Backchange (id)", id_backchange["uid"]])
     tx.append(["comment", comment])
     return tx
 

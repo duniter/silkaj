@@ -17,11 +17,11 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 
 from click import command, option, argument, IntRange, get_terminal_size
 from datetime import datetime
-from time import sleep
 from os import system, popen
 from collections import OrderedDict
 from tabulate import tabulate
 from operator import itemgetter
+from asyncio import sleep
 import aiohttp
 from _socket import gaierror
 import jsonschema
@@ -30,7 +30,7 @@ from duniterpy.api.client import Client, parse_text
 from duniterpy.api.bma import blockchain, node, ws
 
 from silkaj.tools import coroutine
-from silkaj.wot import get_uid_from_pubkey
+from silkaj.wot import identity_of
 from silkaj.network_tools import (
     discover_peers,
     best_endpoint_address,
@@ -39,7 +39,7 @@ from silkaj.network_tools import (
     HeadBlock,
 )
 from silkaj.tools import convert_time, message_exit, CurrencySymbol
-from silkaj.constants import NO_MATCHING_ID
+from silkaj.constants import ASYNC_SLEEP
 
 
 @command("info", help="Display information about currency")
@@ -201,16 +201,14 @@ async def network_info(discover, sort):
         best_ep = best_endpoint_address(info, False)
         print(best_ep if best_ep is None else info[best_ep], end=" ")
         print(info["port"])
+        await sleep(ASYNC_SLEEP)
         try:
-            info["uid"] = await get_uid_from_pubkey(ep, info["pubkey"])
-            if info["uid"] is NO_MATCHING_ID:
-                info["uid"] = None
-            else:
-                info["member"] = "yes"
-                members += 1
+            info["uid"] = await identity_of(info["pubkey"])
+            info["uid"] = info["uid"]["uid"]
+            info["member"] = "yes"
+            members += 1
         except:
-            pass
-        if info.get("member") is None:
+            info["uid"] = None
             info["member"] = "no"
         info["pubkey"] = info["pubkey"][:5] + "…"
         for d in diffi["levels"]:
@@ -286,15 +284,16 @@ async def list_blocks(number, detailed):
         j += 1
     for pubkey in issuers_dict.keys():
         issuer = issuers_dict[pubkey]
-        uid = await get_uid_from_pubkey(issuer["pubkey"])
+        idty = await identity_of(issuer["pubkey"])
         for issuer2 in list_issuers:
             if (
                 issuer2.get("pubkey") is not None
                 and issuer.get("pubkey") is not None
                 and issuer2["pubkey"] == issuer["pubkey"]
             ):
-                issuer2["uid"] = uid
+                issuer2["uid"] = idty["uid"]
                 issuer2.pop("pubkey")
+        await sleep(ASYNC_SLEEP)
     await client.close()
     print(
         "Last {0} blocks from n°{1} to n°{2}".format(

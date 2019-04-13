@@ -20,6 +20,7 @@ from time import time
 from tabulate import tabulate
 from collections import OrderedDict
 from duniterpy.api.bma import wot, blockchain
+from duniterpy.api.errors import DuniterError
 
 from silkaj.network_tools import ClientInstance
 from silkaj.crypto_tools import check_public_key
@@ -119,7 +120,9 @@ async def membership_status(certifications, certs, pubkey, req):
                 len(certifications["received"]) - params["sigQty"]
             ]
         )
-    member = await is_member(pubkey, certs["uid"])
+    member = await is_member(pubkey)
+    if member:
+        member = True
     print("member:", member)
     if req["revoked"]:
         print(
@@ -159,7 +162,7 @@ async def id_pubkey_correspondence(id_pubkey):
     if check_public_key(id_pubkey, False):
         print(
             "{} public key corresponds to identity: {}".format(
-                id_pubkey, await get_uid_from_pubkey(id_pubkey)
+                id_pubkey, await identity_of(id_pubkey)
             )
         )
     else:
@@ -193,15 +196,30 @@ async def get_informations_for_identity(id):
     message_exit(NO_MATCHING_ID)
 
 
-async def get_uid_from_pubkey(pubkey):
+async def identity_of(pubkey_uid):
+    """
+    Only works for members
+    Not able to get corresponding uid from a non-member identity
+    Able to know if an identity is member or not
+    """
+    client = ClientInstance().client
     try:
-        client = ClientInstance().client
-        lookups = await client(wot.lookup, pubkey)
+        return await client(wot.identity_of, pubkey_uid)
+    except DuniterError as e:
+        raise DuniterError(e)
+    except ValueError as e:
+        pass
+
+
+async def is_member(pubkey_uid):
+    """
+    Check identity is member
+    If member, return corresponding identity, else: False
+    """
+    try:
+        return await identity_of(pubkey_uid)
     except:
-        return NO_MATCHING_ID
-    for lookup in lookups["results"]:
-        if lookup["uids"][0]["uid"] != pubkey:
-            return lookup["uids"][0]["uid"]
+        return False
 
 
 async def get_informations_for_identities(identifier):
@@ -216,12 +234,3 @@ async def get_informations_for_identities(identifier):
     except:
         return NO_MATCHING_ID
     return results["results"]
-
-
-async def is_member(pubkey, uid):
-    client = ClientInstance().client
-    members = await client(wot.members)
-    for member in members["results"]:
-        if pubkey in member["pubkey"] and uid in member["uid"]:
-            return True
-    return False

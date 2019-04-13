@@ -26,7 +26,7 @@ from silkaj.tools import convert_time, message_exit, coroutine
 from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.blockchain_tools import BlockchainParams
 from silkaj.license import license_approval
-from silkaj.wot import is_member, get_uid_from_pubkey, get_informations_for_identity
+from silkaj.wot import is_member, get_informations_for_identity
 
 
 @command("cert", help="Send certification")
@@ -42,8 +42,8 @@ async def send_certification(id_to_certify):
 
     # Check whether current user is member
     issuer_pubkey = key.pubkey
-    issuer_id = await get_uid_from_pubkey(issuer_pubkey)
-    if not await is_member(issuer_pubkey, issuer_id):
+    issuer = await is_member(issuer_pubkey)
+    if not issuer:
         message_exit("Current identity is not member.")
 
     if issuer_pubkey == id_to_certify["pubkey"]:
@@ -74,7 +74,7 @@ async def send_certification(id_to_certify):
 
     # Certification confirmation
     await certification_confirmation(
-        issuer_id, issuer_pubkey, id_to_certify, main_id_to_certify
+        issuer, issuer_pubkey, id_to_certify, main_id_to_certify
     )
 
     identity = Identity(
@@ -110,11 +110,11 @@ async def send_certification(id_to_certify):
 
 
 async def certification_confirmation(
-    issuer_id, issuer_pubkey, id_to_certify, main_id_to_certify
+    issuer, issuer_pubkey, id_to_certify, main_id_to_certify
 ):
     cert = list()
     cert.append(["Cert", "From", "–>", "To"])
-    cert.append(["ID", issuer_id, "–>", main_id_to_certify["uid"]])
+    cert.append(["ID", issuer["uid"], "–>", main_id_to_certify["uid"]])
     cert.append(["Pubkey", issuer_pubkey, "–>", id_to_certify["pubkey"]])
     params = await BlockchainParams().params
     cert_begins = convert_time(time(), "date")
