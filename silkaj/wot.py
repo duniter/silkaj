@@ -26,7 +26,6 @@ from silkaj.network_tools import ClientInstance
 from silkaj.crypto_tools import check_public_key
 from silkaj.tools import message_exit, convert_time, coroutine
 from silkaj.blockchain_tools import BlockchainParams
-from silkaj.constants import NO_MATCHING_ID
 
 
 def get_sent_certifications(certs, time_first_block, params):
@@ -166,18 +165,15 @@ async def id_pubkey_correspondence(id_pubkey):
             )
         )
     else:
-        pubkeys = await get_informations_for_identities(id_pubkey)
-        if pubkeys == NO_MATCHING_ID:
-            print(NO_MATCHING_ID)
-        else:
-            print("Public keys found matching '{}':\n".format(id_pubkey))
-            for pubkey in pubkeys:
-                print("→", pubkey["pubkey"], end=" ")
-                try:
-                    corresponding_id = await client(wot.identity_of, pubkey["pubkey"])
-                    print("↔ " + corresponding_id["uid"])
-                except:
-                    print("")
+        pubkeys = await wot_lookup(id_pubkey)
+        print("Public keys found matching '{}':\n".format(id_pubkey))
+        for pubkey in pubkeys:
+            print("→", pubkey["pubkey"], end=" ")
+            try:
+                corresponding_id = await client(wot.identity_of, pubkey["pubkey"])
+                print("↔ " + corresponding_id["uid"])
+            except:
+                print("")
     await client.close()
 
 
@@ -187,13 +183,11 @@ async def get_informations_for_identity(id):
     many identities could match
     return the one searched
     """
-    certs_req = await get_informations_for_identities(id)
-    if certs_req == NO_MATCHING_ID:
-        message_exit(NO_MATCHING_ID)
+    certs_req = await wot_lookup(id)
     for certs_id in certs_req:
         if certs_id["uids"][0]["uid"].lower() == id.lower():
             return certs_id
-    message_exit(NO_MATCHING_ID)
+    message_exit("No matching identity")
 
 
 async def identity_of(pubkey_uid):
@@ -222,7 +216,7 @@ async def is_member(pubkey_uid):
         return False
 
 
-async def get_informations_for_identities(identifier):
+async def wot_lookup(identifier):
     """
     :identifier: identity or pubkey in part or whole
     Return received and sent certifications lists of matching identities
@@ -231,6 +225,8 @@ async def get_informations_for_identities(identifier):
     client = ClientInstance().client
     try:
         results = await client(wot.lookup, identifier)
-    except:
-        return NO_MATCHING_ID
-    return results["results"]
+        return results["results"]
+    except DuniterError as e:
+        message_exit(e.message)
+    except ValueError as e:
+        pass
