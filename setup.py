@@ -25,7 +25,7 @@ setuptools.setup(
     ),
     install_requires=[
         "Click",
-        "duniterpy==0.53.0",
+        "duniterpy==0.53.1",
         "ipaddress",
         "tabulate",
         "pynacl",
