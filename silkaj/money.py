@@ -127,7 +127,7 @@ async def get_sources(pubkey):
     # Sources written into the blockchain
     sources = await client(tx.sources, pubkey)
 
-    listinput = []
+    listinput = list()
     amount = 0
     for source in sources["sources"]:
         if source["conditions"] == "SIG(" + pubkey + ")":
@@ -148,6 +148,7 @@ async def get_sources(pubkey):
     pendings = history["sending"] + history["receiving"] + history["pending"]
 
     # add pending output
+    pending_sources = list()
     for i, pending in enumerate(pendings):
         identifier = pending["hash"]
         for output in pending["outputs"]:
@@ -163,11 +164,22 @@ async def get_sources(pubkey):
                 if inputgenerated not in listinput:
                     listinput.append(inputgenerated)
 
-    # remove input already used
-    for pending in pendings:
         for input in pending["inputs"]:
-            if input in listinput:
-                listinput.remove(input)
+            input_splitted = input.split(":")
+            pending_sources.append(
+                InputSource(
+                    amount=int(input_splitted[0]),
+                    base=int(input_splitted[1]),
+                    source=input_splitted[2],
+                    origin_id=input_splitted[3],
+                    index=int(input_splitted[4]),
+                )
+            )
+
+    # remove input already used
+    for input in listinput:
+        if input in pending_sources:
+            listinput.remove(input)
 
     return listinput, amount
 
