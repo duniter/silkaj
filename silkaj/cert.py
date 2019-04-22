@@ -18,7 +18,7 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 from click import command, argument, echo, confirm
 from time import time
 from tabulate import tabulate
-from duniterpy.api.bma import wot
+from duniterpy.api.bma import wot, blockchain
 from duniterpy.documents import block_uid, Identity, Certification
 
 from silkaj.auth import auth_method
@@ -113,8 +113,15 @@ async def certification_confirmation(
     issuer, issuer_pubkey, id_to_certify, main_id_to_certify
 ):
     cert = list()
-    cert.append(["Cert", "From", "–>", "To"])
-    cert.append(["ID", issuer["uid"], "–>", main_id_to_certify["uid"]])
+    cert.append(["Cert", "From", "–>", "To: Published: #block-hash date"])
+    client = ClientInstance().client
+    idty_timestamp = main_id_to_certify["meta"]["timestamp"]
+    block_uid_idty = block_uid(idty_timestamp)
+    block = await client(blockchain.block, block_uid_idty.number)
+    block_uid_date = (
+        ": #" + idty_timestamp[:15] + "… " + convert_time(block["time"], "all")
+    )
+    cert.append(["ID", issuer["uid"], "–>", main_id_to_certify["uid"] + block_uid_date])
     cert.append(["Pubkey", issuer_pubkey, "–>", id_to_certify["pubkey"]])
     params = await BlockchainParams().params
     cert_begins = convert_time(time(), "date")
