@@ -19,7 +19,7 @@ from click import command, argument, echo, confirm
 from time import time
 from tabulate import tabulate
 from duniterpy.api.bma import wot
-from duniterpy.documents import BlockUID, Identity, Certification
+from duniterpy.documents import block_uid, Identity, Certification
 
 from silkaj.auth import auth_method
 from silkaj.tools import convert_time, message_exit, coroutine
@@ -82,7 +82,7 @@ async def send_certification(id_to_certify):
         currency=currency,
         pubkey=id_to_certify["pubkey"],
         uid=main_id_to_certify["uid"],
-        ts=BlockUID.from_str(main_id_to_certify["meta"]["timestamp"]),
+        ts=block_uid(main_id_to_certify["meta"]["timestamp"]),
         signature=main_id_to_certify["self"],
     )
 
