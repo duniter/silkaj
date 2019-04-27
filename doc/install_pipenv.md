@@ -1,5 +1,13 @@
 # Install Silkaj with Pipenv
 
+### Install libsodium
+
+```bash
+sudo apt install libsodium23 # Debian Buster
+sudo apt install libsodium18 # Debian Stretch
+sudo dnf install libsodium # Fedora
+```
+
 ### Install pipenv
 
 - [Pipenv installation instructions](https://github.com/pypa/pipenv#installation)

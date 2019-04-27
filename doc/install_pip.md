@@ -5,6 +5,14 @@ You have to use a shell on GNU/Linux or a command tool (`cmd.exe`) on Windows.
 ## GNU/Linux 
 The system must use UTF-8 locales…
 
+### Install libsodium
+
+```bash
+sudo apt install libsodium23 # Debian Buster
+sudo apt install libsodium18 # Debian Stretch
+sudo dnf install libsodium # Fedora
+```
+
 ### Install dependencies before installing
 
 ```bash
