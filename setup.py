@@ -20,8 +20,12 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3 :: Only",
+        "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Operating System :: OS Independent",
+        "Environment :: Console",
+        "Intended Audience :: End Users/Desktop",
+        "Natural Language :: English",
     ),
     install_requires=[
         "Click",
