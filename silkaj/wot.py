@@ -159,11 +159,11 @@ def date_approximation(block_id, time_first_block, avgentime):
 async def id_pubkey_correspondence(id_pubkey):
     client = ClientInstance().client
     if check_public_key(id_pubkey, False):
-        print(
-            "{} public key corresponds to identity: {}".format(
-                id_pubkey, await identity_of(id_pubkey)
-            )
-        )
+        try:
+            idty = await identity_of(id_pubkey)
+            print("{} public key corresponds to identity: {}".format(id_pubkey, idty["uid"]))
+        except:
+            message_exit("No matching identity")
     else:
         pubkeys = await wot_lookup(id_pubkey)
         print("Public keys found matching '{}':\n".format(id_pubkey))
