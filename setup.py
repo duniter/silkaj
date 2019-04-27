@@ -1,9 +1,9 @@
-import setuptools
+from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-setuptools.setup(
+setup(
     name="silkaj",
     version="0.6.0",
     author="Moul",
@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://git.duniter.org/clients/python/silkaj",
     license="GNU AGPLv3",
-    packages=setuptools.find_packages(),
+    packages=find_packages(),
     keywords="g1 duniter cryptocurrency librecurrency RTM",
     classifiers=(
         "Programming Language :: Python :: 3.7",
