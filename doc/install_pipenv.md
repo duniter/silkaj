@@ -10,6 +10,11 @@ sudo dnf install libsodium # Fedora
 
 ### Install pipenv
 
+```bash
+sudo apt install pipenv # Debian ≥ Buster
+sudo dnf install pipenv # Fedora
+```
+
 - [Pipenv installation instructions](https://github.com/pypa/pipenv#installation)
 
 ### Retrieve silkaj sources
