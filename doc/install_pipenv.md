@@ -30,10 +30,20 @@ pipenv install "-e ."
 
 The double quotes are important, if you forget them, `pipenv` will install silkaj from pypi
 
-### Activate pipenv and run silkaj
+### Run silkaj
+```bash
+pipenv run silkaj
+```
+
+- You can create shell alias, for instance for Bash, add in the `~/.bashrc`:
+```bash
+alias silkaj="cd $HOME/silkaj/silkaj && pipenv run silkaj"
+```
+
+### Activate pipenv shell and run the executable
 ```bash
 pipenv shell
-silkaj
+./bin/silkaj
 ```
 
 ## Manage Python versions with Pyenv
