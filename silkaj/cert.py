@@ -19,7 +19,7 @@ from click import command, argument, echo, confirm
 from time import time
 from tabulate import tabulate
 from duniterpy.api.bma import wot, blockchain
-from duniterpy.documents import block_uid, Identity, Certification
+from duniterpy.documents import BlockUID, block_uid, Identity, Certification
 
 from silkaj.auth import auth_method
 from silkaj.tools import convert_time, message_exit, coroutine
