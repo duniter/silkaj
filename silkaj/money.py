@@ -165,16 +165,7 @@ async def get_sources(pubkey):
                     listinput.append(inputgenerated)
 
         for input in pending["inputs"]:
-            input_splitted = input.split(":")
-            pending_sources.append(
-                InputSource(
-                    amount=int(input_splitted[0]),
-                    base=int(input_splitted[1]),
-                    source=input_splitted[2],
-                    origin_id=input_splitted[3],
-                    index=int(input_splitted[4]),
-                )
-            )
+            pending_sources.append(InputSource.from_inline(input))
 
     # remove input already used
     for input in listinput:
