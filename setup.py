@@ -27,12 +27,6 @@ setup(
         "Intended Audience :: End Users/Desktop",
         "Natural Language :: English",
     ),
-    install_requires=[
-        "Click",
-        "duniterpy==0.53.1",
-        "ipaddress",
-        "tabulate",
-        "pynacl",
-    ],
+    install_requires=["Click", "duniterpy==0.54.0", "ipaddress", "tabulate", "pynacl"],
     scripts=["bin/silkaj"],
 )
