@@ -20,6 +20,7 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 from click import group, help_option, version_option, option, pass_context
 
 from silkaj.tx import send_transaction
+from silkaj.tx_history import transaction_history
 from silkaj.money import cmd_amount
 from silkaj.cert import send_certification
 from silkaj.commands import (
@@ -88,6 +89,7 @@ cli.add_command(cmd_amount)
 cli.add_command(list_blocks)
 cli.add_command(send_certification)
 cli.add_command(difficulties)
+cli.add_command(transaction_history)
 cli.add_command(id_pubkey_correspondence)
 cli.add_command(currency_info)
 cli.add_command(license_command)
