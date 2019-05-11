@@ -19,6 +19,7 @@ from click import command, argument
 from time import time
 from tabulate import tabulate
 from collections import OrderedDict
+from asyncio import sleep
 from duniterpy.api.bma import wot, blockchain
 from duniterpy.api.errors import DuniterError
 
@@ -26,6 +27,7 @@ from silkaj.network_tools import ClientInstance
 from silkaj.crypto_tools import check_public_key
 from silkaj.tools import message_exit, convert_time, coroutine
 from silkaj.blockchain_tools import BlockchainParams
+from silkaj.constants import ASYNC_SLEEP
 
 
 def get_sent_certifications(certs, time_first_block, params):
@@ -161,7 +163,11 @@ async def id_pubkey_correspondence(id_pubkey):
     if check_public_key(id_pubkey, False):
         try:
             idty = await identity_of(id_pubkey)
-            print("{} public key corresponds to identity: {}".format(id_pubkey, idty["uid"]))
+            print(
+                "{} public key corresponds to identity: {}".format(
+                    id_pubkey, idty["uid"]
+                )
+            )
         except:
             message_exit("No matching identity")
     else:
@@ -230,3 +236,22 @@ async def wot_lookup(identifier):
         message_exit(e.message)
     except ValueError as e:
         pass
+
+
+async def identities_from_pubkeys(pubkeys, uids):
+    """
+    Make list of pubkeys unique, and remove empty strings
+    Request identities
+    """
+    if not uids:
+        return list()
+
+    uniq_pubkeys = list(filter(None, set(pubkeys)))
+    identities = list()
+    for pubkey in uniq_pubkeys:
+        try:
+            identities.append(await identity_of(pubkey))
+        except Exception as e:
+            pass
+        await sleep(ASYNC_SLEEP)
+    return identities
