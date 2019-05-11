@@ -96,7 +96,7 @@ cli.add_command(send_transaction)
 cli.add_command(received_sent_certifications)
 
 
-@cli.command("about", help="Display programm information")
+@cli.command("about", help="Display program information")
 def about():
     print(
         "\
