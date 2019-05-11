@@ -10,6 +10,7 @@ PyNaCl = "*"
 e1839a8 = {path = ".",editable = true}
 duniterpy = "*"
 click = "*"
+texttable = "*"
 
 [dev-packages]
 pre-commit = "*"
