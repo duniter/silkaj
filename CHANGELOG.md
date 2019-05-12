@@ -71,7 +71,7 @@
 
 ### [Forum post](https://forum.duniter.org/t/silkaj-v0-6-0-release/4858)
 
-## v0.5.0 (22 May 2018)
+## v0.5.0 (22th May 2018)
 
 ### [Milestone v0.5.0](https://git.duniter.org/clients/python/silkaj/milestones/2)
 
@@ -104,7 +104,7 @@
 ### [Forum post](https://forum.duniter.org/t/silkaj-v0-5-0/4712)
 
 
-## v0.4.0 (28 January 2018)
+## v0.4.0 (28th January 2018)
 ### [Milestone v0.4.0](https://git.duniter.org/clients/python/silkaj/milestones/5)
 
 #### New `wot` command which displays received and sent certification of an identity
@@ -143,7 +143,7 @@ Thanks to @Tortue95, @jytou, @mmuman, and @cuckooland
 ### [Forum post](https://forum.duniter.org/t/silkaj-0-4-0/4071)
 
 
-## v0.3.0 (17 April 2017)
+## v0.3.0 (17th April 2017)
 ### [Milestone v0.3.0](https://git.duniter.org/clients/python/silkaj/milestones/5)
 
 #### Transactions
@@ -174,7 +174,7 @@ Thanks to @Tortue95 and @jytou
 
 ### [Forum post](https://forum.duniter.org/t/lets-send-your-money-silkaj-v0-3-0/2404/1)
 
-## v0.2.0 (27 March 2017)
+## v0.2.0 (27th March 2017)
 ### Features
 - [Transaction feature](https://github.com/duniter/silkaj/pull/21)
 - [Output information on the drop-down menu with Argos (GNOME Shell extension)](https://github.com/duniter/silkaj/pull/20)
@@ -186,7 +186,7 @@ Thanks to @Tortue95 and @jytou
 
 Big thanks to @Tortue95, and @mmuman.
 
-## v0.1.0 (23 September 2016)
+## v0.1.0 (23th September 2016)
 
 ### Public release
 - [Duniter forum post](https://forum.duniter.org/t/silkaj-new-cli-duniter-client/1278)
