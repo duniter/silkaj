@@ -1,10 +1,111 @@
-## v0.6.1 (10 December 2018)
+## v0.7.0 (22th May 2019)
+### [Milestone v0.7.0](https://git.duniter.org/clients/python/silkaj/milestones/10)
+
+#### DuniterPy
+- #7, !97: Migrate to DuniterPy
+- #200: Freeze DuniterPy dependency version
+- #206: Set a sleep for async requests
+- #178: Select different sources for intermediaries tx
+
+#### CLI
+- #77, !98: Migrate command line tool from commandline to Click
+- #67, #76, #116, #117, #123: fixed by previous issue
+- #167: Rename `amount` command to `balance`
+- #148: Rename `issuers` command to `blocks` which is a more appropriate word to what it does
+- With `-p` option: when the port of the node is 443, it’s not necessary to specify the port
+
+#### Transaction
+- #22: Display transactions history in a table 
+- #184: Rework transaction functions (Part 3)
+- #152: fix `--allSources` option which was not working
+- #165, !99: Display outputBackChange option in confirmation chart
+- #131: Prevent sending too small amount
+
+#### Certification
+- #170: Change process: only propose license display
+- #198: Display identity’s blockstamp and date into confirmation message
+
+#### Difficulty level
+- #93: Difficulties fails / use websocket to be informed about new block
+- #190: Display the date when the head block has been generated
+
+#### Balance
+- !96, #122: display balance in comparison to the average of money share
+
+#### Blocks
+- Display the full dates of blocks’ generation and mediantime
+
+#### WoT
+- #141: Crash on membership status
+- Add legend to explain `✔` 
+- #189: Handle wot requests exceptions
+- #135 :is_member() requests all members to know if an identity is member will explose
+
+#### Authentication
+- #130: Prevent erasing authfile
+- Use `pathlib.Path` instead of `os.path`
+
+#### Tests
+- !83, #85: Create test structure
+- #225: Install `pytest-asyncio`
+
+#### Other
+- #161: Singleton improvement
+- #157, !100: Use `for` loops
+- #169, !100: type issue
+- #113: Many small improvements
+
+#### Website / Doc
+- #82: Update website and readme about new features
+- #136: Link directly the installation documentation on the website
+- #159: Update website
+- #160: Add website repository link in the README
+- List Silkaj wrappers en the README
+
+##### Installation documentation
+- Add instructions on installing libsodium which is required by pylibscrypt since DuniterPy migration
+- #142: Improve pip installation documentation
+- Improve Pipenv installation documentation
+- !89: Add Docker install procedure, Pip: dependency and PATH tricks
+- #215: Conflict between pyproject.toml and pipenv install
+
+#### Windows
+- #153: Install on Windows, Scrypt issue
+- #154: net: can’t get screen size on Windows
+- !92:  Document Windows installation with pip
+
+#### Project
+- #132: Add a license notice as a header of every source files
+- #158: Add CHANGELOG.md file
+- #186: Fix firsts two tags
+- Pypi: add classifiers
+
+#### Thanks
+@Attilax, @Bernard, @cebash, @matograine, @vtexier
+
+## v0.6.5 Debian (8th January 2019)
+
+v0.6.5 fork for Debian package without DuniterPy migration but with Click CLI module.
+
+- #137: Create Debian package and publish it in Buster
+- #77, !98: Migrate to Click
+- #132: Add a license notice as a header of every source files
+
+#### Thanks
+@jonas
+
+## v0.6.1 (10th December 2018)
+
+### [Milestone v0.6.1](https://git.duniter.org/clients/python/silkaj/milestones/11)
 
 - !90, #151: Fix intermediaries transactions sent to wrong recipient
 - !91, #145: Allow to renew certifications
-- #155: Remove clear calls which are not availabre on non-Unix
+- #155: Make `clear` calls works on Windows
+- #141: Crash on membership status
+- #166: Shell completion
 
-## v0.6.0 (18 November 2018)
+
+## v0.6.0 (18th November 2018)
 
 ### [Milestone v0.6.0](https://git.duniter.org/clients/python/silkaj/milestones/7)
 
