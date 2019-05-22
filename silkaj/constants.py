@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-SILKAJ_VERSION = "0.6.0"
+SILKAJ_VERSION = "0.7.0"
 G1_SYMBOL = "Ğ1"
 GTEST_SYMBOL = "ĞTest"
 G1_DEFAULT_ENDPOINT = "g1.duniter.org", "443"
