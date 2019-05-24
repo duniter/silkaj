@@ -2,7 +2,7 @@
 
 You have to use a shell on GNU/Linux or a command tool (`cmd.exe`) on Windows.
 
-## GNU/Linux 
+## GNU/Linux
 The system must use UTF-8 locales…
 
 ### Install libsodium
@@ -35,6 +35,19 @@ After intallation, if you get a `bash: silkaj: command not found` error, you sho
 ```bash
 echo "export PATH=$PATH:$HOME/.local/bin" >> $HOME/.bashrc
 source $HOME/.bashrc
+```
+
+## macOS
+To install Python, run the following command:
+```bash
+brew install python3
+```
+
+`pip3` will automatically be installed with `python3` installation.
+
+Then, install Silkaj with:
+```bash
+pip3 install silkaj --user
 ```
 
 ## Windows
