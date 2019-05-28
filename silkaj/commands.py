@@ -347,7 +347,7 @@ async def list_blocks(number, detailed):
         )
 
 
-@command("argos", help="Display currency information formated for Argos or BitBar")
+@command("argos", help="Display currency information formatted for Argos or BitBar")
 @coroutine
 async def argos_info():
     head_block = await HeadBlock().head_block
