@@ -29,7 +29,7 @@ setup(
     ),
     install_requires=[
         "Click",
-        "duniterpy==0.54.1",
+        "duniterpy==0.54.3",
         "ipaddress",
         "texttable",
         "tabulate",
