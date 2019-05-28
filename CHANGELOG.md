@@ -1,3 +1,6 @@
+## v0.7.1 (29th May 2019)
+- Fix transaction document generation from DuniterPy
+
 ## v0.7.0 (22th May 2019)
 ### [Milestone v0.7.0](https://git.duniter.org/clients/python/silkaj/milestones/10)
 
