@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="silkaj",
-    version="0.7.0",
+    version="0.7.1",
     author="Moul",
     author_email="moul@moul.re",
     description="Command line client for Duniter",
