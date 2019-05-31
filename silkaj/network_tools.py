@@ -20,7 +20,6 @@ from ipaddress import ip_address
 import socket
 import logging
 from sys import exit, stderr
-from click import pass_context
 from asyncio import sleep
 from duniterpy.api.client import Client
 from duniterpy.api.bma import blockchain, network
@@ -126,10 +125,18 @@ def singleton(class_):
 
 @singleton
 class EndPoint(object):
-    @pass_context
-    def __init__(ctx, self):
+    def __init__(self):
         ep = dict()
-        peer = ctx.obj["PEER"]
+        try:
+            from click.globals import get_current_context
+
+            ctx = get_current_context()
+            peer = ctx.obj["PEER"]
+            gtest = ctx.obj["GTEST"]
+        # To be activated when dropping Python 3.5
+        # except (ModuleNotFoundError, RuntimeError):
+        except:
+            peer, gtest = None, None
         if peer:
             if ":" in peer:
                 ep["domain"], ep["port"] = peer.rsplit(":", 1)
@@ -137,7 +144,7 @@ class EndPoint(object):
                 ep["domain"], ep["port"] = peer, "443"
         else:
             ep["domain"], ep["port"] = (
-                G1_TEST_DEFAULT_ENDPOINT if ctx.obj["GTEST"] else G1_DEFAULT_ENDPOINT
+                G1_TEST_DEFAULT_ENDPOINT if gtest else G1_DEFAULT_ENDPOINT
             )
         if ep["domain"].startswith("[") and ep["domain"].endswith("]"):
             ep["domain"] = ep["domain"][1:-1]
