@@ -23,12 +23,12 @@ check_branch() {
 
 update_version() {
 	sed -i "s/SILKAJ_VERSION = \".*\"/SILKAJ_VERSION = \"$VERSION\"/" silkaj/constants.py
-	sed -i "s/version=\".*\",/version=\"$VERSION\",/" setup.py
+	poetry version "$VERSION"
 	git diff
 }
 
 commit_tag() {
-	git commit silkaj/constants.py setup.py -m "v$VERSION"
+	git commit silkaj/constants.py pyproject.toml -m "v$VERSION"
 	git tag "v$VERSION" -a -m "$VERSION"
 }
 
