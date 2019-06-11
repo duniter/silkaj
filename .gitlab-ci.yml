@@ -1,0 +1,80 @@
+stages:
+  - checks
+  - tests
+  - coverage
+
+variables:
+  DOCKER_IMAGE: "registry.duniter.org/docker/python3/poetry"
+  PYTHON_VERSION: "3.7"
+
+image: $DOCKER_IMAGE/$PYTHON_VERSION:latest
+
+.code_changes:
+  only:
+    changes:
+      - bin/silkaj
+      - silkaj/*.py
+      - tests/*.py
+
+.changes:
+  extends: .code_changes
+  only:
+    changes:
+      - .gitlab-ci.yml
+      - pyproject.toml
+      - poetry.lock
+
+build:
+  extends: .changes
+  stage: checks
+  script:
+    - poetry build
+
+format:
+  extends: .code_changes
+  stage: checks
+  image: $DOCKER_IMAGE/3.8:latest
+  script:
+    - black --check bin silkaj tests
+
+.tests:
+  extends: .changes
+  stage: tests
+  image: $DOCKER_IMAGE/$PYTHON_VERSION:latest
+  script:
+    - poetry install
+    - poetry run pytest
+
+tests-3.5:
+  extends: .tests
+  variables:
+    PYTHON_VERSION: "3.5"
+
+tests-3.6:
+  extends: .tests
+  variables:
+    PYTHON_VERSION: "3.6"
+
+tests-3.7-coverage:
+  extends: .tests
+  script:
+    - poetry install
+    - poetry run pytest --cov silkaj --cov-report html:cov_html
+  artifacts:
+    paths:
+      - cov_html
+
+tests-3.8:
+  extends: .tests
+  variables:
+    PYTHON_VERSION: "3.8"
+
+pages:
+  extends: .code_changes
+  needs: [tests-3.7-coverage]
+  stage: coverage
+  script: mv cov_html/ public/
+  artifacts:
+    paths:
+      - public
+    expire_in: 2 days
