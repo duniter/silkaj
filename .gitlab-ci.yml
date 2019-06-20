@@ -61,6 +61,7 @@ tests-3.7-coverage:
   script:
     - poetry install
     - poetry run pytest --cov silkaj --cov-report html:cov_html
+    - poetry run coverage-badge -o cov_html/coverage.svg
   artifacts:
     paths:
       - cov_html
