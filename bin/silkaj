@@ -17,7 +17,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from silkaj.cli_tools import cli
+from silkaj.cli import cli
 
 if __name__ == "__main__":
     cli(obj={})
