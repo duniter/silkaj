@@ -18,9 +18,10 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 from re import compile, search
 import math
 from time import sleep
+from tabulate import tabulate
 from click import command, option, FloatRange
 
-from tabulate import tabulate
+from silkaj.cli_tools import MutuallyExclusiveOption
 from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.crypto_tools import check_public_key
 from silkaj.tools import message_exit, CurrencySymbol, coroutine
@@ -40,9 +41,27 @@ from duniterpy.documents.transaction import OutputSource, Unlock, SIGParameter
 
 
 @command("tx", help="Send transaction")
-@option("--amount", type=FloatRange(0.01), help="Quantitative value")
-@option("--amountUD", type=float, help="Relative value")
-@option("--allSources", is_flag=True, help="Send all sources")
+@option(
+    "--amount",
+    type=FloatRange(0.01),
+    help="Quantitative value",
+    cls=MutuallyExclusiveOption,
+    mutually_exclusive=["amountud", "allsources"],
+)
+@option(
+    "--amountUD",
+    type=float,
+    help="Relative value",
+    cls=MutuallyExclusiveOption,
+    mutually_exclusive=["amount", "allsources"],
+)
+@option(
+    "--allSources",
+    is_flag=True,
+    help="Send all sources",
+    cls=MutuallyExclusiveOption,
+    mutually_exclusive=["amount", "amountud"],
+)
 @option(
     "--output",
     required=True,
