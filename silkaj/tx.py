@@ -108,9 +108,9 @@ async def transaction_amount(amount, amountUD, allSources):
     if not (amount or amountUD or allSources):
         message_exit("--amount nor --amountUD nor --allSources is set")
     if amount:
-        return amount * 100
+        return round(amount * 100)
     if amountUD:
-        return amountUD * await UDValue().ud_value
+        return round(amountUD * await UDValue().ud_value)
 
 
 def check_transaction_values(
