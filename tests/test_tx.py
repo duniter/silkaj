@@ -1,6 +1,8 @@
 import pytest
+from click.testing import CliRunner
 from silkaj.tx import transaction_amount
 from silkaj.money import UDValue
+from silkaj.cli import cli
 
 
 @pytest.mark.asyncio
@@ -17,3 +19,37 @@ async def test_transaction_amount():
     assert await transaction_amount(None, 1.9, None) == round(1.9 * ud_value)
     assert await transaction_amount(None, 1.0001, None) == round(1.0001 * ud_value)
     assert await transaction_amount(None, 9.9999, None) == round(9.9999 * ud_value)
+
+
+def test_tx_passed_amount_cli():
+    """One option"""
+    result = CliRunner().invoke(cli, ["tx", "--amount", "1"])
+    assert "Error: Missing option" in result.output
+    assert result.exit_code == 2
+
+    result = CliRunner().invoke(cli, ["tx", "--amountUD", "1"])
+    assert "Error: Missing option" in result.output
+    assert result.exit_code == 2
+
+    result = CliRunner().invoke(cli, ["tx", "--allSources"])
+    assert "Error: Missing option" in result.output
+    assert result.exit_code == 2
+
+    """Multiple options"""
+    result = CliRunner().invoke(cli, ["tx", "--amount", 1, "--amountUD", 1])
+    assert "Error: Usage" in result.output
+    assert result.exit_code == 2
+
+    result = CliRunner().invoke(cli, ["tx", "--amount", 1, "--allSources"])
+    assert "Error: Usage" in result.output
+    assert result.exit_code == 2
+
+    result = CliRunner().invoke(cli, ["tx", "--amountUD", 1, "--allSources"])
+    assert "Error: Usage" in result.output
+    assert result.exit_code == 2
+
+    result = CliRunner().invoke(
+        cli, ["tx", "--amount", 1, "--amountUD", 1, "--allSources"]
+    )
+    assert "Error: Usage" in result.output
+    assert result.exit_code == 2
