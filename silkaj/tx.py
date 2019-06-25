@@ -121,11 +121,8 @@ async def send_transaction(
 
 async def transaction_amount(amount, amountUD, allSources):
     """
-    Check command line interface amount option
     Return transaction amount
     """
-    if not (amount or amountUD or allSources):
-        message_exit("--amount nor --amountUD nor --allSources is set")
     if amount:
         return round(amount * 100)
     if amountUD:
