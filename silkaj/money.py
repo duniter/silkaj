@@ -149,9 +149,9 @@ async def get_sources(pubkey):
 
     # add pending output
     pending_sources = list()
-    for i, pending in enumerate(pendings):
+    for pending in pendings:
         identifier = pending["hash"]
-        for output in pending["outputs"]:
+        for i, output in enumerate(pending["outputs"]):
             outputsplited = output.split(":")
             if outputsplited[2] == "SIG(" + pubkey + ")":
                 inputgenerated = InputSource(
