@@ -1,3 +1,11 @@
+## v0.7.3 (25th July 2019)
+#239: Bug fix release for broken successives transactions due to wrongly calculated pending inputs:
+- remove already used inputs: restore previous behaviour which haven’t been kept the same during the migration
+- `enumerate()` wrongly moved to the non appropriate for loop
+
+## v0.7.2 (25th June 2019)
+- #233: fix round passed amount and amoundUD floats × by 100
+
 ## v0.7.1 (29th May 2019)
 - Fix transaction document generation from DuniterPy
 
