@@ -168,8 +168,8 @@ async def get_sources(pubkey):
             pending_sources.append(InputSource.from_inline(input))
 
     # remove input already used
-    for input in listinput:
-        if input in pending_sources:
+    for input in pending_sources:
+        if input in listinput:
             listinput.remove(input)
 
     return listinput, amount
