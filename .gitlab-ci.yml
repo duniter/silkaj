@@ -1,6 +1,7 @@
 stages:
   - checks
   - tests
+  - publish
   - coverage
 
 variables:
@@ -68,6 +69,23 @@ tests-3.8:
   extends: .tests
   variables:
     PYTHON_VERSION: "3.8"
+
+pypi_test:
+  stage: publish
+  only: [tags]
+  when: manual
+  script:
+    - mkdir -p /root/.config/pypoetry/
+    - touch /root/.config/pypoetry/config.toml
+    - poetry config repositories.pypi_test https://test.pypi.org/legacy/
+    - poetry publish --build --username $PYPI_TEST_LOGIN --password $PYPI_TEST_PASSWORD --repository pypi_test
+
+pypi:
+  stage: publish
+  only: [tags]
+  when: manual
+  script:
+    - poetry publish --build --username $PYPI_LOGIN --password $PYPI_PASSWORD
 
 pages:
   extends: .code_changes
