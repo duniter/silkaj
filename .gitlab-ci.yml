@@ -48,16 +48,19 @@ format:
 
 tests-3.5:
   extends: .tests
+  tags: [poetry-56]
   variables:
     PYTHON_VERSION: "3.5"
 
 tests-3.6:
   extends: .tests
+  tags: [poetry-56]
   variables:
     PYTHON_VERSION: "3.6"
 
 tests-3.7-coverage:
   extends: .tests
+  tags: [poetry-78]
   script:
     - poetry install
     - poetry run pytest --cov silkaj --cov-report html:cov_html
@@ -68,6 +71,7 @@ tests-3.7-coverage:
 
 tests-3.8:
   extends: .tests
+  tags: [poetry-78]
   variables:
     PYTHON_VERSION: "3.8"
 
