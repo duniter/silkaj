@@ -11,8 +11,16 @@ sudo dnf install libsodium # Fedora
 ### Install Poetry
 - [Installation documentation](https://poetry.eustace.io/docs/#installation)
 
+### On Debian Buster
+```bash
+sudo apt install python3-pip python3-venv
+pip3 install poetry --user --pre
+```
+
 ### Install dependencies and the Python environment
 ```bash
+git clone https://git.duniter.org/clients/python/silkaj
+cd silkaj
 poetry install
 ```
 
