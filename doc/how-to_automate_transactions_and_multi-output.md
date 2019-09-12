@@ -35,7 +35,7 @@ To process automated transactions, Silkaj needs to have an authentication file a
 In order to create this file, with your wallet’s secret credentials, run following command:
 
 ```bash
-silkaj generate_auth_file
+silkaj authfile
 Please enter your Scrypt Salt (Secret identifier): 
 Please enter your Scrypt password (masked): 
 Using default values. Scrypt parameters not specified or wrong format
@@ -48,7 +48,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 Finally, you just have to run following command:
 
 ```bash
-silkaj tx --auth-file --amountUD 20 --output `cat recipients.txt | tr '\n' ':' | sed -e 's/:*$//'`
+silkaj --auth-file tx --amountUD 20 --output `cat recipients.txt | tr '\n' ':' | sed -e 's/:*$//'`
 ```
 
 Note: Each pubkey will receive 20 UD.
@@ -57,7 +57,7 @@ Note: Each pubkey will receive 20 UD.
 If you want to automate a transaction on each first day of the month, you can set a `crontab` on your machine (preferably a server running 7/24):
 
 ```bash
-0 0 1 * * silkaj tx --auth-file --yes --amountUD 20 --output `cat recipients.txt | tr '\n' ':' | sed -e 's/:*$//'`
+0 0 1 * * silkaj --auth-file tx --yes --amountUD 20 --output `cat recipients.txt | tr '\n' ':' | sed -e 's/:*$//'`
 ```
 
 Note: the `--yes` option won’t prompt a confirmation.
