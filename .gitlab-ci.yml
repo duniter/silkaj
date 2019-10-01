@@ -95,6 +95,7 @@ pypi:
 pages:
   extends: .code_changes
   needs: [tests-3.7-coverage]
+  only: [dev]
   stage: coverage
   script: mv cov_html/ public/
   artifacts:
