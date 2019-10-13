@@ -80,8 +80,6 @@ pypi_test:
   only: [tags]
   when: manual
   script:
-    - mkdir -p /root/.config/pypoetry/
-    - touch /root/.config/pypoetry/config.toml
     - poetry config repositories.pypi_test https://test.pypi.org/legacy/
     - poetry publish --build --username $PYPI_TEST_LOGIN --password $PYPI_TEST_PASSWORD --repository pypi_test
 
