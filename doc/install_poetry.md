@@ -37,5 +37,5 @@ You might need to enter Poetry shell to access development tools such as `pytest
 
 Add following alias to your shell configuration:
 ```bash
-alias silkaj="cd /path/to/silkaj/silkaj && poetry run silkaj"
+alias silkaj="cd /path/to/silkaj/silkaj && poetry run -- silkaj"
 ```
