@@ -146,6 +146,35 @@ def check_transaction_values(
         )
 
 
+async def display_amount(tx, message, amount, currency_symbol):
+    """
+    For transaction_confirmation,
+    Displays an amount in unit and relative reference.
+    """
+    amount_UD = round((amount / await UDValue().ud_value), 4)
+    tx.append(
+        [
+            message + " (unit|relative)",
+            "{unit_amount} {currency_symbol} | {UD_amount} UD {currency_symbol}".format(
+                unit_amount=str(amount / 100),
+                currency_symbol=currency_symbol,
+                UD_amount=str(amount_UD),
+            ),
+        ]
+    )
+
+
+async def display_pubkey(tx, message, pubkey):
+    """
+    For transaction_confirmation,
+    Displays a pubkey and the eventually associated id.
+    """
+    tx.append([message + " (pubkey)", pubkey])
+    id = await is_member(pubkey)
+    if id:
+        tx.append([message + " (id)", id["uid"]])
+
+
 async def transaction_confirmation(
     issuer_pubkey, pubkey_amount, tx_amount, outputAddresses, outputBackChange, comment
 ):
@@ -158,20 +187,11 @@ async def transaction_confirmation(
     tx.append(
         ["pubkey’s balance before tx", str(pubkey_amount / 100) + " " + currency_symbol]
     )
-    tx.append(
-        [
-            "tx amount (unit)",
-            str(tx_amount / 100 * len(outputAddresses)) + " " + currency_symbol,
-        ]
+
+    await display_amount(
+        tx, "total amount", float(tx_amount * len(outputAddresses)), currency_symbol
     )
-    tx.append(
-        [
-            "tx amount (relative)",
-            str(round(tx_amount / await UDValue().ud_value, 4))
-            + " UD "
-            + currency_symbol,
-        ]
-    )
+
     tx.append(
         [
             "pubkey’s balance after tx",
@@ -180,20 +200,14 @@ async def transaction_confirmation(
             + currency_symbol,
         ]
     )
-    tx.append(["from (pubkey)", issuer_pubkey])
-    id_from = await is_member(issuer_pubkey)
-    if id_from:
-        tx.append(["from (id)", id_from["uid"]])
+
+    await display_pubkey(tx, "from", issuer_pubkey)
     for outputAddress in outputAddresses:
-        tx.append(["to (pubkey)", outputAddress])
-        id_to = await is_member(outputAddress)
-        if id_to:
-            tx.append(["to (id)", id_to["uid"]])
+        await display_pubkey(tx, "to", outputAddress)
+        await display_amount(tx, "amount", tx_amount, currency_symbol)
     if outputBackChange:
-        tx.append(["Backchange (pubkey)", outputBackChange])
-        id_backchange = await is_member(outputBackChange)
-        if id_backchange:
-            tx.append(["Backchange (id)", id_backchange["uid"]])
+        await display_pubkey(tx, "Backchange", outputBackChange)
+
     tx.append(["comment", comment])
     return tx
 
