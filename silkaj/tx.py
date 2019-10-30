@@ -26,7 +26,7 @@ from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.crypto_tools import check_public_key
 from silkaj.tools import message_exit, CurrencySymbol, coroutine
 from silkaj.auth import auth_method
-from silkaj.wot import is_member
+from silkaj import wot
 from silkaj.money import (
     get_sources,
     get_amount_from_pubkey,
@@ -170,7 +170,7 @@ async def display_pubkey(tx, message, pubkey):
     Displays a pubkey and the eventually associated id.
     """
     tx.append([message + " (pubkey)", pubkey])
-    id = await is_member(pubkey)
+    id = await wot.is_member(pubkey)
     if id:
         tx.append([message + " (id)", id["uid"]])
 
