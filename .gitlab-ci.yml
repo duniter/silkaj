@@ -68,6 +68,7 @@ tests-3.7-coverage:
   artifacts:
     paths:
       - cov_html
+    expire_in: 2 days
 
 tests-3.8:
   extends: .tests
