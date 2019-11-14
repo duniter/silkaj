@@ -92,7 +92,7 @@ pypi:
     - poetry publish --build --username $PYPI_LOGIN --password $PYPI_PASSWORD
 
 pages:
-  extends: .code_changes
+  extends: .changes
   needs: [tests-3.7-coverage]
   only: [dev]
   stage: coverage
