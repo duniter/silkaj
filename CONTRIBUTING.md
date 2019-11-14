@@ -82,20 +82,20 @@ To create a release, we use following script which will update the version in di
 
 Then, a `git push --tags` is necessary to publish the tag. Git could be configured to publish tags with a simple `push`.
 
-## PyPi and PyPi test distributions
-Silkaj is distributed to PyPi, the Python Package Index, for further `pip` installation.
-Silkaj can be published to [PyPi](https://pypi.org/project/silkaj) or to [PyPi test](https://test.pypi.org/project/silkaj/) for testing purposes.
-Publishing to PyPi or PyPi test can be directly done from the continuous delivery or from Poetry it-self.
+## PyPI and PyPI test distributions
+Silkaj is distributed to PyPI, the Python Package Index, for further `pip` installation.
+Silkaj can be published to [PyPI](https://pypi.org/project/silkaj) or to [PyPI test](https://test.pypi.org/project/silkaj/) for testing purposes.
+Publishing to PyPI or PyPI test can be directly done from the continuous delivery or from Poetry it-self.
 The CD jobs does appear on a tag and have to be triggered manually.
 Only the project maintainers have the rights to publish tags.
 
-### PyPi
-Publishing to PyPi from Poetry:
+### PyPI
+Publishing to PyPI from Poetry:
 ```bash
 poetry publish --build
 ```
-### PyPi test
-Publishing to PyPi test from Poetry:
+### PyPI test
+Publishing to PyPI test from Poetry:
 ```bash
 poetry config repositories.pypi_test https://test.pypi.org/legacy/
 poetry publish --build --repository pypi_test
@@ -106,7 +106,7 @@ To install this package:
 pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.python.org/simple/ silkaj
 ```
 
-The `--extra-index-url` is used to retrieve dependencies packages from the official PyPi not to get issues with missing or testing dependencies comming from PyPi test repositories.
+The `--extra-index-url` is used to retrieve dependencies packages from the official PyPI not to get issues with missing or testing dependencies comming from PyPI test repositories.
 
 ## Continuous integration and delivery
 ### Own built Docker images
@@ -122,6 +122,6 @@ The `--extra-index-url` is used to retrieve dependencies packages from the offic
 - Tests on supported Python versions:
   - Installation
   - Pytest for v3.5, 3.6, 3.7, and 3.8
-- PyPi distribution
+- PyPI distribution
   - test
   - stable
