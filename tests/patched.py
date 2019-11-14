@@ -4,7 +4,7 @@ from silkaj.constants import G1_SYMBOL
 
 ## Mocked values
 
-mock_ud_value = 3.14159
+mock_ud_value = 314
 
 pubkey_list = [
     {"pubkey": "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw", "uid": ""},
