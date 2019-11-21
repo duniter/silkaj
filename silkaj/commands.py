@@ -27,7 +27,7 @@ from _socket import gaierror
 import jsonschema
 
 from duniterpy.api.client import Client, parse_text
-from duniterpy.api.bma import blockchain, node, ws
+from duniterpy.api import bma
 
 from silkaj.tools import coroutine
 from silkaj.wot import identity_of
@@ -98,17 +98,13 @@ def power(nbr, pow=0):
 async def difficulties():
     client = ClientInstance().client
     try:
-        ws_connection = client(ws.block)
-        async with ws_connection as ws_c:
-            async for msg in ws_c:
-                if msg.type == aiohttp.WSMsgType.CLOSED:
-                    message_exit("Web socket connection closed!")
-                elif msg.type == aiohttp.WSMsgType.ERROR:
-                    message_exit("Web socket connection error!")
-                elif msg.type == aiohttp.WSMsgType.TEXT:
-                    current = parse_text(msg.data, ws.WS_BLOCK_SCHEMA)
-                    diffi = await client(blockchain.difficulties)
-                    await display_diffi(current, diffi)
+        ws = await client(bma.ws.block)
+        while True:
+            current = await ws.receive_json()
+            jsonschema.validate(current, bma.ws.WS_BLOCK_SCHEMA)
+            diffi = await client(bma.blockchain.difficulties)
+            await display_diffi(current, diffi)
+        await client.close()
 
     except (aiohttp.WSServerHandshakeError, ValueError) as e:
         print("Websocket block {0} : {1}".format(type(e).__name__, str(e)))
@@ -187,7 +183,7 @@ async def network_info(discover, sort):
         for p in await discover_peers(discover)
     ]
     client = ClientInstance().client
-    diffi = await client(blockchain.difficulties)
+    diffi = await client(bma.blockchain.difficulties)
     members = 0
     print("Getting informations about nodes:")
     for i, info in enumerate(infos):
@@ -218,7 +214,7 @@ async def network_info(discover, sort):
                 if len(info["uid"]) > 10:
                     info["uid"] = info["uid"][:9] + "…"
         sub_client = Client(api)
-        current_blk = await sub_client(blockchain.current)
+        current_blk = await sub_client(bma.blockchain.current)
         if current_blk is not None:
             info["gen_time"] = convert_time(current_blk["time"], "hour")
             if width > 171:
@@ -229,7 +225,7 @@ async def network_info(discover, sort):
                 )
             info["block"] = current_blk["number"]
             info["hash"] = current_blk["hash"][:10] + "…"
-            summary = await sub_client(node.summary)
+            summary = await sub_client(bma.node.summary)
             info["version"] = summary["duniter"]["version"]
         await sub_client.close()
         if info.get("domain") is not None and len(info["domain"]) > 20:
@@ -268,7 +264,7 @@ async def list_blocks(number, detailed):
     if number == 0:
         number = head_block["issuersFrame"]
     client = ClientInstance().client
-    blocks = await client(blockchain.blocks, number, current_nbr - number + 1)
+    blocks = await client(bma.blockchain.blocks, number, current_nbr - number + 1)
     list_issuers, j = list(), 0
     issuers_dict = dict()
     while j < len(blocks):
