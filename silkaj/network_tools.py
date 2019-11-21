@@ -29,6 +29,7 @@ from silkaj.constants import (
     G1_TEST_DEFAULT_ENDPOINT,
     CONNECTION_TIMEOUT,
     ASYNC_SLEEP,
+    FAILURE_EXIT_STATUS,
 )
 
 
@@ -219,7 +220,7 @@ def best_endpoint_address(ep, main):
                 )
     if main:
         print("Wrong node given as argument", file=stderr)
-        exit(1)
+        exit(FAILURE_EXIT_STATUS)
     return None
 
 

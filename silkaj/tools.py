@@ -20,7 +20,7 @@ from sys import exit
 from asyncio import get_event_loop
 from functools import update_wrapper
 
-from silkaj.constants import G1_SYMBOL, GTEST_SYMBOL
+from silkaj.constants import G1_SYMBOL, GTEST_SYMBOL, FAILURE_EXIT_STATUS
 from silkaj.blockchain_tools import BlockchainParams
 
 
@@ -61,7 +61,7 @@ class CurrencySymbol(object):
 
 def message_exit(message):
     print(message)
-    exit(1)
+    exit(FAILURE_EXIT_STATUS)
 
 
 def coroutine(f):
