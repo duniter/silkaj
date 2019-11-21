@@ -15,6 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
+import sys
 from click import command, argument, echo, confirm
 from time import time
 from tabulate import tabulate
@@ -27,6 +28,7 @@ from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.blockchain_tools import BlockchainParams
 from silkaj.license import license_approval
 from silkaj.wot import is_member, get_informations_for_identity
+from silkaj.constants import SUCCESS_EXIT_STATUS
 
 
 @command("cert", help="Send certification")
@@ -128,4 +130,6 @@ async def certification_confirmation(
     cert_ends = convert_time(time() + params["sigValidity"], "date")
     cert.append(["Valid", cert_begins, "—>", cert_ends])
     echo(tabulate(cert, tablefmt="fancy_grid"))
-    confirm("Do you confirm sending this certification?", abort=True)
+    if not confirm("Do you confirm sending this certification?"):
+        await client.close()
+        sys.exit(SUCCESS_EXIT_STATUS)

@@ -117,6 +117,9 @@ async def send_transaction(
         await handle_intermediaries_transactions(
             key, issuer_pubkey, tx_amount, outputAddresses, comment, outputbackchange
         )
+    else:
+        client = ClientInstance().client
+        await client.close()
 
 
 async def transaction_amount(amount, amountUD, allSources):
