@@ -15,12 +15,15 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from click import command, argument, pass_context
+from click import command, argument, pass_context, echo
+from tabulate import tabulate
 
 from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.tools import CurrencySymbol, message_exit, coroutine
 from silkaj.auth import auth_method
 from silkaj.wot import check_public_key
+from silkaj.tui import display_amount
+
 from duniterpy.api.bma import tx, blockchain
 from duniterpy.documents.transaction import InputSource
 
@@ -64,45 +67,32 @@ async def show_amount_from_pubkey(pubkey, value):
     currency_symbol = await CurrencySymbol().symbol
     ud_value = await UDValue().ud_value
     average, monetary_mass = await get_average()
+    # display balance table
+    display = list()
+    display.append(["Balance of pubkey", pubkey])
     if totalAmountInput - amount != 0:
-        print("Blockchain:")
-        print("-----------")
-        print("Relative     =", round(amount / ud_value, 2), "UD", currency_symbol)
-        print("Quantitative =", round(amount / 100, 2), currency_symbol + "\n")
-
-        print("Pending Transaction:")
-        print("--------------------")
-        print(
-            "Relative     =",
-            round((totalAmountInput - amount) / ud_value, 2),
-            "UD",
+        display_amount(display, "Blockchain", amount, ud_value, currency_symbol)
+        display_amount(
+            display,
+            "Pending transaction",
+            (totalAmountInput - amount),
+            ud_value,
             currency_symbol,
         )
-        print(
-            "Quantitative =",
-            round((totalAmountInput - amount) / 100, 2),
-            currency_symbol + "\n",
-        )
-
-    print("Total amount of: " + pubkey)
-    print("----------------------------------------------------------------")
-    print(
-        "Total Relative     =",
-        round(totalAmountInput / ud_value, 2),
-        "UD",
-        currency_symbol,
+    display_amount(display, "Total amount", totalAmountInput, ud_value, currency_symbol)
+    display.append(
+        [
+            "Total relative to M/N",
+            "{0} x M/N".format(round(totalAmountInput / average, 2)),
+        ]
     )
-    print("Total Quantitative =", round(totalAmountInput / 100, 2), currency_symbol)
-    print(
-        "Total Relative to average money share =",
-        round(totalAmountInput / average, 2),
-        "× M/N",
+    display.append(
+        [
+            "Total relative to M",
+            "{0} % M".format(round(totalAmountInput / monetary_mass, 2)),
+        ]
     )
-    print(
-        "Total Relative to monetary mass       =",
-        round((totalAmountInput / monetary_mass) * 100, 3),
-        "% M" + "\n",
-    )
+    echo(tabulate(display, tablefmt="fancy_grid"))
 
 
 async def get_average():

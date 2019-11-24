@@ -28,13 +28,16 @@ def test_id():
     assert "D7CYHJXjaH4j7zRdWngUbsURPnSnjsCYtvo6f8dvW3C" in output
 
 
-def test_amount():
+def test_balance():
     """tests 'silkaj amount' command on gtest"""
 
     output = check_output(
         silkaj + ["--gtest", "balance", "3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj"]
     ).decode()
-    assert "Total amount of: 3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj" in output
-    assert "Total Relative     =" in output
+    assert (
+        "│ Balance of pubkey            │ 3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj │"
+        in output
+    )
+    assert "│ Total amount (unit|relative) │" in output
     assert "UD ĞTest" in output
-    assert "Total Quantitative =" in output
+    assert "Total relative to M/N" in output
