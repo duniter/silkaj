@@ -26,7 +26,6 @@ from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.crypto_tools import check_public_key
 from silkaj.tools import message_exit, CurrencySymbol, coroutine
 from silkaj.auth import auth_method
-from silkaj import wot
 from silkaj.money import (
     get_sources,
     get_amount_from_pubkey,
@@ -34,6 +33,7 @@ from silkaj.money import (
     amount_in_current_base,
 )
 from silkaj.constants import SOURCES_PER_TX
+from silkaj.tui import display_amount, display_pubkey
 
 from duniterpy.api.bma.tx import process
 from duniterpy.documents import BlockUID, Transaction
@@ -149,35 +149,6 @@ def check_transaction_values(
         )
 
 
-async def display_amount(tx, message, amount, currency_symbol):
-    """
-    For transaction_confirmation,
-    Displays an amount in unit and relative reference.
-    """
-    amount_UD = round((amount / await UDValue().ud_value), 4)
-    tx.append(
-        [
-            message + " (unit|relative)",
-            "{unit_amount} {currency_symbol} | {UD_amount} UD {currency_symbol}".format(
-                unit_amount=str(amount / 100),
-                currency_symbol=currency_symbol,
-                UD_amount=str(amount_UD),
-            ),
-        ]
-    )
-
-
-async def display_pubkey(tx, message, pubkey):
-    """
-    For transaction_confirmation,
-    Displays a pubkey and the eventually associated id.
-    """
-    tx.append([message + " (pubkey)", pubkey])
-    id = await wot.is_member(pubkey)
-    if id:
-        tx.append([message + " (id)", id["uid"]])
-
-
 async def transaction_confirmation(
     issuer_pubkey, pubkey_amount, tx_amount, outputAddresses, outputBackChange, comment
 ):
@@ -186,13 +157,18 @@ async def transaction_confirmation(
     """
 
     currency_symbol = await CurrencySymbol().symbol
+    ud_value = await UDValue().ud_value
     tx = list()
     tx.append(
         ["pubkey’s balance before tx", str(pubkey_amount / 100) + " " + currency_symbol]
     )
 
-    await display_amount(
-        tx, "total amount", float(tx_amount * len(outputAddresses)), currency_symbol
+    display_amount(
+        tx,
+        "total amount",
+        float(tx_amount * len(outputAddresses)),
+        ud_value,
+        currency_symbol,
     )
 
     tx.append(
@@ -207,7 +183,7 @@ async def transaction_confirmation(
     await display_pubkey(tx, "from", issuer_pubkey)
     for outputAddress in outputAddresses:
         await display_pubkey(tx, "to", outputAddress)
-        await display_amount(tx, "amount", tx_amount, currency_symbol)
+        display_amount(tx, "amount", tx_amount, ud_value, currency_symbol)
     if outputBackChange:
         await display_pubkey(tx, "Backchange", outputBackChange)
 

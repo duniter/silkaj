@@ -1,10 +1,6 @@
 import pytest
-from silkaj.tx import (
-    truncBase,
-    display_pubkey,
-    display_amount,
-    transaction_confirmation,
-)
+from silkaj.tx import truncBase, transaction_confirmation
+from silkaj.tui import display_pubkey, display_amount
 from silkaj.money import UDValue
 from silkaj.constants import G1_SYMBOL
 import patched
@@ -22,11 +18,9 @@ def test_truncBase(amount, base, expected):
 @pytest.mark.parametrize(
     "message, amount, currency_symbol", [("Total", 1000, G1_SYMBOL)]
 )
-@pytest.mark.asyncio
-async def test_display_amount(message, amount, currency_symbol, monkeypatch):
-    monkeypatch.setattr("silkaj.money.UDValue.get_ud_value", patched.ud_value)
-
-    amount_UD = round(amount / await UDValue().ud_value, 4)
+def test_display_amount(message, amount, currency_symbol, monkeypatch):
+    ud_value = patched.mock_ud_value
+    amount_UD = round(amount / ud_value, 4)
     expected = [
         [
             message + " (unit|relative)",
@@ -40,7 +34,7 @@ async def test_display_amount(message, amount, currency_symbol, monkeypatch):
         ]
     ]
     tx = list()
-    await display_amount(tx, message, amount, currency_symbol)
+    display_amount(tx, message, amount, ud_value, currency_symbol)
     assert tx == expected
 
 
@@ -122,6 +116,7 @@ async def test_transaction_confirmation(
     )
 
     # creating expected list
+    ud_value = await UDValue().ud_value
     expected = list()
     expected.append(
         [
@@ -130,10 +125,11 @@ async def test_transaction_confirmation(
         ]
     )
 
-    await display_amount(
+    display_amount(
         expected,
         "total amount",
         float(tx_amount * len(outputAddresses)),
+        ud_value,
         currency_symbol,
     )
 
@@ -149,7 +145,7 @@ async def test_transaction_confirmation(
     await display_pubkey(expected, "from", issuer_pubkey)
     for outputAddress in outputAddresses:
         await display_pubkey(expected, "to", outputAddress)
-        await display_amount(expected, "amount", tx_amount, currency_symbol)
+        display_amount(expected, "amount", tx_amount, ud_value, currency_symbol)
     if outputBackChange:
         await display_pubkey(expected, "Backchange", outputBackChange)
 
