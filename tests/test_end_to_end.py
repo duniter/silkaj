@@ -29,9 +29,10 @@ def test_id():
 def test_amount():
     """tests 'silkaj amount' command on gtest"""
 
-    output = check_output(["silkaj", "--gtest", "balance", "3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj"]).decode()
+    output = check_output(
+        ["silkaj", "--gtest", "balance", "3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj"]
+    ).decode()
     assert "Total amount of: 3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj" in output
     assert "Total Relative     =" in output
     assert "UD ĞTest" in output
     assert "Total Quantitative =" in output
-
