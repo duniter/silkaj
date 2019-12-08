@@ -65,11 +65,6 @@ tests-3.7-coverage:
     paths:
       - cov_html
 
-tests-3.8:
-  extends: .tests
-  variables:
-    PYTHON_VERSION: "3.8"
-
 pypi_test:
   stage: publish
   only: [tags]
