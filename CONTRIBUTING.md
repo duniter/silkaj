@@ -36,18 +36,9 @@ poetry add ../duniterpy
 ```
 
 ## Formatting
-We are using [Black](https://github.com/python/black) as a formatter tool.
-
-Black is not in the development dependencies in order to keep Python 3.5 support.
-There is three way you can install Black:
-- From your package manager. i.e. Debian Buster: `sudo apt install black`
-- On your machine via `pip`: `pip3 install black --user`
-- In your Poetry virtualenv:
-To have it installed in your Poetry virtualenv, you need Python v3.6 or greater.
-In the `pyproject.toml` pass the Python requirement version from "3.5.x" to "3.6".
-Then, install it with `poetry add black --dev`.
-
-Once installed in your development environement, run Black on a Python file to format it:
+We are using [Black](https://github.com/python/black) formatter tool.
+To have Black installed in your Poetry virtualenv, you will need Python v3.6 or greater.
+Run Black on a Python file to format it:
 ```bash
 poetry run black silkaj/cli.py
 ```
