@@ -42,30 +42,42 @@ from duniterpy.documents.transaction import OutputSource, Unlock, SIGParameter
 
 @command("tx", help="Send transaction")
 @option(
+    "amounts",
     "--amount",
+    "-a",
+    multiple=True,
     type=FloatRange(0.01),
-    help="Quantitative value",
+    help="Quantitative amount(s):\n-a <amount>\nMinimum amount is 0.01.",
     cls=MutuallyExclusiveOption,
-    mutually_exclusive=["amountud", "allsources"],
+    mutually_exclusive=["amountsud", "allsources"],
 )
 @option(
+    "amountsud",
     "--amountUD",
+    "-d",
+    multiple=True,
     type=float,
-    help="Relative value",
+    help="Relative amount(s):\n-d <amount_UD>",
     cls=MutuallyExclusiveOption,
-    mutually_exclusive=["amount", "allsources"],
+    mutually_exclusive=["amounts", "allsources"],
 )
 @option(
     "--allSources",
     is_flag=True,
-    help="Send all sources",
+    help="Send all sources to one recipient",
     cls=MutuallyExclusiveOption,
-    mutually_exclusive=["amount", "amountud"],
+    mutually_exclusive=["amounts", "amountsud"],
 )
 @option(
-    "--output",
+    "recipients",
+    "--recipient",
+    "-r",
+    multiple=True,
     required=True,
-    help="Pubkey(s)’ recipients + optional checksum: <pubkey>[!checksum]:[<pubkey>[!checksum]]",
+    help="Pubkey(s)’ recipients + optional checksum:\n-r <pubkey>[!checksum]\n\
+Sending to many recipients is possible:\n\
+* With one amount, all will receive the amount\n\
+* With many amounts (one per recipient)",
 )
 @option("--comment", default="", help="Comment")
 @option(
@@ -75,24 +87,33 @@ from duniterpy.documents.transaction import OutputSource, Unlock, SIGParameter
 @option("--yes", "-y", is_flag=True, help="Assume yes. Do not prompt confirmation")
 @coroutine
 async def send_transaction(
-    amount, amountud, allsources, output, comment, outputbackchange, yes
+    amounts, amountsud, allsources, recipients, comment, outputbackchange, yes
 ):
     """
     Main function
     """
-    tx_amount = await transaction_amount(amount, amountud, allsources)
+    if not (amounts or amountsud or allsources):
+        message_exit("Error: amount, amountUD or allSources is not set.")
+    if allsources and len(recipients) > 1:
+        message_exit(
+            "Error: the --allSources option can only be used with one recipient."
+        )
+    # compute amounts and amountsud
+    if not allsources:
+        tx_amounts = await transaction_amount(amounts, amountsud, recipients)
+
     key = auth_method()
     issuer_pubkey = key.pubkey
 
     pubkey_amount = await get_amount_from_pubkey(issuer_pubkey)
     if allsources:
-        tx_amount = pubkey_amount[0]
-    outputAddresses = output.split(":")
+        tx_amounts = [pubkey_amount[0]]
+
     check_transaction_values(
         comment,
-        outputAddresses,
+        recipients,
         outputbackchange,
-        pubkey_amount[0] < tx_amount * len(outputAddresses),
+        pubkey_amount[0] < sum(tx_amounts),
         issuer_pubkey,
     )
 
@@ -103,8 +124,8 @@ async def send_transaction(
                 await transaction_confirmation(
                     issuer_pubkey,
                     pubkey_amount[0],
-                    tx_amount,
-                    outputAddresses,
+                    tx_amounts,
+                    recipients,
                     outputbackchange,
                     comment,
                 ),
@@ -115,7 +136,7 @@ async def send_transaction(
         == "yes"
     ):
         await handle_intermediaries_transactions(
-            key, issuer_pubkey, tx_amount, outputAddresses, comment, outputbackchange
+            key, issuer_pubkey, tx_amounts, recipients, comment, outputbackchange,
         )
     else:
         client = ClientInstance().client

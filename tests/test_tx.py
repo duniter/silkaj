@@ -53,3 +53,14 @@ def test_tx_passed_amount_cli():
     )
     assert "Error: Usage" in result.output
     assert result.exit_code == 2
+
+    result = CliRunner().invoke(cli, ["tx", "-r", "A"])
+    assert "Error: amount, amountUD or allSources is not set." in result.output
+    assert result.exit_code == 1
+
+    result = CliRunner().invoke(cli, ["tx", "-r", "A", "-r", "B", "--allSources"])
+    assert (
+        "Error: the --allSources option can only be used with one recipient."
+        in result.output
+    )
+    assert result.exit_code == 1
