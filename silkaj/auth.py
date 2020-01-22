@@ -19,7 +19,7 @@ from silkaj.tools import message_exit
 from click import command, option, pass_context, confirm
 from getpass import getpass
 from pathlib import Path
-from re import compile, search
+from re import compile, search, MULTILINE
 from duniterpy.key import SigningKey
 from duniterpy.key.scrypt_params import ScryptParams
 
@@ -60,20 +60,28 @@ def generate_auth_file(file):
 
 @pass_context
 def auth_by_auth_file(ctx):
+    """
+    Uses an auth file to generate key.
+    Authfile can be either:
+    * Seed in hexadecimal encoding
+    * PubSec format with public and private key in base58 encoding.
+    """
     file = ctx.obj["AUTH_FILE_PATH"]
     authfile = Path(file)
     if not authfile.is_file():
         message_exit('Error: the file "' + file + '" does not exist')
     filetxt = authfile.open("r").read()
+    # regex for seed (hexadecimal)
     regex_seed = compile("^[0-9a-fA-F]{64}$")
-    regex_gannonce = compile(
-        "^pub: [1-9A-HJ-NP-Za-km-z]{43,44}\nsec: [1-9A-HJ-NP-Za-km-z]{88,90}.*$"
-    )
+    # two RE for PubSec format
+    regex_pubkey = compile("pub: ([1-9A-HJ-NP-Za-km-z]{43,44})", MULTILINE)
+    regex_signkey = compile("sec: ([1-9A-HJ-NP-Za-km-z]{87,90})", MULTILINE)
+
     # Seed Format
     if search(regex_seed, filetxt):
         return SigningKey.from_seedhex_file(file)
-    # gannonce.duniter.org Format
-    elif search(regex_gannonce, filetxt):
+    # PubSec format
+    elif search(regex_pubkey, filetxt) and search(regex_signkey, filetxt):
         return SigningKey.from_pubsec_file(file)
     else:
         message_exit("Error: the format of the file is invalid")
