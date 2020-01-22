@@ -1,3 +1,7 @@
+## v0.7.4 (22nd january 2019)
+# 273 : Bug Fix for broken authfile importation.
+- use regex from Duniterpy
+
 ## v0.7.3 (25th July 2019)
 #239: Bug fix release for broken successives transactions due to wrongly calculated pending inputs:
 - remove already used inputs: restore previous behaviour which haven’t been kept the same during the migration
