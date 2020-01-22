@@ -3,6 +3,7 @@ from click.testing import CliRunner
 from silkaj.tx import transaction_amount
 from silkaj.money import UDValue
 from silkaj.cli import cli
+from silkaj.constants import MINIMAL_TX_AMOUNT
 
 
 @pytest.mark.asyncio
@@ -64,3 +65,7 @@ def test_tx_passed_amount_cli():
         in result.output
     )
     assert result.exit_code == 1
+
+    result = CliRunner().invoke(cli, ["tx", "-r", "A", "-a", MINIMAL_TX_AMOUNT - 0.001])
+    assert 'Error: Invalid value for "--amount"' in result.output
+    assert result.exit_code == 2

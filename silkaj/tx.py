@@ -26,13 +26,12 @@ from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.crypto_tools import check_public_key
 from silkaj.tools import message_exit, CurrencySymbol, coroutine
 from silkaj.auth import auth_method
-from silkaj.money import (
-    get_sources,
-    get_amount_from_pubkey,
-    UDValue,
-    amount_in_current_base,
+from silkaj import money
+from silkaj.constants import (
+    SOURCES_PER_TX,
+    MINIMAL_TX_AMOUNT,
+    CENT_MULT_TO_UNIT,
 )
-from silkaj.constants import SOURCES_PER_TX
 from silkaj.tui import display_amount, display_pubkey
 
 from duniterpy.api.bma.tx import process
@@ -46,8 +45,10 @@ from duniterpy.documents.transaction import OutputSource, Unlock, SIGParameter
     "--amount",
     "-a",
     multiple=True,
-    type=FloatRange(0.01),
-    help="Quantitative amount(s):\n-a <amount>\nMinimum amount is 0.01.",
+    type=FloatRange(MINIMAL_TX_AMOUNT),
+    help="Quantitative amount(s):\n-a <amount>\nMinimum amount is {0}".format(
+        MINIMAL_TX_AMOUNT
+    ),
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["amountsud", "allsources"],
 )
@@ -105,7 +106,7 @@ async def send_transaction(
     key = auth_method()
     issuer_pubkey = key.pubkey
 
-    pubkey_amount = await get_amount_from_pubkey(issuer_pubkey)
+    pubkey_amount = await money.get_amount_from_pubkey(issuer_pubkey)
     if allsources:
         tx_amounts = [pubkey_amount[0]]
 
@@ -150,7 +151,7 @@ async def transaction_amount(amount, amountUD, allSources):
     if amount:
         return round(amount * 100)
     if amountUD:
-        return round(amountUD * await UDValue().ud_value)
+        return round(amountUD * await money.UDValue().ud_value)
 
 
 def check_transaction_values(
@@ -178,7 +179,7 @@ async def transaction_confirmation(
     """
 
     currency_symbol = await CurrencySymbol().symbol
-    ud_value = await UDValue().ud_value
+    ud_value = await money.UDValue().ud_value
     tx = list()
     tx.append(
         ["pubkey’s balance before tx", str(pubkey_amount / 100) + " " + currency_symbol]
@@ -213,7 +214,7 @@ async def transaction_confirmation(
 
 
 async def get_list_input_for_transaction(pubkey, TXamount):
-    listinput, amount = await get_sources(pubkey)
+    listinput, amount = await money.get_sources(pubkey)
 
     # generate final list source
     listinputfinal = []
@@ -221,8 +222,8 @@ async def get_list_input_for_transaction(pubkey, TXamount):
     intermediatetransaction = False
     for input in listinput:
         listinputfinal.append(input)
-        totalAmountInput += amount_in_current_base(input)
-        TXamount -= amount_in_current_base(input)
+        totalAmountInput += money.amount_in_current_base(input)
+        TXamount -= money.amount_in_current_base(input)
         # if more than 40 sources, it's an intermediate transaction
         if len(listinputfinal) >= SOURCES_PER_TX:
             intermediatetransaction = True
