@@ -144,6 +144,25 @@ async def send_transaction(
         await client.close()
 
 
+def compute_amounts(amounts, multiplicator):
+    """
+    Computes the amounts(UD) and returns a list.
+    Multiplicator should be either CENT_MULT_TO_UNIT or UD_Value.
+    If relative amount, check that amount is superior to minimal amount.
+    """
+    # Create amounts list
+    amounts_list = list()
+    for amount in amounts:
+        computed_amount = amount * multiplicator
+        # check if relative amounts are high enough
+        if (multiplicator != CENT_MULT_TO_UNIT) and (
+            computed_amount < (MINIMAL_TX_AMOUNT * CENT_MULT_TO_UNIT)
+        ):
+            message_exit("Error: amount {0} is too low.".format(amount))
+        amounts_list.append(round(computed_amount))
+    return amounts_list
+
+
 async def transaction_amount(amount, amountUD, allSources):
     """
     Return transaction amount

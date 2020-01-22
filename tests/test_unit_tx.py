@@ -1,5 +1,5 @@
 import pytest
-from silkaj.tx import truncBase, transaction_confirmation
+from silkaj.tx import truncBase, transaction_confirmation, compute_amounts
 from silkaj.tui import display_pubkey, display_amount
 from silkaj.money import UDValue
 from silkaj.constants import G1_SYMBOL
@@ -161,3 +161,37 @@ async def test_transaction_confirmation(
         comment,
     )
     assert tx == expected
+
+
+# compute_amounts()
+def test_compute_amounts_errors(capsys):
+    trials = (((0.0031, 1), 314),)
+    for trial in trials:
+        # check program exit on error
+        with pytest.raises(SystemExit) as pytest_exit:
+            # read output to check error.
+            compute_amounts(
+                trial[0], trial[1],
+            )
+            expected_error = "Error: amount {0} is too low.".format(trial[0][0])
+            assert capsys.readouterr() == expected_error
+        assert pytest_exit.type == SystemExit
+
+
+def test_compute_amounts():
+    ud_value = 314
+    assert compute_amounts((10.0, 2.0, 0.01, 0.011, 0.019), 100) == [
+        1000,
+        200,
+        1,
+        1,
+        2,
+    ]
+    assert compute_amounts([0.0032], ud_value) == [1]
+    assert compute_amounts([1.00], ud_value) == [314]
+    assert compute_amounts([1.01], ud_value) == [317]
+    assert compute_amounts([1.99], ud_value) == [625]
+    assert compute_amounts([1.001], ud_value) == [314]
+    assert compute_amounts([1.009], ud_value) == [317]
+    # This case will not happen in real use, but this particular function will allow it.
+    assert compute_amounts([0.0099], 100,) == [1]
