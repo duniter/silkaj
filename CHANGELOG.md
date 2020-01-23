@@ -1,3 +1,15 @@
+## v0.7.6 (24th January 2020)
+- Update DuniterPy to v0.55.1 in order to have the PubSec regex fixed
+
+## v0.7.5 (23th January 2020)
+- #276: Publish on PyPI with previous method: `wheel`, `twine`, and `setup.py`.
+- `silkaj` binary does not get installed to `$HOME/.local/bin` via Poetry
+
+## v0.7.4 (22th January 2020)
+- #273, !119: Fix broken PubSec authfile importation regex
+
+Thanks to @matograine for this bugfix and the release!
+
 ## v0.7.3 (25th July 2019)
 #239: Bug fix release for broken successives transactions due to wrongly calculated pending inputs:
 - remove already used inputs: restore previous behaviour which haven’t been kept the same during the migration
