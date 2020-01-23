@@ -25,10 +25,9 @@ poetry install
 ```
 
 ### Run Silkaj
-Within `silkaj` repository, enter the development environement and run Silkaj:
+Within `silkaj` repository run Silkaj:
 ```bash
-poetry shell
-./bin/silkaj
+poetry run silkaj
 ```
 
 You might need to enter Poetry shell to access development tools such as `pytest` or `black`.

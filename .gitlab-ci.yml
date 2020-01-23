@@ -13,7 +13,6 @@ image: $DOCKER_IMAGE/$PYTHON_VERSION:latest
 .code_changes:
   only:
     changes:
-      - bin/silkaj
       - silkaj/*.py
       - tests/*.py
 
@@ -36,7 +35,7 @@ format:
   stage: checks
   image: $DOCKER_IMAGE/3.8:latest
   script:
-    - black --check bin silkaj tests
+    - black --check silkaj tests
 
 .tests:
   extends: .changes

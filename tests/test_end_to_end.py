@@ -1,6 +1,6 @@
 from subprocess import check_output
 
-silkaj = ["poetry", "run", "bin/silkaj"]
+silkaj = ["poetry", "run", "silkaj"]
 
 
 def test_info():
