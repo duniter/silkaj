@@ -267,12 +267,12 @@ async def get_list_input_for_transaction(pubkey, TXamount):
 
 
 async def handle_intermediaries_transactions(
-    key, issuers, AmountTransfered, outputAddresses, Comment="", OutputbackChange=None
+    key, issuers, tx_amounts, outputAddresses, Comment="", OutputbackChange=None,
 ):
     client = ClientInstance().client
     while True:
         listinput_and_amount = await get_list_input_for_transaction(
-            issuers, AmountTransfered * len(outputAddresses)
+            issuers, sum(tx_amounts)
         )
         intermediatetransaction = listinput_and_amount[2]
 
@@ -281,9 +281,9 @@ async def handle_intermediaries_transactions(
             await generate_and_send_transaction(
                 key,
                 issuers,
-                totalAmountInput,
+                [totalAmountInput],
                 listinput_and_amount,
-                issuers,
+                [issuers],
                 "Change operation",
             )
             sleep(1)  # wait 1 second before sending a new transaction
@@ -292,7 +292,7 @@ async def handle_intermediaries_transactions(
             await generate_and_send_transaction(
                 key,
                 issuers,
-                AmountTransfered,
+                tx_amounts,
                 listinput_and_amount,
                 outputAddresses,
                 Comment,
@@ -305,7 +305,7 @@ async def handle_intermediaries_transactions(
 async def generate_and_send_transaction(
     key,
     issuers,
-    amount,
+    tx_amounts,
     listinput_and_amount,
     outputAddresses,
     Comment,
@@ -321,18 +321,14 @@ async def generate_and_send_transaction(
     else:
         print("Generate Transaction:")
     print("   - From:    " + issuers)
-    if isinstance(outputAddresses, str):
-        display_sent_tx(outputAddresses, amount)
-    else:
-        for outputAddress in outputAddresses:
-            display_sent_tx(outputAddress, amount)
-        if len(outputAddresses) > 1:
-            print("   - Total:   " + str(amount / 100 * len(outputAddresses)))
+    for tx_amount, outputAddress in zip(tx_amounts, outputAddresses):
+        display_sent_tx(outputAddress, tx_amount)
+    print("   - Total:   " + str(sum(tx_amounts) / 100))
 
     client = ClientInstance().client
     transaction = await generate_transaction_document(
         issuers,
-        amount,
+        tx_amounts,
         listinput_and_amount,
         outputAddresses,
         Comment,
@@ -354,17 +350,16 @@ def display_sent_tx(outputAddress, amount):
 
 async def generate_transaction_document(
     issuers,
-    AmountTransfered,
+    tx_amounts,
     listinput_and_amount,
     outputAddresses,
     Comment="",
     OutputbackChange=None,
 ):
 
-    totalAmountTransfered = AmountTransfered * len(outputAddresses)
-
     listinput = listinput_and_amount[0]
     totalAmountInput = listinput_and_amount[1]
+    total_tx_amount = sum(tx_amounts)
 
     head_block = await HeadBlock().head_block
     currency_name = head_block["currency"]
@@ -376,22 +371,18 @@ async def generate_transaction_document(
 
     # if it's not a foreign exchange transaction, we remove units after 2 digits after the decimal point.
     if issuers not in outputAddresses:
-        totalAmountTransfered = (
-            totalAmountTransfered // 10 ** curentUnitBase
+        total_tx_amount = (
+            total_tx_amount // 10 ** curentUnitBase
         ) * 10 ** curentUnitBase
 
     # Generate output
     ################
     listoutput = []
-    # Outputs to receiver (if not himself)
-    if isinstance(outputAddresses, str):
-        generate_output(listoutput, curentUnitBase, AmountTransfered, outputAddresses)
-    else:
-        for outputAddress in outputAddresses:
-            generate_output(listoutput, curentUnitBase, AmountTransfered, outputAddress)
+    for tx_amount, outputAddress in zip(tx_amounts, outputAddresses):
+        generate_output(listoutput, curentUnitBase, tx_amount, outputAddress)
 
     # Outputs to himself
-    rest = totalAmountInput - totalAmountTransfered
+    rest = totalAmountInput - total_tx_amount
     generate_output(listoutput, curentUnitBase, rest, OutputbackChange)
 
     # Unlocks

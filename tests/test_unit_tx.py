@@ -4,11 +4,22 @@ from silkaj.tx import (
     transaction_confirmation,
     compute_amounts,
     transaction_amount,
+    generate_transaction_document,
 )
 from silkaj.tui import display_pubkey, display_amount
 from silkaj.money import UDValue
-from silkaj.constants import G1_SYMBOL, MINIMAL_TX_AMOUNT, CENT_MULT_TO_UNIT
+from silkaj.constants import G1_SYMBOL, CENT_MULT_TO_UNIT, MINIMAL_TX_AMOUNT
+from duniterpy.documents.transaction import (
+    InputSource,
+    Transaction,
+    OutputSource,
+    Unlock,
+    SIGParameter,
+)
+from duniterpy.documents.block_uid import BlockUID
+
 import patched
+
 
 # truncBase()
 @pytest.mark.parametrize(
@@ -300,3 +311,118 @@ async def test_transaction_amount(
         assert expected == await transaction_amount(
             amounts, UDs_amounts, outputAddresses
         )
+
+
+# generate_transaction_document()
+
+# expected results
+# result 1 : with two amounts/outputs and an outputbackchange
+result1 = Transaction(
+    version=10,
+    currency="g1",
+    blockstamp=BlockUID(
+        48000, "0000010D30B1284D34123E036B7BE0A449AE9F2B928A77D7D20E3BDEAC7EE14C"
+    ),
+    locktime=0,
+    issuers=["BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh"],
+    inputs=[
+        InputSource(
+            10000,
+            0,
+            "T",
+            "B37D161185A760FD81C3242D73FABD3D01F4BD9EAD98C2842061A75BAD4DFA61",
+            1,
+        ),
+        InputSource(
+            257,
+            0,
+            "T",
+            "16F1CF9C9B89BB8C34A945F56073AB3C3ACFD858D5FA420047BA7AED1575D1FE",
+            1,
+        ),
+    ],
+    unlocks=[
+        Unlock(index=0, parameters=[SIGParameter(0)]),
+        Unlock(index=1, parameters=[SIGParameter(0)]),
+    ],
+    outputs=[
+        OutputSource(
+            amount=str(1000),
+            base=0,
+            condition="SIG(DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw)",
+        ),
+        OutputSource(
+            amount=str(4000),
+            base=0,
+            condition="SIG(4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw)",
+        ),
+        OutputSource(
+            amount=str(5000),
+            base=0,
+            condition="SIG(BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh)",
+        ),
+    ],
+    comment="Test comment",
+    signatures=[],
+)
+
+
+@pytest.mark.parametrize(
+    "issuers, tx_amounts, listinput_and_amount, outputAddresses, Comment, OutputbackChange, result",
+    [
+        # test 1 : with two amounts/outputs and an outputbackchange
+        (
+            "BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh",
+            (1000, 4000),
+            [
+                [
+                    InputSource(
+                        10000,
+                        0,
+                        "T",
+                        "B37D161185A760FD81C3242D73FABD3D01F4BD9EAD98C2842061A75BAD4DFA61",
+                        1,
+                    ),
+                    InputSource(
+                        257,
+                        0,
+                        "T",
+                        "16F1CF9C9B89BB8C34A945F56073AB3C3ACFD858D5FA420047BA7AED1575D1FE",
+                        1,
+                    ),
+                ],
+                10000,
+                False,
+            ],
+            (
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+                "4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw",
+            ),
+            "Test comment",
+            "BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh",
+            result1,
+        )
+    ],
+)
+@pytest.mark.asyncio
+async def test_generate_transaction_document(
+    issuers,
+    tx_amounts,
+    listinput_and_amount,
+    outputAddresses,
+    Comment,
+    OutputbackChange,
+    result,
+    monkeypatch,
+):
+    # patch Head_block
+    monkeypatch.setattr("silkaj.network_tools.HeadBlock.get_head", patched.head_block)
+
+    assert result == await generate_transaction_document(
+        issuers,
+        tx_amounts,
+        listinput_and_amount,
+        outputAddresses,
+        Comment,
+        OutputbackChange,
+    )
