@@ -5,6 +5,7 @@ from silkaj.tx import (
     compute_amounts,
     transaction_amount,
     generate_transaction_document,
+    get_list_input_for_transaction,
 )
 from silkaj.tui import display_pubkey, display_amount
 from silkaj.money import UDValue
@@ -439,3 +440,50 @@ async def test_generate_transaction_document(
         Comment,
         OutputbackChange,
     )
+
+
+# get_list_input_for_transaction()
+@pytest.mark.parametrize(
+    "pubkey, TXamount, expected",
+    [
+        ("DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw", 200, (2, 300, False)),
+        ("DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw", 600, (3, 600, False)),
+        (
+            "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            800,
+            "Error: you don't have enough money",
+        ),
+        ("4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw", 143100, (40, 82000, True)),
+        ("BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh", 200, (1, 314, False)),
+        ("BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh", 3140, (10, 3140, False)),
+        (
+            "BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh",
+            5000,
+            "Error: you don't have enough money",
+        ),
+        ("C1oAV9FX2y9iz2sdp7kZBFu3EBNAa6UkrrRG3EwouPeH", 2900, (8, 3600, False)),
+        ("C1oAV9FX2y9iz2sdp7kZBFu3EBNAa6UkrrRG3EwouPeH", 22500, (25, 22570, False)),
+        ("C1oAV9FX2y9iz2sdp7kZBFu3EBNAa6UkrrRG3EwouPeH", 29000, (40, 27280, True)),
+    ],
+)
+@pytest.mark.asyncio
+async def test_get_list_input_for_transaction(
+    pubkey, TXamount, expected, monkeypatch, capsys
+):
+    """
+    expected is [len(listinput), amount, IntermediateTransaction] or "Error"
+    see patched.get_sources() to compute expected values.
+    """
+
+    # patched functions
+    monkeypatch.setattr("silkaj.money.get_sources", patched.get_sources)
+    # testing error exit
+    if isinstance(expected, str):
+        with pytest.raises(SystemExit) as pytest_exit:
+            result = await get_list_input_for_transaction(pubkey, TXamount)
+            assert expected == capsys.readouterr()
+        assert pytest_exit.type == SystemExit
+    # testing good values
+    else:
+        result = await get_list_input_for_transaction(pubkey, TXamount)
+        assert (len(result[0]), result[1], result[2]) == expected
