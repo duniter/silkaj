@@ -1,8 +1,13 @@
 import pytest
-from silkaj.tx import truncBase, transaction_confirmation, compute_amounts
+from silkaj.tx import (
+    truncBase,
+    transaction_confirmation,
+    compute_amounts,
+    transaction_amount,
+)
 from silkaj.tui import display_pubkey, display_amount
 from silkaj.money import UDValue
-from silkaj.constants import G1_SYMBOL
+from silkaj.constants import G1_SYMBOL, MINIMAL_TX_AMOUNT, CENT_MULT_TO_UNIT
 import patched
 
 # truncBase()
@@ -195,3 +200,103 @@ def test_compute_amounts():
     assert compute_amounts([1.009], ud_value) == [317]
     # This case will not happen in real use, but this particular function will allow it.
     assert compute_amounts([0.0099], 100,) == [1]
+
+
+# transaction_amount()
+@pytest.mark.parametrize(
+    "amounts, UDs_amounts, outputAddresses, expected",
+    [
+        ([10], None, ["DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw"], [1000]),
+        (
+            [10, 2.37],
+            None,
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+                "4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw",
+            ],
+            [1000, 237],
+        ),
+        (
+            [10],
+            None,
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+                "4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw",
+            ],
+            [1000, 1000],
+        ),
+        (None, [1.263], ["DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw"], [397]),
+        (
+            None,
+            [0.5, 10],
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+                "4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw",
+            ],
+            [157, 3140],
+        ),
+        (
+            None,
+            [0.5],
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+                "4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw",
+            ],
+            [157, 157],
+        ),
+        (
+            None,
+            [0.00002],
+            ["DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",],
+            "Error: amount 0.00002 is too low.",
+        ),
+        (
+            [10, 56],
+            None,
+            ["DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw"],
+            "Error: The number of passed recipients is not the same as the passed amounts.",
+        ),
+        (
+            None,
+            [1, 45],
+            "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            "Error: The number of passed recipients is not the same as the passed amounts.",
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_transaction_amount(
+    amounts, UDs_amounts, outputAddresses, expected, capsys, monkeypatch
+):
+    # patched functions
+    monkeypatch.setattr("silkaj.money.UDValue.get_ud_value", patched.ud_value)
+    udvalue = patched.mock_ud_value
+
+    def too_little_amount(amounts, multiplicator):
+        for amount in amounts:
+            if amount * multiplicator < MINIMAL_TX_AMOUNT * CENT_MULT_TO_UNIT:
+                return True
+            return False
+
+    # run tests
+    if amounts:
+        given_amounts = amounts
+    if UDs_amounts:
+        given_amounts = UDs_amounts
+    # test errors
+    if (
+        (len(given_amounts) > 1 and len(outputAddresses) != len(given_amounts))
+        or (UDs_amounts and too_little_amount(given_amounts, udvalue))
+        or (amounts and too_little_amount(given_amounts, CENT_MULT_TO_UNIT))
+    ):
+        # check program exit on error
+        with pytest.raises(SystemExit) as pytest_exit:
+            # read output to check error.
+            await transaction_amount(amounts, UDs_amounts, outputAddresses)
+            assert expected == capsys.readouterr()
+        assert pytest_exit.type == SystemExit
+    # test good values
+    else:
+        assert expected == await transaction_amount(
+            amounts, UDs_amounts, outputAddresses
+        )

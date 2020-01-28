@@ -11,15 +11,24 @@ async def test_transaction_amount():
     """test passed amounts passed tx command
     float ≠ 100 does not give the exact value"""
 
-    assert await transaction_amount(141.89, None, None) == 14189
-    assert await transaction_amount(141.99, None, None) == 14199
-    assert await transaction_amount(141.01, None, None) == 14101
+    udvalue = await UDValue().ud_value
+    trials = (
+        # tests for --amount (unit)
+        ([141.89], None, ["A"], [14189]),
+        ([141.99], None, ["A"], [14199]),
+        ([141.01], None, ["A"], [14101]),
+        ([141.89], None, ["A", "B"], [14189, 14189]),
+        ([141.89, 141.99], None, ["A", "B"], [14189, 14199]),
+        # tests for --amount_UD
+        (None, [1.1], ["A"], [round(1.1 * udvalue)]),
+        (None, [1.9], ["A", "B",], [round(1.9 * udvalue), round(1.9 * udvalue)]),
+        (None, [1.0001], ["A"], [round(1.0001 * udvalue)]),
+        (None, [9.9999], ["A"], [round(9.9999 * udvalue)]),
+        (None, [1.9, 2.3], ["A", "B"], [round(1.9 * udvalue), round(2.3 * udvalue)]),
+    )
 
-    ud_value = await UDValue().ud_value
-    assert await transaction_amount(None, 1.1, None) == round(1.1 * ud_value)
-    assert await transaction_amount(None, 1.9, None) == round(1.9 * ud_value)
-    assert await transaction_amount(None, 1.0001, None) == round(1.0001 * ud_value)
-    assert await transaction_amount(None, 9.9999, None) == round(9.9999 * ud_value)
+    for trial in trials:
+        assert trial[3] == await transaction_amount(trial[0], trial[1], trial[2])
 
 
 def test_tx_passed_amount_cli():
@@ -69,3 +78,19 @@ def test_tx_passed_amount_cli():
     result = CliRunner().invoke(cli, ["tx", "-r", "A", "-a", MINIMAL_TX_AMOUNT - 0.001])
     assert 'Error: Invalid value for "--amount"' in result.output
     assert result.exit_code == 2
+
+    result = CliRunner().invoke(cli, ["tx", "-r", "A", "-a", 1, "-a", 2])
+    assert (
+        "Error: The number of passed recipients is not the same as the passed amounts."
+        in result.output
+    )
+    assert result.exit_code == 1
+
+    result = CliRunner().invoke(
+        cli, ["tx", "-r", "A", "-r", "B", "-r", "C", "-a", 1, "-a", 2]
+    )
+    assert (
+        "Error: The number of passed recipients is not the same as the passed amounts."
+        in result.output
+    )
+    assert result.exit_code == 1

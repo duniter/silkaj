@@ -144,6 +144,28 @@ async def send_transaction(
         await client.close()
 
 
+async def transaction_amount(amounts, UDs_amounts, outputAddresses):
+    """
+    Check that the number of passed amounts(UD) and recipients are the same
+    Returns a list of amounts.
+    """
+    # Create amounts list
+    if amounts:
+        amounts_list = compute_amounts(amounts, CENT_MULT_TO_UNIT)
+    elif UDs_amounts:
+        UD_value = await money.UDValue().ud_value
+        amounts_list = compute_amounts(UDs_amounts, UD_value)
+    if len(amounts_list) != len(outputAddresses) and len(amounts_list) != 1:
+        message_exit(
+            "Error: The number of passed recipients is not the same as the passed amounts."
+        )
+    # In case one amount is passed with multiple recipients
+    # generate list containing multiple time the same amount
+    if len(amounts_list) == 1 and len(outputAddresses) > 1:
+        amounts_list = [amounts_list[0]] * len(outputAddresses)
+    return amounts_list
+
+
 def compute_amounts(amounts, multiplicator):
     """
     Computes the amounts(UD) and returns a list.
@@ -161,16 +183,6 @@ def compute_amounts(amounts, multiplicator):
             message_exit("Error: amount {0} is too low.".format(amount))
         amounts_list.append(round(computed_amount))
     return amounts_list
-
-
-async def transaction_amount(amount, amountUD, allSources):
-    """
-    Return transaction amount
-    """
-    if amount:
-        return round(amount * 100)
-    if amountUD:
-        return round(amountUD * await money.UDValue().ud_value)
 
 
 def check_transaction_values(
