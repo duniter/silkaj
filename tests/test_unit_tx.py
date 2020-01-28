@@ -76,13 +76,13 @@ async def test_display_pubkey(message, pubkey, id, monkeypatch):
 
 # transaction_confirmation()
 @pytest.mark.parametrize(
-    "issuer_pubkey, pubkey_balance, tx_amount, outputAddresses, outputBackChange, comment, currency_symbol",
+    "issuer_pubkey, pubkey_balance, tx_amounts, outputAddresses, outputBackChange, comment, currency_symbol",
     [
         # only one receiver
         [
             "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
             3000,
-            1000,
+            [1000],
             ["4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw"],
             "",
             "",
@@ -92,7 +92,7 @@ async def test_display_pubkey(message, pubkey, id, monkeypatch):
         [
             "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
             3000,
-            1000,
+            [1000],
             ["BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh"],
             "",
             "This is a comment",
@@ -102,12 +102,25 @@ async def test_display_pubkey(message, pubkey, id, monkeypatch):
         [
             "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
             3000,
-            1000,
+            [1000, 1000],
             [
                 "BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh",
                 "4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw",
             ],
             "C1oAV9FX2y9iz2sdp7kZBFu3EBNAa6UkrrRG3EwouPeH",
+            "This is a comment",
+            G1_SYMBOL,
+        ],
+        # many receivers and outputs
+        [
+            "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            3000,
+            [1000, 250],
+            [
+                "BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh",
+                "4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw",
+            ],
+            "",
             "This is a comment",
             G1_SYMBOL,
         ],
@@ -117,7 +130,7 @@ async def test_display_pubkey(message, pubkey, id, monkeypatch):
 async def test_transaction_confirmation(
     issuer_pubkey,
     pubkey_balance,
-    tx_amount,
+    tx_amounts,
     outputAddresses,
     outputBackChange,
     comment,
@@ -134,44 +147,44 @@ async def test_transaction_confirmation(
     # creating expected list
     ud_value = await UDValue().ud_value
     expected = list()
-    expected.append(
-        [
-            "pubkey’s balance before tx",
-            str(pubkey_balance / 100) + " " + currency_symbol,
-        ]
-    )
-
+    total_tx_amount = sum(tx_amounts)
+    # display account situation
     display_amount(
         expected,
-        "total amount",
-        float(tx_amount * len(outputAddresses)),
+        "pubkey's balance before tx",
+        pubkey_balance,
         ud_value,
         currency_symbol,
     )
-
-    expected.append(
-        [
-            "pubkey’s balance after tx",
-            str(((pubkey_balance - tx_amount * len(outputAddresses)) / 100))
-            + " "
-            + currency_symbol,
-        ]
+    display_amount(
+        expected,
+        "total transaction amount",
+        total_tx_amount,
+        ud_value,
+        currency_symbol,
     )
-
+    display_amount(
+        expected,
+        "pubkey's balance after tx",
+        (pubkey_balance - total_tx_amount),
+        ud_value,
+        currency_symbol,
+    )
     await display_pubkey(expected, "from", issuer_pubkey)
-    for outputAddress in outputAddresses:
+    # display recipients and amounts
+    for outputAddress, tx_amount in zip(outputAddresses, tx_amounts):
         await display_pubkey(expected, "to", outputAddress)
         display_amount(expected, "amount", tx_amount, ud_value, currency_symbol)
+    # display backchange and comment
     if outputBackChange:
         await display_pubkey(expected, "Backchange", outputBackChange)
-
     expected.append(["comment", comment])
 
     # asserting
     tx = await transaction_confirmation(
         issuer_pubkey,
         pubkey_balance,
-        tx_amount,
+        tx_amounts,
         outputAddresses,
         outputBackChange,
         comment,

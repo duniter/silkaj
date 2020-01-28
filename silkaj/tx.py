@@ -203,7 +203,12 @@ def check_transaction_values(
 
 
 async def transaction_confirmation(
-    issuer_pubkey, pubkey_amount, tx_amount, outputAddresses, outputBackChange, comment
+    issuer_pubkey,
+    pubkey_amount,
+    tx_amounts,
+    outputAddresses,
+    outputBackChange,
+    comment,
 ):
     """
     Generate transaction confirmation
@@ -211,35 +216,30 @@ async def transaction_confirmation(
 
     currency_symbol = await CurrencySymbol().symbol
     ud_value = await money.UDValue().ud_value
+    total_tx_amount = sum(tx_amounts)
     tx = list()
-    tx.append(
-        ["pubkey’s balance before tx", str(pubkey_amount / 100) + " " + currency_symbol]
+    # display account situation
+    display_amount(
+        tx, "pubkey's balance before tx", pubkey_amount, ud_value, currency_symbol,
     )
-
+    display_amount(
+        tx, "total transaction amount", total_tx_amount, ud_value, currency_symbol,
+    )
     display_amount(
         tx,
-        "total amount",
-        float(tx_amount * len(outputAddresses)),
+        "pubkey's balance after tx",
+        (pubkey_amount - total_tx_amount),
         ud_value,
         currency_symbol,
     )
-
-    tx.append(
-        [
-            "pubkey’s balance after tx",
-            str(((pubkey_amount - tx_amount * len(outputAddresses)) / 100))
-            + " "
-            + currency_symbol,
-        ]
-    )
-
     await display_pubkey(tx, "from", issuer_pubkey)
-    for outputAddress in outputAddresses:
+    # display outputs and amounts
+    for outputAddress, tx_amount in zip(outputAddresses, tx_amounts):
         await display_pubkey(tx, "to", outputAddress)
         display_amount(tx, "amount", tx_amount, ud_value, currency_symbol)
+    # display last informations
     if outputBackChange:
         await display_pubkey(tx, "Backchange", outputBackChange)
-
     tx.append(["comment", comment])
     return tx
 
