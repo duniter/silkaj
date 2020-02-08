@@ -17,9 +17,10 @@ image: $DOCKER_IMAGE/$PYTHON_VERSION:latest
       - tests/*.py
 
 .changes:
-  extends: .code_changes
   only:
     changes:
+      - silkaj/*.py
+      - tests/*.py
       - .gitlab-ci.yml
       - pyproject.toml
       - poetry.lock
