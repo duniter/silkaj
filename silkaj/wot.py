@@ -78,9 +78,10 @@ async def received_sent_certifications(id):
                 certifications["received"].append(
                     cert_written_in_the_blockchain(req["certifications"], cert)
                 )
-                certifications["sent"], certifications[
-                    "sent_expire"
-                ] = get_sent_certifications(id_certs, time_first_block, params)
+                (
+                    certifications["sent"],
+                    certifications["sent_expire"],
+                ) = get_sent_certifications(id_certs, time_first_block, params)
             nbr_sent_certs = (
                 len(certifications["sent"]) if "sent" in certifications else 0
             )
