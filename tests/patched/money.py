@@ -17,8 +17,9 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 
 # This file contains patched functions for testing purposes.
 
-from silkaj.constants import G1_SYMBOL, SOURCES_PER_TX
+from silkaj.constants import G1_SYMBOL
 from silkaj.money import amount_in_current_base
+from silkaj.tx import MAX_INPUTS_PER_TX
 from duniterpy.documents.transaction import InputSource
 from patched.test_constants import mock_ud_value
 
@@ -93,7 +94,7 @@ async def patched_get_sources(pubkey):
         elif patched_get_sources.counter == 1:
             listinput.append(
                 InputSource(
-                    amount=100 * SOURCES_PER_TX,  # 100 * 40 = 4000
+                    amount=100 * MAX_INPUTS_PER_TX,  # 100 * 46 = 4600
                     base=0,
                     source="T",
                     origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
@@ -112,7 +113,7 @@ async def patched_get_sources(pubkey):
         elif patched_get_sources.counter == 1:
             listinput.append(
                 InputSource(
-                    amount=mock_ud_value * SOURCES_PER_TX,  # 40 UD = 40*314 = 12560
+                    amount=mock_ud_value * MAX_INPUTS_PER_TX,  # 46 UD = 46*314 = 1444
                     base=0,
                     source="T",
                     origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
@@ -121,6 +122,18 @@ async def patched_get_sources(pubkey):
             )
             max_ud = 4
             max_tx = 20
+    elif pubkey == "BdanxHdwRRzCXZpiqvTVTX4gyyh6qFTYjeCWCkLwDifx":
+        listinput.append(
+            InputSource(
+                amount=9600,
+                base=0,
+                source="T",
+                origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                index=0,
+            )
+        )
+        max_ud = 0
+        max_tx = 0
     else:
         max_ud = 0
         max_tx = 0

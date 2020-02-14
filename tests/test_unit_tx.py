@@ -338,52 +338,112 @@ async def test_generate_transaction_document(
 
 # get_list_input_for_transaction()
 @pytest.mark.parametrize(
-    "pubkey, TXamount, expected",
+    "pubkey, TXamount, outputs_number, expected",
     [
-        # less than 1 source
-        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 99, (1, 100, False)),
-        # exactly one source
-        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 100, (1, 100, False)),
-        # more than 1 source and no interm tx
-        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 150, (2, 200, False)),
-        # all sources
-        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 300, (3, 300, False)),
-        # too high amount
+        # no need for interm tx, around 1 source
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 99, 2, (1, 100, False)),
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 100, 2, (1, 100, False)),
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 101, 2, (2, 200, False)),
+        # no need for interm.tx, arbitraty number of sources
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 199, 2, (2, 200, False)),
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 200, 2, (2, 200, False)),
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 201, 2, (3, 300, False)),
+        # no need for interm.tx, around last available source
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 299, 2, (3, 300, False)),
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 300, 2, (3, 300, False)),
         (
             "CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp",
             301,
-            "Error: you don't have enough money",
+            15,
+            "Error: you don't have enough money\n",
         ),
-        # need for an intermediary tx
-        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 4100, (40, 4000, True)),
-        # no need for an intermediary tx, but the function still does it
-        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 4000, (40, 4000, True)),
-        # less than 1 UD source
-        ("2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY", 200, (1, 314, False)),
-        # exactly 1 UD source
-        ("2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY", 314, (1, 314, False)),
-        # all sources with UD sources
-        ("2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY", 3140, (10, 3140, False)),
-        # too high amount
+        # Same tests with UD sources
+        # no need for interm tx, around 1 source
         (
             "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
-            5000,
-            "Error: you don't have enough money",
+            mock_ud_value - 1,
+            2,
+            (1, mock_ud_value, False),
         ),
+        (
+            "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
+            mock_ud_value,
+            2,
+            (1, mock_ud_value, False),
+        ),
+        (
+            "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
+            mock_ud_value + 1,
+            2,
+            (2, mock_ud_value * 2, False),
+        ),
+        # no need for interm.tx, arbitraty number of sources
+        (
+            "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
+            5 * mock_ud_value - 1,
+            2,
+            (5, 5 * mock_ud_value, False),
+        ),
+        (
+            "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
+            5 * mock_ud_value,
+            2,
+            (5, 5 * mock_ud_value, False),
+        ),
+        (
+            "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
+            5 * mock_ud_value + 1,
+            2,
+            (6, 6 * mock_ud_value, False),
+        ),
+        # no need for interm.tx, around last available source
+        (
+            "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
+            10 * mock_ud_value - 1,
+            1,
+            (10, 10 * mock_ud_value, False),
+        ),
+        (
+            "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
+            10 * mock_ud_value,
+            2,
+            (10, 10 * mock_ud_value, False),
+        ),
+        (
+            "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
+            10 * mock_ud_value + 1,
+            1,
+            "Error: you don't have enough money\n",
+        ),
+        # high limit for input number
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 4600, 2, (46, 4600, False)),
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 4601, 2, (46, 4600, True)),
+        # many outputs
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 3999, 15, (40, 4000, False)),
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 4000, 15, (40, 4000, False)),
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 4001, 15, (41, 4100, True)),
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 4600, 15, (46, 4600, True)),
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 4601, 15, (46, 4600, True)),
+        # higher limit for outputs
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 99, 93, (1, 100, False)),
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 100, 93, (1, 100, False)),
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 101, 93, (2, 200, True)),
+        # 1 ouput should rarely occur, but we should test it.
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 4599, 1, (46, 4600, False)),
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 4600, 1, (46, 4600, False)),
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 4601, 1, (46, 4600, True)),
         # mix UD and TX source
-        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 2500, (8, 2512, False)),
-        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 7800, (25, 7850, False)),
+        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 2500, 15, (8, 2512, False)),
+        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 7800, 15, (25, 7850, False)),
         # need for interm tx
-        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 12561, (40, 12560, True)),
-        # no need for interm tx but the function still does it
-        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 12247, (40, 12560, True)),
-        # exactly 39 sources
-        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 12246, (39, 12246, False)),
+        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 14444, 15, (46, 14444, True)),
+        # 93 outputs, should send 1 input only
+        ("BdanxHdwRRzCXZpiqvTVTX4gyyh6qFTYjeCWCkLwDifx", 9100, 91, (1, 9600, False)),
     ],
 )
 @pytest.mark.asyncio
 async def test_get_list_input_for_transaction(
-    pubkey, TXamount, expected, monkeypatch, capsys
+    pubkey, TXamount, outputs_number, expected, monkeypatch, capsys
 ):
     """
     expected is [len(listinput), amount, IntermediateTransaction] or "Error"
@@ -397,12 +457,16 @@ async def test_get_list_input_for_transaction(
     # testing error exit
     if isinstance(expected, str):
         with pytest.raises(SystemExit) as pytest_exit:
-            result = await tx.get_list_input_for_transaction(pubkey, TXamount)
-            assert expected == capsys.readouterr()
+            result = await tx.get_list_input_for_transaction(
+                pubkey, TXamount, outputs_number
+            )
+        assert expected == capsys.readouterr().out
         assert pytest_exit.type == SystemExit
     # testing good values
     else:
-        result = await tx.get_list_input_for_transaction(pubkey, TXamount)
+        result = await tx.get_list_input_for_transaction(
+            pubkey, TXamount, outputs_number
+        )
         assert (len(result[0]), result[1], result[2]) == expected
 
 
@@ -414,7 +478,7 @@ async def test_get_list_input_for_transaction(
         (
             key_fifi,
             "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
-            (100, 100),
+            [100] * 2,
             [
                 "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
                 "4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw",
@@ -442,14 +506,12 @@ async def test_get_list_input_for_transaction(
                 False,
             ),
         ),
-        # test 2 : with one amounts/outputs and no outputbackchange, need for intermediary transaction.
+        # test 2 : with 15 amounts/outputs and no outputbackchange, need for intermediary transaction.
         (
             key_fifi,
             "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
-            (4001,),
-            [
-                "4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw",
-            ],
+            [350] * 14,  # total 4900, pubkey has 5300
+            ["4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw"] * 14,
             "Test comment",
             "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
             (
@@ -734,8 +796,50 @@ async def test_get_list_input_for_transaction(
                         origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
                         index=39,
                     ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=40,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=41,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=42,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=43,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=44,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=45,
+                    ),
                 ],
-                4000,
+                4600,
                 True,
             ),
         ),

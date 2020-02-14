@@ -30,7 +30,6 @@ from silkaj import auth
 from silkaj import money
 from silkaj import tui
 from silkaj.constants import (
-    SOURCES_PER_TX,
     MINIMAL_ABSOLUTE_TX_AMOUNT,
     MINIMAL_RELATIVE_TX_AMOUNT,
     CENT_MULT_TO_UNIT,
@@ -53,6 +52,8 @@ FIX_LINES = 3
 MAX_INPUTS_PER_TX = 46
 # assuming there is 1 issuer and 1 input, max outputs is 93.
 MAX_OUTPUTS = 93
+# for now, silkaj handles txs for one issuer only
+NBR_ISSUERS = 1
 
 
 @command("tx", help="Send transaction")
@@ -292,22 +293,32 @@ async def transaction_confirmation(
     return tx
 
 
-async def get_list_input_for_transaction(pubkey, TXamount):
+async def get_list_input_for_transaction(pubkey, TXamount, outputs_number):
     listinput, amount = await money.get_sources(pubkey)
-
+    maxInputsNumber = max_inputs_number(outputs_number, NBR_ISSUERS)
     # generate final list source
     listinputfinal = []
     totalAmountInput = 0
     intermediatetransaction = False
-    for input in listinput:
+    for nbr_inputs, input in enumerate(listinput, start=1):
         listinputfinal.append(input)
         totalAmountInput += money.amount_in_current_base(input)
         TXamount -= money.amount_in_current_base(input)
-        # if more than 40 sources, it's an intermediate transaction
-        if len(listinputfinal) >= SOURCES_PER_TX:
+        # if too much sources, it's an intermediate transaction.
+        amount_not_reached_and_max_doc_size_reached = (
+            TXamount > 0 and MAX_INPUTS_PER_TX <= nbr_inputs
+        )
+        amount_reached_too_much_inputs = TXamount <= 0 and maxInputsNumber < nbr_inputs
+        if (
+            amount_not_reached_and_max_doc_size_reached
+            or amount_reached_too_much_inputs
+        ):
             intermediatetransaction = True
-            break
-        if TXamount <= 0:
+        # if we reach the MAX_INPUTX_PER_TX limit, we send the interm.tx
+        # if we gather the good amount, we send the tx :
+        #    - either this is no int.tx, and the tx is sent to the receiver,
+        #    - or the int.tx it is sent to the issuer before sent to the receiver.
+        if MAX_INPUTS_PER_TX <= nbr_inputs or TXamount <= 0:
             break
     if TXamount > 0 and not intermediatetransaction:
         tools.message_exit("Error: you don't have enough money")
@@ -323,9 +334,11 @@ async def handle_intermediaries_transactions(
     OutputbackChange=None,
 ):
     client = nt.ClientInstance().client
+
     while True:
+        # consider there is always one backchange output, hence +1
         listinput_and_amount = await get_list_input_for_transaction(
-            issuers, sum(tx_amounts)
+            issuers, sum(tx_amounts), len(outputAddresses) + 1
         )
         intermediatetransaction = listinput_and_amount[2]
 
