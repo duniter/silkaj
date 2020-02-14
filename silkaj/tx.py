@@ -44,6 +44,17 @@ from duniterpy.documents.transaction import OutputSource, Unlock, SIGParameter
 MAX_COMMENT_LENGTH = 255
 
 
+# max size for tx doc is 100 lines. Formula for accepted field numbers is : (2 * IU + 2 * IS + OUT) <= ( MAX_LINES_IN_TX_DOC - FIX_LINES)
+# with IU = inputs/unlocks ; IS = Issuers/Signatures ; OUT = Outpouts.
+MAX_LINES_IN_TX_DOC = 100
+# 2 lines are necessary, and we block 1 more for the comment
+FIX_LINES = 3
+# assuming there is only 1 issuer and 2 outputs, max inputs is 46
+MAX_INPUTS_PER_TX = 46
+# assuming there is 1 issuer and 1 input, max outputs is 93.
+MAX_OUTPUTS = 93
+
+
 @command("tx", help="Send transaction")
 @option(
     "amounts",
@@ -337,6 +348,17 @@ async def handle_intermediaries_transactions(
             )
             await client.close()
             break
+
+
+def max_inputs_number(outputs_number, issuers_number):
+    """
+    returns the maximum number of inputs.
+    This function does not take care of backchange line.
+    formula is IU <= (MAX_LINES_IN_TX_DOC - FIX_LINES - O - 2*IS)/2
+    """
+    return int(
+        (MAX_LINES_IN_TX_DOC - FIX_LINES - (2 * issuers_number) - outputs_number) / 2
+    )
 
 
 async def generate_and_send_transaction(

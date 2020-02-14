@@ -1465,3 +1465,24 @@ def test_generate_output(listoutput, unitbase, rest, recipient_address, expected
     assert len(expected) == len(listoutput)
     for e, o in zip(expected, listoutput):
         assert e == o
+
+
+# test max_inputs_number
+@pytest.mark.parametrize(
+    "outputs_number, issuers_number, expected",
+    [
+        (1, 1, 47),
+        (2, 1, 46),
+        (93, 1, 1),
+        (1, 2, 46),
+        (2, 2, 45),
+        (1, 47, 1),
+    ],
+)
+def test_max_inputs_number(outputs_number, issuers_number, expected):
+    """
+    returns the maximum number of inputs.
+    This function does not take care of backchange line.
+    formula is IU <= (MAX_LINES_IN_TX_DOC - FIX_LINES - O - 2*IS)/2
+    """
+    assert tx.max_inputs_number(outputs_number, issuers_number) == expected
