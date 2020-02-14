@@ -1257,6 +1257,17 @@ async def test_generate_and_send_transaction(
             "A",
             "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
         ),
+        (
+            "Test",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            ]
+            * 92,
+            "",
+            False,
+            "A",
+            "",
+        ),
     ],
 )
 def test_check_transaction_values(
@@ -1332,6 +1343,16 @@ def test_check_transaction_values(
                 "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
             ],
             "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            False,
+            "A",
+        ),
+        (
+            "Test",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            ]
+            * 93,
+            "",
             False,
             "A",
         ),

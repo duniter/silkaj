@@ -222,6 +222,11 @@ def check_transaction_values(
     Check the balance is big enough for the transaction
     """
     checkComment(comment)
+    # we check output numbers and leave one line for the backchange.
+    if len(outputAddresses) > (MAX_OUTPUTS - 1):
+        tools.message_exit(
+            "Error : there should be less than {0} outputs.".format(MAX_OUTPUTS - 1)
+        )
     for i, outputAddress in enumerate(outputAddresses):
         if ct.check_pubkey_format(outputAddress):
             outputAddresses[i] = ct.validate_checksum(outputAddress)
