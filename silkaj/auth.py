@@ -15,11 +15,11 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
+import re
 from silkaj.tools import message_exit
 from click import command, option, pass_context, confirm
 from getpass import getpass
 from pathlib import Path
-from re import compile, search, MULTILINE
 from duniterpy.key import SigningKey
 from duniterpy.key.scrypt_params import ScryptParams
 
@@ -72,16 +72,16 @@ def auth_by_auth_file(ctx):
         message_exit('Error: the file "' + file + '" does not exist')
     filetxt = authfile.open("r").read()
     # regex for seed (hexadecimal)
-    regex_seed = compile("^[0-9a-fA-F]{64}$")
+    regex_seed = re.compile("^[0-9a-fA-F]{64}$")
     # two regural expressions for the PubSec format
-    regex_pubkey = compile("pub: ([1-9A-HJ-NP-Za-km-z]{43,44})", MULTILINE)
-    regex_signkey = compile("sec: ([1-9A-HJ-NP-Za-km-z]{87,90})", MULTILINE)
+    regex_pubkey = re.compile("pub: ([1-9A-HJ-NP-Za-km-z]{43,44})", re.MULTILINE)
+    regex_signkey = re.compile("sec: ([1-9A-HJ-NP-Za-km-z]{87,90})", re.MULTILINE)
 
     # Seed format
-    if search(regex_seed, filetxt):
+    if re.search(regex_seed, filetxt):
         return SigningKey.from_seedhex_file(file)
     # PubSec format
-    elif search(regex_pubkey, filetxt) and search(regex_signkey, filetxt):
+    elif re.search(regex_pubkey, filetxt) and re.search(regex_signkey, filetxt):
         return SigningKey.from_pubsec_file(file)
     else:
         message_exit("Error: the format of the file is invalid")
