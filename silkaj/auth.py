@@ -61,10 +61,10 @@ def generate_auth_file(file):
 @pass_context
 def auth_by_auth_file(ctx):
     """
-    Uses an auth file to generate key.
-    Authfile can be either:
-    * Seed in hexadecimal encoding
-    * PubSec format with public and private key in base58 encoding.
+    Uses an authentication file to generate the key
+    Authfile can either be:
+    * A seed in hexadecimal encoding
+    * PubSec format with public and private key in base58 encoding
     """
     file = ctx.obj["AUTH_FILE_PATH"]
     authfile = Path(file)
@@ -73,11 +73,11 @@ def auth_by_auth_file(ctx):
     filetxt = authfile.open("r").read()
     # regex for seed (hexadecimal)
     regex_seed = compile("^[0-9a-fA-F]{64}$")
-    # two RE for PubSec format
+    # two regural expressions for the PubSec format
     regex_pubkey = compile("pub: ([1-9A-HJ-NP-Za-km-z]{43,44})", MULTILINE)
     regex_signkey = compile("sec: ([1-9A-HJ-NP-Za-km-z]{87,90})", MULTILINE)
 
-    # Seed Format
+    # Seed format
     if search(regex_seed, filetxt):
         return SigningKey.from_seedhex_file(file)
     # PubSec format
