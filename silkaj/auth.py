@@ -16,12 +16,14 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
 import re
-from silkaj.tools import message_exit
 from click import command, option, pass_context, confirm
 from getpass import getpass
 from pathlib import Path
+
 from duniterpy.key import SigningKey
 from duniterpy.key.scrypt_params import ScryptParams
+
+from silkaj.tools import message_exit
 
 
 @pass_context
