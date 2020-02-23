@@ -18,6 +18,12 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 import re
 from nacl import encoding, hash
 
+from silkaj.constants import PUBKEY_PATTERN
+
+PUBKEY_DELIMITED_PATTERN = "^{0}$".format(PUBKEY_PATTERN)
+CHECKSUM_PATTERN = "[1-9A-HJ-NP-Za-km-z]{3}"
+PUBKEY_CHECKSUM_PATTERN = "^{0}!{1}$".format(PUBKEY_PATTERN, CHECKSUM_PATTERN)
+
 
 def check_public_key(pubkey, display_error):
     """
@@ -25,13 +31,9 @@ def check_public_key(pubkey, display_error):
     Check pubkey checksum which could be append after the pubkey
     If check pass: return pubkey
     """
-    regex = re.compile("^[1-9A-HJ-NP-Za-km-z]{43,44}$")
-    regex_checksum = re.compile(
-        "^[1-9A-HJ-NP-Za-km-z]{43,44}" + "![1-9A-HJ-NP-Za-km-z]{3}$"
-    )
-    if re.search(regex, pubkey):
+    if re.search(re.compile(PUBKEY_DELIMITED_PATTERN), pubkey):
         return pubkey
-    elif re.search(regex_checksum, pubkey):
+    elif re.search(re.compile(PUBKEY_CHECKSUM_PATTERN), pubkey):
         pubkey, checksum = pubkey.split("!")
         pubkey_byte = b58_decode(pubkey)
         checksum_calculed = b58_encode(

@@ -24,6 +24,11 @@ from duniterpy.key import SigningKey
 from duniterpy.key.scrypt_params import ScryptParams
 
 from silkaj.tools import message_exit
+from silkaj.constants import PUBKEY_PATTERN
+
+SEED_HEX_PATTERN = "^[0-9a-fA-F]{64}$"
+PUBSEC_PUBKEY_PATTERN = "pub: ({0})".format(PUBKEY_PATTERN)
+PUBSEC_SIGNKEY_PATTERN = "sec: ([1-9A-HJ-NP-Za-km-z]{87,90})"
 
 
 @pass_context
@@ -73,14 +78,13 @@ def auth_by_auth_file(ctx):
     if not authfile.is_file():
         message_exit('Error: the file "' + file + '" does not exist')
     filetxt = authfile.open("r").read()
-    # regex for seed (hexadecimal)
-    regex_seed = re.compile("^[0-9a-fA-F]{64}$")
-    # two regural expressions for the PubSec format
-    regex_pubkey = re.compile("pub: ([1-9A-HJ-NP-Za-km-z]{43,44})", re.MULTILINE)
-    regex_signkey = re.compile("sec: ([1-9A-HJ-NP-Za-km-z]{87,90})", re.MULTILINE)
 
-    # Seed format
-    if re.search(regex_seed, filetxt):
+    # two regural expressions for the PubSec format
+    regex_pubkey = re.compile(PUBSEC_PUBKEY_PATTERN, re.MULTILINE)
+    regex_signkey = re.compile(PUBSEC_SIGNKEY_PATTERN, re.MULTILINE)
+
+    # Seed hexadecimal format
+    if re.search(re.compile(SEED_HEX_PATTERN), filetxt):
         return SigningKey.from_seedhex_file(file)
     # PubSec format
     elif re.search(regex_pubkey, filetxt) and re.search(regex_signkey, filetxt):
