@@ -17,7 +17,7 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 
 from re import compile, search
 import math
-from time import sleep
+from asyncio import sleep
 from tabulate import tabulate
 from click import command, option, FloatRange
 
@@ -286,7 +286,7 @@ async def handle_intermediaries_transactions(
                 [issuers],
                 "Change operation",
             )
-            sleep(1)  # wait 1 second before sending a new transaction
+            await sleep(1)  # wait 1 second before sending a new transaction
 
         else:
             await generate_and_send_transaction(
