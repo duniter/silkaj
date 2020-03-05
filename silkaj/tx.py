@@ -31,6 +31,7 @@ from silkaj.constants import (
     SOURCES_PER_TX,
     MINIMAL_TX_AMOUNT,
     CENT_MULT_TO_UNIT,
+    ASYNC_SLEEP,
 )
 from silkaj.tui import display_amount, display_pubkey
 
@@ -236,6 +237,7 @@ async def transaction_confirmation(
     # display outputs and amounts
     for outputAddress, tx_amount in zip(outputAddresses, tx_amounts):
         await display_pubkey(tx, "to", outputAddress)
+        await sleep(ASYNC_SLEEP)
         display_amount(tx, "amount", tx_amount, ud_value, currency_symbol)
     # display last informations
     if outputBackChange:
