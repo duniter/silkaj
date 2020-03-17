@@ -27,7 +27,17 @@ from duniterpy.documents import Membership, block_uid
 from duniterpy.api import bma
 from duniterpy.key import SigningKey
 
-from patched.blockchain_tools import patched_head_block
+from patched.blockchain_tools import (
+    currency,
+    patched_params,
+    patched_block,
+    patched_head_block,
+)
+from patched.wot import (
+    patched_wot_requirements_one_pending,
+    patched_wot_requirements_no_pending,
+)
+
 from silkaj import auth, wot
 from silkaj.cli import cli
 from silkaj.network_tools import ClientInstance
@@ -46,9 +56,7 @@ else:
     from asynctest.mock import CoroutineMock as AsyncMock
 
 
-# To be moved/merged into tests/patched.py or tests/patched/<module_name>.py
-
-currency = "g1"
+# Values and patches
 pubkey = "EA7Dsw39ShZg4SpURsrgMaMqrweJPUFPYHwZA8e92e3D"
 identity_timestamp = block_uid(
     "0-E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
@@ -69,58 +77,6 @@ async def patched_choose_identity(pubkey):
         pubkey,
         None,
     )
-
-
-async def patched_params(self):
-    return {
-        "msValidity": 31557600,
-        "msPeriod": 5259600,
-    }
-
-
-async def patched_block(self, number):
-    return {
-        "number": 48000,
-        "time": 1592243760,
-        "currency": currency,
-        "hash": "0000A51FF952B76AAA594A46CA0C8156A56988D2B2B57BE18ECB4F3CFC25CEC2",
-    }
-
-
-async def patched_wot_requirements_one_pending(pubkey, identity_uid):
-    return {
-        "identities": [
-            {
-                "uid": "toto",
-                "pendingMemberships": [
-                    {
-                        "membership": "IN",
-                        "issuer": "5B8iMAzq1dNmFe3ZxFTBQkqhq4fsztg1gZvxHXCk1XYH",
-                        "number": 613206,
-                        "blockNumber": 613206,
-                        "userid": "moul-test",
-                        "expires_on": 1598624404,
-                        "type": "IN",
-                    }
-                ],
-                "membershipPendingExpiresIn": 6311520,
-                "membershipExpiresIn": 2603791,
-            },
-        ],
-    }
-
-
-async def patched_wot_requirements_no_pending(pubkey, identity_uid):
-    return {
-        "identities": [
-            {
-                "uid": "toto",
-                "pendingMemberships": [],
-                "membershipPendingExpiresIn": 0,
-                "membershipExpiresIn": 3724115,
-            }
-        ]
-    }
 
 
 @pytest.mark.parametrize(

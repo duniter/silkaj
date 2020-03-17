@@ -1,4 +1,12 @@
 # This file contains patches for auth functions.
+from duniterpy.key import SigningKey
+
+
+def patched_auth_method(uid):
+    """
+    insecure way to test keys
+    """
+    return SigningKey.from_credentials(uid, uid)
 
 
 def patched_auth_by_seed():

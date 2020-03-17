@@ -49,7 +49,7 @@ def test_display_amount(message, amount, currency_symbol):
 @pytest.mark.parametrize(
     "message, pubkey, id",
     [
-        ("From", "BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh", "riri"),
+        ("From", "CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", "riri"),
         ("To", "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw", ""),
     ],
 )

@@ -21,20 +21,11 @@ from silkaj.constants import G1_SYMBOL
 from silkaj.money import amount_in_current_base
 from duniterpy.documents.transaction import InputSource
 
-## Mocked values
-
-mock_ud_value = 314
-
-pubkey_list = [
-    {"pubkey": "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw", "uid": ""},
-    {"pubkey": "4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw", "uid": ""},
-    {"pubkey": "BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh", "uid": "riri"},
-    {"pubkey": "C1oAV9FX2y9iz2sdp7kZBFu3EBNAa6UkrrRG3EwouPeH", "uid": "fifi"},
-    {"pubkey": "7Hr6oUxE6nGZxFG7gVbpMK6oUkNTh5eU686EiCXWCrBF", "uid": "loulou"},
-]
-
 
 # mock UDValue
+mock_ud_value = 314
+
+
 async def patched_ud_value(self):
     return mock_ud_value
 
@@ -85,16 +76,16 @@ async def patched_get_sources(pubkey):
 
     listinput, n = list(), 0
     amount = 0
-    if pubkey == "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw":
+    if pubkey == "CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp":
         max_tx = 3
         max_ud = 0
-    elif pubkey == "4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw":
+    elif pubkey == "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat":
         max_tx = 53
         max_ud = 0
-    elif pubkey == "BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh":
+    elif pubkey == "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY":
         max_tx = 0
         max_ud = 10
-    elif pubkey == "C1oAV9FX2y9iz2sdp7kZBFu3EBNAa6UkrrRG3EwouPeH":
+    elif pubkey == "9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp":
         max_tx = 20
         max_ud = 50
     else:

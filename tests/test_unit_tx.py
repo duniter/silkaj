@@ -429,24 +429,24 @@ async def test_generate_transaction_document(
 @pytest.mark.parametrize(
     "pubkey, TXamount, expected",
     [
-        ("DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw", 200, (2, 300, False)),
-        ("DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw", 600, (3, 600, False)),
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 200, (2, 300, False)),
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 600, (3, 600, False)),
         (
-            "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            "CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp",
             800,
             "Error: you don't have enough money",
         ),
-        ("4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw", 143100, (40, 82000, True)),
-        ("BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh", 200, (1, 314, False)),
-        ("BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh", 3140, (10, 3140, False)),
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 143100, (40, 82000, True)),
+        ("2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY", 200, (1, 314, False)),
+        ("2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY", 3140, (10, 3140, False)),
         (
-            "BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh",
+            "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
             5000,
             "Error: you don't have enough money",
         ),
-        ("C1oAV9FX2y9iz2sdp7kZBFu3EBNAa6UkrrRG3EwouPeH", 2900, (8, 3600, False)),
-        ("C1oAV9FX2y9iz2sdp7kZBFu3EBNAa6UkrrRG3EwouPeH", 22500, (25, 22570, False)),
-        ("C1oAV9FX2y9iz2sdp7kZBFu3EBNAa6UkrrRG3EwouPeH", 29000, (40, 27280, True)),
+        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 2900, (8, 3600, False)),
+        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 22500, (25, 22570, False)),
+        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 29000, (40, 27280, True)),
     ],
 )
 @pytest.mark.asyncio
