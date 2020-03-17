@@ -33,51 +33,23 @@ pubkey_list = [
     {"pubkey": "7Hr6oUxE6nGZxFG7gVbpMK6oUkNTh5eU686EiCXWCrBF", "uid": "loulou"},
 ]
 
-#### Patched functions ####
-
-## testing tx.py ##
 
 # mock UDValue
-async def ud_value(self):
+async def patched_ud_value(self):
     return mock_ud_value
 
 
-# mock is_member
-async def is_member(pubkey):
-    for account in pubkey_list:
-        if account["pubkey"] == pubkey:
-            if account["uid"]:
-                return account
-    return False
-
-
-# mock CurrencySymbol().symbol
-async def currency_symbol(self):
-    return G1_SYMBOL
-
-
-## mock head_block()
-async def head_block(self):
-    mocked_head_block = {
-        "number": 48000,
-        "unitbase": 0,
-        "currency": "g1",
-        "hash": "0000010D30B1284D34123E036B7BE0A449AE9F2B928A77D7D20E3BDEAC7EE14C",
-    }
-    return mocked_head_block
-
-
 # mock get_sources()
-async def get_sources(pubkey):
+async def patched_get_sources(pubkey):
     """
     Returns transaction sources.
-    This function does not cover all possibilities : no other unlock conditions than SIG(pubkey).
-    if pubkey == DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw : 3 TXsources, amount = 600
-    if pubkey == 4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw : 53 TXsources, amount = 143100
-    if pubkey == BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh : 10 UDsources, amount = 3140
-    if pubkey == C1oAV9FX2y9iz2sdp7kZBFu3EBNAa6UkrrRG3EwouPeH : 50 UDsources and 20 TXsources, amount = 36700
+    This function doesn't cover all possibilities : only SIG() unlock condition.
+    for pubkey DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw : 3 TX, amount = 600
+    for pubkey 4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw : 53 TX, amount = 143100
+    for pubkey BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh : 10 UD, amount = 3140
+    for pubkey C1oAV9FX2y9iz2sdp7kZBFu3EBNAa6UkrrRG3EwouPeH : 50 UD and 20 TX, amount = 36700
     else : 0 sources, amount = 0
-    For convenience, the hash is always the same. This should change for other testing purposes.
+    Same hash for each TX for convenience. This may change for other testing purposes.
     """
 
     def listinput_UD(listinput, amount, pubkey, max_ud, total):

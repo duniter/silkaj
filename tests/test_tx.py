@@ -22,7 +22,8 @@ from silkaj.tx import transaction_amount
 from silkaj.money import UDValue
 from silkaj.cli import cli
 from silkaj.constants import MINIMAL_ABSOLUTE_TX_AMOUNT, FAILURE_EXIT_STATUS
-import patched
+
+from patched.money import mock_ud_value, patched_ud_value
 
 
 @pytest.mark.asyncio
@@ -30,8 +31,8 @@ async def test_transaction_amount(monkeypatch):
     """test passed amounts passed tx command
     float ≠ 100 does not give the exact value"""
 
-    monkeypatch.setattr(UDValue, "get_ud_value", patched.ud_value)
-    udvalue = patched.mock_ud_value
+    monkeypatch.setattr(UDValue, "get_ud_value", patched_ud_value)
+    udvalue = mock_ud_value
     trials = (
         # tests for --amount (unit)
         ([141.89], None, ["A"], [14189]),

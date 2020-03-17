@@ -40,7 +40,10 @@ from duniterpy.documents.transaction import (
 )
 from duniterpy.documents.block_uid import BlockUID
 
-import patched
+from patched.wot import patched_is_member
+from patched.money import patched_get_sources, patched_ud_value, mock_ud_value
+from patched.tools import patched_currency_symbol
+from patched.blockchain_tools import patched_head_block
 
 
 # truncBase()
@@ -116,14 +119,14 @@ async def test_transaction_confirmation(
     monkeypatch,
 ):
     # patched functions
-    monkeypatch.setattr("silkaj.wot.is_member", patched.is_member)
-    monkeypatch.setattr("silkaj.money.UDValue.get_ud_value", patched.ud_value)
+    monkeypatch.setattr("silkaj.wot.is_member", patched_is_member)
+    monkeypatch.setattr("silkaj.money.UDValue.get_ud_value", patched_ud_value)
     monkeypatch.setattr(
-        "silkaj.tools.CurrencySymbol.get_symbol", patched.currency_symbol
+        "silkaj.tools.CurrencySymbol.get_symbol", patched_currency_symbol
     )
 
     # creating expected list
-    ud_value = await UDValue().ud_value
+    ud_value = mock_ud_value
     expected = list()
     total_tx_amount = sum(tx_amounts)
     # display account situation
@@ -275,8 +278,8 @@ async def test_transaction_amount(
     amounts, UDs_amounts, outputAddresses, expected, capsys, monkeypatch
 ):
     # patched functions
-    monkeypatch.setattr("silkaj.money.UDValue.get_ud_value", patched.ud_value)
-    udvalue = patched.mock_ud_value
+    monkeypatch.setattr("silkaj.money.UDValue.get_ud_value", patched_ud_value)
+    udvalue = mock_ud_value
 
     def too_little_amount(amounts, multiplicator):
         for amount in amounts:
@@ -412,7 +415,7 @@ async def test_generate_transaction_document(
 ):
     # patch Head_block
     monkeypatch.setattr(
-        "silkaj.blockchain_tools.HeadBlock.get_head", patched.head_block
+        "silkaj.blockchain_tools.HeadBlock.get_head", patched_head_block
     )
 
     assert result == await generate_transaction_document(
@@ -459,7 +462,7 @@ async def test_get_list_input_for_transaction(
     """
 
     # patched functions
-    monkeypatch.setattr("silkaj.money.get_sources", patched.get_sources)
+    monkeypatch.setattr("silkaj.money.get_sources", patched_get_sources)
     # testing error exit
     if isinstance(expected, str):
         with pytest.raises(SystemExit) as pytest_exit:

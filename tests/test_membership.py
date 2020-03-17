@@ -27,7 +27,7 @@ from duniterpy.documents import Membership, block_uid
 from duniterpy.api import bma
 from duniterpy.key import SigningKey
 
-import patched
+from patched.blockchain_tools import patched_head_block
 from silkaj import auth, wot
 from silkaj.cli import cli
 from silkaj.network_tools import ClientInstance
@@ -134,7 +134,7 @@ async def patched_wot_requirements_no_pending(pubkey, identity_uid):
 def test_membership_cmd(dry_run, confirmation, exit_code, monkeypatch):
     # Monkeypatch and Mock
     monkeypatch.setattr(auth, "auth_method", patched_auth_method)
-    monkeypatch.setattr(HeadBlock, "get_head", patched.head_block)
+    monkeypatch.setattr(HeadBlock, "get_head", patched_head_block)
     monkeypatch.setattr(wot, "choose_identity", patched_choose_identity)
 
     patched_display_confirmation_table = AsyncMock()

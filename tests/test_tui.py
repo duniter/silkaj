@@ -19,14 +19,15 @@ import pytest
 from silkaj.tui import display_pubkey, display_amount, display_pubkey_and_checksum
 from silkaj.constants import G1_SYMBOL, SHORT_PUBKEY_SIZE
 
-import patched
+from patched.wot import patched_is_member
+from patched.money import mock_ud_value
 
 # display_amount()
 @pytest.mark.parametrize(
     "message, amount, currency_symbol", [("Total", 1000, G1_SYMBOL)]
 )
 def test_display_amount(message, amount, currency_symbol):
-    ud_value = patched.mock_ud_value
+    ud_value = mock_ud_value
     amount_UD = round(amount / ud_value, 2)
     expected = [
         [
@@ -55,7 +56,7 @@ def test_display_amount(message, amount, currency_symbol):
 )
 @pytest.mark.asyncio
 async def test_display_pubkey(message, pubkey, id, monkeypatch):
-    monkeypatch.setattr("silkaj.wot.is_member", patched.is_member)
+    monkeypatch.setattr("silkaj.wot.is_member", patched_is_member)
 
     expected = [[message + " (pubkey:checksum)", display_pubkey_and_checksum(pubkey)]]
     if id:
