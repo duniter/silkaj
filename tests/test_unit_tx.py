@@ -15,6 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
+import sys
 import pytest
 
 from silkaj import tx
@@ -37,7 +38,18 @@ from patched.money import patched_get_sources, patched_ud_value
 from patched.test_constants import mock_ud_value
 from patched.tools import patched_currency_symbol
 from patched.blockchain_tools import patched_head_block, fake_block_uid
+from patched.auth import patched_auth_method
 
+# AsyncMock available from Python 3.8. asynctest is used for Py < 3.8
+if sys.version_info[1] > 7:
+    from unittest.mock import AsyncMock
+else:
+    from asynctest.mock import CoroutineMock as AsyncMock
+
+
+# Values
+
+key_fifi = patched_auth_method("fifi")
 
 # truncBase()
 @pytest.mark.parametrize(
@@ -383,3 +395,386 @@ async def test_get_list_input_for_transaction(
     else:
         result = await tx.get_list_input_for_transaction(pubkey, TXamount)
         assert (len(result[0]), result[1], result[2]) == expected
+
+
+# handle_intermediaries_transactions()
+@pytest.mark.parametrize(
+    "key, issuers, tx_amounts, outputAddresses, Comment, OutputbackChange, expected_listinput_amount",
+    [
+        # test 1 : with two amounts/outputs and an outputbackchange, no need for intermediary transaction.
+        (
+            key_fifi,
+            "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            (100, 100),
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+                "4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw",
+            ],
+            "Test comment",
+            "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            (
+                [
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=0,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=1,
+                    ),
+                ],
+                200,
+                False,
+            ),
+        ),
+        # test 2 : with one amounts/outputs and no outputbackchange, need for intermediary transaction.
+        (
+            key_fifi,
+            "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            (4001,),
+            [
+                "4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw",
+            ],
+            "Test comment",
+            "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            (
+                [
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=0,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=1,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=2,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=3,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=4,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=5,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=6,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=7,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=8,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=9,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=10,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=11,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=12,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=13,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=14,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=15,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=16,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=17,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=18,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=19,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=20,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=21,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=22,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=23,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=24,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=25,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=26,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=27,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=28,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=29,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=30,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=31,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=32,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=33,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=34,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=35,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=36,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=37,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=38,
+                    ),
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=39,
+                    ),
+                ],
+                4000,
+                True,
+            ),
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_handle_intermediaries_transactions(
+    key,
+    issuers,
+    tx_amounts,
+    outputAddresses,
+    Comment,
+    OutputbackChange,
+    expected_listinput_amount,
+    monkeypatch,
+):
+    # patched functions
+    patched_generate_and_send_transaction = AsyncMock(return_value=None)
+    monkeypatch.setattr("silkaj.money.get_sources", patched_get_sources)
+    monkeypatch.setattr(
+        "silkaj.tx.generate_and_send_transaction", patched_generate_and_send_transaction
+    )
+
+    patched_get_sources.counter = 0
+
+    # testing
+    await tx.handle_intermediaries_transactions(
+        key, issuers, tx_amounts, outputAddresses, Comment, OutputbackChange
+    )
+
+    if expected_listinput_amount[2] == True:
+        patched_generate_and_send_transaction.assert_any_await(
+            key,
+            issuers,
+            [
+                expected_listinput_amount[1],
+            ],
+            expected_listinput_amount,
+            [issuers],
+            "Change operation",
+        )
+    else:
+        patched_generate_and_send_transaction.assert_awaited_once_with(
+            key,
+            issuers,
+            tx_amounts,
+            expected_listinput_amount,
+            outputAddresses,
+            Comment,
+            issuers,
+        )

@@ -58,7 +58,7 @@ async def patched_get_sources(pubkey):
                     base=0,
                     source="D",
                     origin_id=pubkey,
-                    index=max_ud,
+                    index=a,
                 )
             )
             balance += amount_in_current_base(listinput[-1])
@@ -73,7 +73,7 @@ async def patched_get_sources(pubkey):
                     base=0,
                     source="T",
                     origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
-                    index=max_tx,
+                    index=a,
                 )
             )
             balance += amount_in_current_base(listinput[-1])
