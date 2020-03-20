@@ -41,7 +41,8 @@ from duniterpy.documents.transaction import (
 from duniterpy.documents.block_uid import BlockUID
 
 from patched.wot import patched_is_member
-from patched.money import patched_get_sources, patched_ud_value, mock_ud_value
+from patched.money import patched_get_sources, patched_ud_value
+from patched.test_constants import mock_ud_value
 from patched.tools import patched_currency_symbol
 from patched.blockchain_tools import patched_head_block
 
@@ -429,24 +430,45 @@ async def test_generate_transaction_document(
 @pytest.mark.parametrize(
     "pubkey, TXamount, expected",
     [
-        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 200, (2, 300, False)),
-        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 600, (3, 600, False)),
+        # less than 1 source
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 99, (1, 100, False)),
+        # exactly one source
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 100, (1, 100, False)),
+        # more than 1 source and no interm tx
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 150, (2, 200, False)),
+        # all sources
+        ("CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", 300, (3, 300, False)),
+        # too high amount
         (
             "CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp",
-            800,
+            301,
             "Error: you don't have enough money",
         ),
-        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 143100, (40, 82000, True)),
+        # need for an intermediary tx
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 4100, (40, 4000, True)),
+        # no need for an intermediary tx, but the function still does it
+        ("HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", 4000, (40, 4000, True)),
+        # less than 1 UD source
         ("2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY", 200, (1, 314, False)),
+        # exactly 1 UD source
+        ("2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY", 314, (1, 314, False)),
+        # all sources with UD sources
         ("2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY", 3140, (10, 3140, False)),
+        # too high amount
         (
             "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
             5000,
             "Error: you don't have enough money",
         ),
-        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 2900, (8, 3600, False)),
-        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 22500, (25, 22570, False)),
-        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 29000, (40, 27280, True)),
+        # mix UD and TX source
+        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 2500, (8, 2512, False)),
+        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 7800, (25, 7850, False)),
+        # need for interm tx
+        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 12561, (40, 12560, True)),
+        # no need for interm tx but the function still does it
+        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 12247, (40, 12560, True)),
+        # exactly 39 sources
+        ("9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp", 12246, (39, 12246, False)),
     ],
 )
 @pytest.mark.asyncio
@@ -455,11 +477,13 @@ async def test_get_list_input_for_transaction(
 ):
     """
     expected is [len(listinput), amount, IntermediateTransaction] or "Error"
-    see patched.get_sources() to compute expected values.
+    see patched_get_sources() to compute expected values.
     """
 
     # patched functions
     monkeypatch.setattr("silkaj.money.get_sources", patched_get_sources)
+    # reset patched_get_sources counter
+    patched_get_sources.counter = 0
     # testing error exit
     if isinstance(expected, str):
         with pytest.raises(SystemExit) as pytest_exit:

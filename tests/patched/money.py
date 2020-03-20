@@ -17,13 +17,10 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 
 # This file contains patched functions for testing purposes.
 
-from silkaj.constants import G1_SYMBOL
+from silkaj.constants import G1_SYMBOL, SOURCES_PER_TX
 from silkaj.money import amount_in_current_base
 from duniterpy.documents.transaction import InputSource
-
-
-# mock UDValue
-mock_ud_value = 314
+from patched.test_constants import mock_ud_value
 
 
 async def patched_ud_value(self):
@@ -35,16 +32,26 @@ async def patched_get_sources(pubkey):
     """
     Returns transaction sources.
     This function doesn't cover all possibilities : only SIG() unlock condition.
-    for pubkey DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw : 3 TX, amount = 600
-    for pubkey 4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw : 53 TX, amount = 143100
-    for pubkey BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh : 10 UD, amount = 3140
-    for pubkey C1oAV9FX2y9iz2sdp7kZBFu3EBNAa6UkrrRG3EwouPeH : 50 UD and 20 TX, amount = 36700
-    else : 0 sources, amount = 0
+
+    Can be called many times (depending on pubkey).
+    If so, it will mock intermediary tx for the first 40 inputs.
+    Tests using this function should reset the counter at the begining of each test case.
+    See source_dict.py for inputs lists.
+
+    all UTXO have the same amount : 100
+    all UD have the same amount : 314
+
+    for pubkey CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp : 3 TX, balance = 300
+    for pubkey HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat : 53 TX, balance = 5300
+    for pubkey 2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY : 10 UD, balance = 3140
+    for pubkey 9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp : 50 UD and 20 TX, balance = 17700
+    else : 0 sources, balance = 0
     Same hash for each TX for convenience. This may change for other testing purposes.
     """
 
-    def listinput_UD(listinput, amount, pubkey, max_ud, total):
-        while max_ud > 0 and total > 0:
+    def listinput_UD(listinput, balance, pubkey, max_ud):
+        a = 0
+        while a < max_ud:
             listinput.append(
                 InputSource(
                     amount=mock_ud_value,
@@ -54,46 +61,73 @@ async def patched_get_sources(pubkey):
                     index=max_ud,
                 )
             )
-            amount += amount_in_current_base(listinput[-1])
-            max_ud -= 1
-            total -= 1
+            balance += amount_in_current_base(listinput[-1])
+            a += 1
 
-    def listinput_TX(listinput, amount, max_tx, total):
-        orig_max = max_tx + 1
-        while max_tx > 0 and total > 0:
+    def listinput_TX(listinput, balance, max_tx):
+        a = 0
+        while a < max_tx:
             listinput.append(
                 InputSource(
-                    amount=(orig_max - max_tx) * 100,
+                    amount=100,
                     base=0,
                     source="T",
                     origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
                     index=max_tx,
                 )
             )
-            amount += amount_in_current_base(listinput[-1])
-            max_tx -= 1
-            total -= 1
+            balance += amount_in_current_base(listinput[-1])
+            a += 1
 
     listinput, n = list(), 0
-    amount = 0
+    balance = 0
     if pubkey == "CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp":
+        max_ud = 0
         max_tx = 3
-        max_ud = 0
     elif pubkey == "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat":
-        max_tx = 53
-        max_ud = 0
+        if patched_get_sources.counter == 0:
+            max_ud = 0
+            max_tx = 53
+        elif patched_get_sources.counter == 1:
+            listinput.append(
+                InputSource(
+                    amount=100 * SOURCES_PER_TX,  # 100 * 40 = 4000
+                    base=0,
+                    source="T",
+                    origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                    index=93,
+                )
+            )
+            max_ud = 0
+            max_tx = 6
     elif pubkey == "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY":
-        max_tx = 0
         max_ud = 10
-    elif pubkey == "9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp":
-        max_tx = 20
-        max_ud = 50
-    else:
         max_tx = 0
+    elif pubkey == "9cwBBgXcSVMT74xiKYygX6FM5yTdwd3NABj1CfHbbAmp":
+        if patched_get_sources.counter == 0:
+            max_ud = 50
+            max_tx = 20
+        elif patched_get_sources.counter == 1:
+            listinput.append(
+                InputSource(
+                    amount=mock_ud_value * SOURCES_PER_TX,  # 40 UD = 40*314 = 12560
+                    base=0,
+                    source="T",
+                    origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                    index=93,
+                )
+            )
+            max_ud = 4
+            max_tx = 20
+    else:
         max_ud = 0
+        max_tx = 0
 
-    total = max_tx + max_ud
-    listinput_TX(listinput, amount, max_tx, total)
-    listinput_UD(listinput, amount, pubkey, max_ud, total)
+    listinput_UD(listinput, balance, pubkey, max_ud)
+    listinput_TX(listinput, balance, max_tx)
 
-    return listinput, amount
+    patched_get_sources.counter += 1
+    return listinput, balance
+
+
+patched_get_sources.counter = 0

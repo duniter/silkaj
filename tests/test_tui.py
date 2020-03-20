@@ -20,7 +20,7 @@ from silkaj.tui import display_pubkey, display_amount, display_pubkey_and_checks
 from silkaj.constants import G1_SYMBOL, SHORT_PUBKEY_SIZE
 
 from patched.wot import patched_is_member
-from patched.money import mock_ud_value
+from patched.test_constants import mock_ud_value
 
 # display_amount()
 @pytest.mark.parametrize(

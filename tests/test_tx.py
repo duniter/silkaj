@@ -23,7 +23,8 @@ from silkaj.money import UDValue
 from silkaj.cli import cli
 from silkaj.constants import MINIMAL_ABSOLUTE_TX_AMOUNT, FAILURE_EXIT_STATUS
 
-from patched.money import mock_ud_value, patched_ud_value
+from patched.money import patched_ud_value
+from patched.test_constants import mock_ud_value
 
 
 @pytest.mark.asyncio
