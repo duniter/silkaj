@@ -21,13 +21,14 @@ from asyncio import sleep
 from tabulate import tabulate
 from click import command, option, FloatRange
 
-from silkaj.cli_tools import MutuallyExclusiveOption
-from silkaj.network_tools import ClientInstance
-from silkaj.blockchain_tools import HeadBlock
-from silkaj.crypto_tools import validate_checksum, check_pubkey_format
-from silkaj.tools import message_exit, CurrencySymbol, coroutine
-from silkaj.auth import auth_method
+from silkaj import cli_tools
+from silkaj import network_tools as nt
+from silkaj import crypto_tools as ct
+from silkaj import blockchain_tools as bt
+from silkaj import tools
+from silkaj import auth
 from silkaj import money
+from silkaj import tui
 from silkaj.constants import (
     SOURCES_PER_TX,
     MINIMAL_ABSOLUTE_TX_AMOUNT,
@@ -35,7 +36,6 @@ from silkaj.constants import (
     CENT_MULT_TO_UNIT,
     ASYNC_SLEEP,
 )
-from silkaj.tui import display_amount, display_pubkey, display_pubkey_and_checksum
 
 from duniterpy.api.bma.tx import process
 from duniterpy.documents import BlockUID, Transaction
@@ -52,7 +52,7 @@ from duniterpy.documents.transaction import OutputSource, Unlock, SIGParameter
     help="Quantitative amount(s):\n-a <amount>\nMinimum amount is {0}".format(
         MINIMAL_ABSOLUTE_TX_AMOUNT
     ),
-    cls=MutuallyExclusiveOption,
+    cls=cli_tools.MutuallyExclusiveOption,
     mutually_exclusive=["amountsud", "allsources"],
 )
 @option(
@@ -62,14 +62,14 @@ from duniterpy.documents.transaction import OutputSource, Unlock, SIGParameter
     multiple=True,
     type=FloatRange(MINIMAL_RELATIVE_TX_AMOUNT),
     help=f"Relative amount(s):\n-d <amount_UD>\nMinimum amount is {MINIMAL_RELATIVE_TX_AMOUNT}",
-    cls=MutuallyExclusiveOption,
+    cls=cli_tools.MutuallyExclusiveOption,
     mutually_exclusive=["amounts", "allsources"],
 )
 @option(
     "--allSources",
     is_flag=True,
     help="Send all sources to one recipient",
-    cls=MutuallyExclusiveOption,
+    cls=cli_tools.MutuallyExclusiveOption,
     mutually_exclusive=["amounts", "amountsud"],
 )
 @option(
@@ -89,7 +89,7 @@ Sending to many recipients is possible:\n\
     help="Pubkey recipient to send the rest of the transaction: <pubkey[:checksum]>",
 )
 @option("--yes", "-y", is_flag=True, help="Assume yes. Do not prompt confirmation")
-@coroutine
+@tools.coroutine
 async def send_transaction(
     amounts, amountsud, allsources, recipients, comment, outputbackchange, yes
 ):
@@ -97,23 +97,23 @@ async def send_transaction(
     Main function
     """
     if not (amounts or amountsud or allsources):
-        message_exit("Error: amount, amountUD or allSources is not set.")
+        tools.message_exit("Error: amount, amountUD or allSources is not set.")
     if allsources and len(recipients) > 1:
-        message_exit(
+        tools.message_exit(
             "Error: the --allSources option can only be used with one recipient."
         )
     # compute amounts and amountsud
     if not allsources:
         tx_amounts = await transaction_amount(amounts, amountsud, recipients)
 
-    key = auth_method()
+    key = auth.auth_method()
     issuer_pubkey = key.pubkey
 
     pubkey_amount = await money.get_amount_from_pubkey(issuer_pubkey)
     if allsources:
         if pubkey_amount[0] <= 0:
-            message_exit(
-                f"Error: Issuer pubkey {display_pubkey_and_checksum(issuer_pubkey)} is empty. No transaction sent."
+            tools.message_exit(
+                f"Error: Issuer pubkey {tui.display_pubkey_and_checksum(issuer_pubkey)} is empty. No transaction sent."
             )
 
         tx_amounts = [pubkey_amount[0]]
@@ -154,7 +154,7 @@ async def send_transaction(
             outputbackchange,
         )
     else:
-        client = ClientInstance().client
+        client = nt.ClientInstance().client
         await client.close()
 
 
@@ -170,7 +170,7 @@ async def transaction_amount(amounts, UDs_amounts, outputAddresses):
         UD_value = await money.UDValue().ud_value
         amounts_list = compute_amounts(UDs_amounts, UD_value)
     if len(amounts_list) != len(outputAddresses) and len(amounts_list) != 1:
-        message_exit(
+        tools.message_exit(
             "Error: The number of passed recipients is not the same as the passed amounts."
         )
     # In case one amount is passed with multiple recipients
@@ -194,7 +194,7 @@ def compute_amounts(amounts, multiplicator):
         if (multiplicator != CENT_MULT_TO_UNIT) and (
             computed_amount < (MINIMAL_ABSOLUTE_TX_AMOUNT * CENT_MULT_TO_UNIT)
         ):
-            message_exit("Error: amount {0} is too low.".format(amount))
+            tools.message_exit("Error: amount {0} is too low.".format(amount))
         amounts_list.append(round(computed_amount))
     return amounts_list
 
@@ -210,14 +210,14 @@ def check_transaction_values(
     """
     checkComment(comment)
     for i, outputAddress in enumerate(outputAddresses):
-        if check_pubkey_format(outputAddress):
-            outputAddresses[i] = validate_checksum(outputAddress)
+        if ct.check_pubkey_format(outputAddress):
+            outputAddresses[i] = ct.validate_checksum(outputAddress)
     if outputBackChange:
-        if check_pubkey_format(outputBackChange):
-            outputBackChange = validate_checksum(outputBackChange)
+        if ct.check_pubkey_format(outputBackChange):
+            outputBackChange = ct.validate_checksum(outputBackChange)
     if enough_source:
-        message_exit(
-            display_pubkey_and_checksum(issuer_pubkey)
+        tools.message_exit(
+            tui.display_pubkey_and_checksum(issuer_pubkey)
             + " pubkey doesn’t have enough money for this transaction."
         )
     return outputBackChange
@@ -235,41 +235,41 @@ async def transaction_confirmation(
     Generate transaction confirmation
     """
 
-    currency_symbol = await CurrencySymbol().symbol
+    currency_symbol = await tools.CurrencySymbol().symbol
     ud_value = await money.UDValue().ud_value
     total_tx_amount = sum(tx_amounts)
     tx = list()
     # display account situation
-    display_amount(
+    tui.display_amount(
         tx,
         "Initial balance",
         pubkey_amount,
         ud_value,
         currency_symbol,
     )
-    display_amount(
+    tui.display_amount(
         tx,
         "Total transaction amount",
         total_tx_amount,
         ud_value,
         currency_symbol,
     )
-    display_amount(
+    tui.display_amount(
         tx,
         "Balance after transaction",
         (pubkey_amount - total_tx_amount),
         ud_value,
         currency_symbol,
     )
-    await display_pubkey(tx, "From", issuer_pubkey)
+    await tui.display_pubkey(tx, "From", issuer_pubkey)
     # display outputs and amounts
     for outputAddress, tx_amount in zip(outputAddresses, tx_amounts):
-        await display_pubkey(tx, "To", outputAddress)
+        await tui.display_pubkey(tx, "To", outputAddress)
         await sleep(ASYNC_SLEEP)
-        display_amount(tx, "Amount", tx_amount, ud_value, currency_symbol)
+        tui.display_amount(tx, "Amount", tx_amount, ud_value, currency_symbol)
     # display last informations
     if outputBackChange:
-        await display_pubkey(tx, "Backchange", outputBackChange)
+        await tui.display_pubkey(tx, "Backchange", outputBackChange)
     tx.append(["Comment", comment])
     return tx
 
@@ -292,7 +292,7 @@ async def get_list_input_for_transaction(pubkey, TXamount):
         if TXamount <= 0:
             break
     if TXamount > 0 and not intermediatetransaction:
-        message_exit("Error: you don't have enough money")
+        tools.message_exit("Error: you don't have enough money")
     return listinputfinal, totalAmountInput, intermediatetransaction
 
 
@@ -304,7 +304,7 @@ async def handle_intermediaries_transactions(
     Comment="",
     OutputbackChange=None,
 ):
-    client = ClientInstance().client
+    client = nt.ClientInstance().client
     while True:
         listinput_and_amount = await get_list_input_for_transaction(
             issuers, sum(tx_amounts)
@@ -355,12 +355,12 @@ async def generate_and_send_transaction(
         print("Generate Change Transaction")
     else:
         print("Generate Transaction:")
-    print("   - From:    " + display_pubkey_and_checksum(issuers))
+    print("   - From:    " + tui.display_pubkey_and_checksum(issuers))
     for tx_amount, outputAddress in zip(tx_amounts, outputAddresses):
         display_sent_tx(outputAddress, tx_amount)
     print("   - Total:   " + str(sum(tx_amounts) / 100))
 
-    client = ClientInstance().client
+    client = nt.ClientInstance().client
     transaction = await generate_transaction_document(
         issuers,
         tx_amounts,
@@ -370,11 +370,12 @@ async def generate_and_send_transaction(
         OutputbackChange,
     )
     transaction.sign([key])
+
     response = await client(process, transaction.signed_raw())
     if response.status == 200:
         print("Transaction successfully sent.")
     else:
-        message_exit(
+        tools.message_exit(
             "Error while publishing transaction: {0}".format(await response.text())
         )
 
@@ -382,7 +383,7 @@ async def generate_and_send_transaction(
 def display_sent_tx(outputAddress, amount):
     print(
         "   - To:     ",
-        display_pubkey_and_checksum(outputAddress),
+        tui.display_pubkey_and_checksum(outputAddress),
         "\n   - Amount: ",
         amount / 100,
     )
@@ -401,7 +402,7 @@ async def generate_transaction_document(
     totalAmountInput = listinput_and_amount[1]
     total_tx_amount = sum(tx_amounts)
 
-    head_block = await HeadBlock().head_block
+    head_block = await bt.HeadBlock().head_block
     currency_name = head_block["currency"]
     blockstamp_current = BlockUID(head_block["number"], head_block["hash"])
     curentUnitBase = head_block["unitbase"]
@@ -470,12 +471,12 @@ def generate_output(listoutput, unitbase, rest, recipient_address):
 
 def checkComment(Comment):
     if len(Comment) > 255:
-        message_exit("Error: Comment is too long")
+        tools.message_exit("Error: Comment is too long")
     regex = compile(
         "^[0-9a-zA-Z\\ \\-\\_\\:\\/\\;\\*\\[\\]\\(\\)\\?\\!\\^\\+\\=\\@\\&\\~\\#\\{\\}\\|\\\\<\\>\\%\\.]*$"
     )
     if not search(regex, Comment):
-        message_exit("Error: the format of the comment is invalid")
+        tools.message_exit("Error: the format of the comment is invalid")
 
 
 def truncBase(amount, base):
