@@ -25,6 +25,11 @@ from silkaj.constants import (
     CENT_MULT_TO_UNIT,
     MINIMAL_ABSOLUTE_TX_AMOUNT,
 )
+from silkaj.cli import cli
+
+from click.testing import CliRunner
+from click import pass_context
+
 from duniterpy.documents.transaction import (
     InputSource,
     Transaction,
@@ -39,6 +44,10 @@ from patched.test_constants import mock_ud_value
 from patched.tools import patched_currency_symbol
 from patched.blockchain_tools import patched_head_block, fake_block_uid
 from patched.auth import patched_auth_method
+from patched.tx import (
+    patched_transaction_confirmation,
+    patched_handle_intermediaries_transactions,
+)
 
 # AsyncMock available from Python 3.8. asynctest is used for Py < 3.8
 if sys.version_info[1] > 7:
@@ -46,10 +55,10 @@ if sys.version_info[1] > 7:
 else:
     from asynctest.mock import CoroutineMock as AsyncMock
 
-
 # Values
-
+# fifi: HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat : 53 TX, amount = 5300
 key_fifi = patched_auth_method("fifi")
+
 
 # truncBase()
 @pytest.mark.parametrize(
@@ -778,3 +787,216 @@ async def test_handle_intermediaries_transactions(
             Comment,
             issuers,
         )
+
+
+# test send_transaction()
+@pytest.mark.parametrize(
+    "amounts, amountsud, allsources, recipients, comment, outputbackchange, yes, confirmation_answer",
+    [
+        (
+            [
+                2,
+            ],
+            "",
+            "",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            ],
+            "Test",
+            None,
+            True,
+            "",
+        ),
+        (
+            [2],
+            "",
+            "",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            ],
+            "",
+            "",
+            False,
+            "yes",
+        ),
+        (
+            [2],
+            "",
+            "",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            ],
+            "Test Comment",
+            "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            False,
+            "no",
+        ),
+        (
+            [2],
+            "",
+            "",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+                "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            ],
+            "Test Comment",
+            None,
+            False,
+            "yes",
+        ),
+        (
+            [2, 3],
+            "",
+            "",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+                "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            ],
+            "Test Comment",
+            None,
+            False,
+            "yes",
+        ),
+        (
+            "",
+            [0.5, 1],
+            "",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+                "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            ],
+            "Test Comment",
+            None,
+            False,
+            "yes",
+        ),
+        (
+            "",
+            "",
+            True,
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            ],
+            "Test Comment",
+            None,
+            False,
+            "yes",
+        ),
+    ],
+)
+def test_send_transaction(
+    amounts,
+    amountsud,
+    allsources,
+    recipients,
+    comment,
+    outputbackchange,
+    yes,
+    confirmation_answer,
+    monkeypatch,
+):
+    """
+    This function only tests coherent values.
+    Errors are tested in test_tx.py.
+    """
+
+    @pass_context
+    def patched_auth_method_tx(ctx):
+        return key_fifi
+
+    def compute_test_amounts(amounts, mult):
+        list_amounts = []
+        for amount in amounts:
+            list_amounts.append(round(amount * mult))
+        return list_amounts
+
+    # construct click arguments list
+    def construct_args(
+        amounts, amountsud, allsources, recipients, comment, outputbackchange, yes
+    ):
+        args_list = ["tx"]
+        if yes:
+            args_list.append("--yes")
+        if amounts:
+            for amount in amounts:
+                args_list.append("-a")
+                args_list.append(str(amount))
+        elif amountsud:
+            for amountud in amountsud:
+                args_list.append("-d")
+                args_list.append(str(amountud))
+        elif allsources:
+            args_list.append("--allSources")
+        for recipient in recipients:
+            args_list.append("-r")
+            args_list.append(recipient)
+        if comment:
+            args_list.append("--comment")
+            args_list.append(comment)
+        if outputbackchange != None:
+            args_list.append("--outputBackChange")
+            args_list.append(outputbackchange)
+        return args_list
+
+    # mocking functions
+    patched_transaction_confirmation = AsyncMock(return_value=None)
+    patched_handle_intermediaries_transactions = AsyncMock(return_value=None)
+
+    # patching functions
+    monkeypatch.setattr("silkaj.auth.auth_method", patched_auth_method_tx)
+    monkeypatch.setattr(
+        "silkaj.tx.transaction_confirmation", patched_transaction_confirmation
+    )
+    monkeypatch.setattr(
+        "silkaj.tx.handle_intermediaries_transactions",
+        patched_handle_intermediaries_transactions,
+    )
+    monkeypatch.setattr("silkaj.money.get_sources", patched_get_sources)
+    monkeypatch.setattr("silkaj.money.UDValue.get_ud_value", patched_ud_value)
+
+    # reset patched_get_sources
+    patched_get_sources.counter = 0
+    # total amount for pubkey_fifi
+    total_amount = 5300
+    # compute amounts list
+    if allsources:
+        # sum of sources for account "fifi"
+        tx_amounts = [total_amount]
+    else:
+        if amounts:
+            mult = CENT_MULT_TO_UNIT
+            test_amounts = amounts
+        elif amountsud:
+            mult = mock_ud_value
+            test_amounts = amountsud
+        if len(recipients) != len(test_amounts) and len(test_amounts) == 1:
+            test_amounts = [test_amounts[0]] * len(recipients)
+        tx_amounts = compute_test_amounts(test_amounts, mult)
+
+    # create arguments and run cli
+    arguments = construct_args(
+        amounts, amountsud, allsources, recipients, comment, outputbackchange, yes
+    )
+    result = CliRunner().invoke(cli, args=arguments, input=confirmation_answer)
+    print(result.output)
+
+    if confirmation_answer:
+        patched_transaction_confirmation.assert_any_await(
+            key_fifi.pubkey,
+            total_amount,
+            tx_amounts,
+            recipients,
+            outputbackchange,
+            comment,
+        )
+    if yes or confirmation_answer == "yes":
+        patched_handle_intermediaries_transactions.assert_any_await(
+            key_fifi,
+            key_fifi.pubkey,
+            tx_amounts,
+            recipients,
+            comment,
+            outputbackchange,
+        )
+    elif confirmation_answer == "no":
+        patched_handle_intermediaries_transactions.assert_not_awaited()
