@@ -1000,3 +1000,222 @@ def test_send_transaction(
         )
     elif confirmation_answer == "no":
         patched_handle_intermediaries_transactions.assert_not_awaited()
+
+
+# generate_and_send_transaction()
+
+
+@pytest.mark.parametrize(
+    "key, issuers, tx_amounts, listinput_and_amount, outputAddresses, Comment, OutputbackChange, client_return",
+    [
+        # right tx : 1 amount for 1 receiver
+        (
+            key_fifi,
+            key_fifi.pubkey,
+            [
+                100,
+            ],
+            (
+                [
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=0,
+                    ),
+                    InputSource(
+                        amount=200,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=1,
+                    ),
+                    InputSource(
+                        amount=300,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=2,
+                    ),
+                ],
+                600,
+                False,
+            ),
+            ("DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",),
+            "",
+            None,
+            True,
+        ),
+        # right tx : 2 amounts for 2 receivers
+        (
+            key_fifi,
+            key_fifi.pubkey,
+            [
+                100,
+                250,
+            ],
+            (
+                [
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=0,
+                    ),
+                    InputSource(
+                        amount=200,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=1,
+                    ),
+                    InputSource(
+                        amount=300,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=2,
+                    ),
+                ],
+                600,
+                False,
+            ),
+            (
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+                "CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp",
+            ),
+            "Test comment",
+            None,
+            True,
+        ),
+        # Wrong tx : 3 amounts for 1 receiver
+        (
+            key_fifi,
+            key_fifi.pubkey,
+            [
+                100,
+                150,
+                50,
+            ],
+            (
+                [
+                    InputSource(
+                        amount=100,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=0,
+                    ),
+                    InputSource(
+                        amount=200,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=1,
+                    ),
+                    InputSource(
+                        amount=300,
+                        base=0,
+                        source="T",
+                        origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                        index=2,
+                    ),
+                ],
+                600,
+                False,
+            ),
+            ("DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",),
+            "",
+            "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            False,
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_generate_and_send_transaction(
+    key,
+    issuers,
+    tx_amounts,
+    listinput_and_amount,
+    outputAddresses,
+    Comment,
+    OutputbackChange,
+    client_return,
+    monkeypatch,
+    capsys,
+):
+
+    # create FakeReturn and patched_ClientInstance classes to patch ClientInstance() class
+    class FakeReturn:
+        def __init__(self):
+            self.status = client_return
+
+        async def __call__(self, *args, **kwargs):
+            return self
+
+        async def text(self):
+            return "Tests for Silkaj : Fake Return !"
+
+    class patched_ClientInstance:
+        def __init__(self):
+            self.client = FakeReturn()
+
+    # mock functions
+    tx.generate_transaction_document = AsyncMock()
+
+    # patched functions
+    monkeypatch.setattr(
+        "silkaj.blockchain_tools.HeadBlock.get_head", patched_head_block
+    )
+    monkeypatch.setattr("silkaj.network_tools.ClientInstance", patched_ClientInstance)
+
+    # write the test function
+    async def function_testing():
+        await tx.generate_and_send_transaction(
+            key,
+            issuers,
+            tx_amounts,
+            listinput_and_amount,
+            outputAddresses,
+            Comment,
+            OutputbackChange,
+        )
+        if client_return != 200:
+            assert pytest.raises(SystemExit).type == SystemExit
+
+        display = capsys.readouterr().out
+        if listinput_and_amount[2]:
+            assert display.find("Generate Change Transaction") != -1
+        else:
+            assert display.find("Generate Transaction:") != -1
+            assert display.find("   - From:    {0}".format(issuers)) != -1
+        for tx_amount, outputAddress in zip(tx_amounts, outputAddresses):
+            assert display.find(
+                "   - To:     {0}\n   - Amount: {1}".format(
+                    outputAddress, tx_amount / 100
+                )
+            )
+
+        tx.generate_transaction_document.assert_awaited_once_with(
+            issuers,
+            tx_amounts,
+            listinput_and_amount,
+            outputAddresses,
+            Comment,
+            OutputbackChange,
+        )
+
+        if client_return == 200:
+            assert display.find("Transaction successfully sent.") != -1
+        else:
+            assert display.find("Error while publishing transaction:") != -1
+
+    ### test function and catch SystemExit if needed ###
+    if client_return == 200:
+        await function_testing()
+    else:
+        with pytest.raises(SystemExit) as pytest_exit:
+            await function_testing()
+        assert pytest_exit.type == SystemExit
