@@ -1366,3 +1366,35 @@ def test_check_transaction_values_errors(
             )
         assert result == ""
     assert pytest_exit.type == SystemExit
+
+
+# test generate_unlocks()
+@pytest.mark.parametrize(
+    "listinput, expected",
+    [
+        (
+            [
+                InputSource(
+                    amount=100,
+                    base=0,
+                    source="T",
+                    origin_id="1F3059ABF35D78DFB5AFFB3DEAB4F76878B04DB6A14757BBD6B600B1C19157E7",
+                    index=2,
+                ),
+                InputSource(
+                    amount=mock_ud_value,
+                    base=0,
+                    source="D",
+                    origin_id="2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
+                    index=6,
+                ),
+            ],
+            [
+                Unlock(index=0, parameters=[SIGParameter(0)]),
+                Unlock(index=1, parameters=[SIGParameter(0)]),
+            ],
+        ),
+    ],
+)
+def test_generate_unlocks(listinput, expected):
+    assert expected == tx.generate_unlocks(listinput)
