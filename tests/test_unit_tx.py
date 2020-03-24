@@ -1219,3 +1219,150 @@ async def test_generate_and_send_transaction(
         with pytest.raises(SystemExit) as pytest_exit:
             await function_testing()
         assert pytest_exit.type == SystemExit
+
+
+# test check_transaction_values()
+@pytest.mark.parametrize(
+    # issuer_pubkey can be invalid. It is only used for display.
+    "comment, outputAddresses, outputBackChange, enough_source, issuer_pubkey, expected_outputBackchange",
+    [
+        (
+            "Test",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            ],
+            "",
+            False,
+            "A",
+            "",
+        ),
+        (
+            "",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+                "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            ],
+            "Hvrm4fZQWQ2M26wNczZcijce7cB8XQno2NPTwf5MovPa:5XP",
+            False,
+            "A",
+            "Hvrm4fZQWQ2M26wNczZcijce7cB8XQno2NPTwf5MovPa",
+        ),
+        (
+            "Test",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            ],
+            "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            False,
+            "A",
+            "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+        ),
+    ],
+)
+def test_check_transaction_values(
+    comment,
+    outputAddresses,
+    outputBackChange,
+    enough_source,
+    issuer_pubkey,
+    expected_outputBackchange,
+    capsys,
+):
+    result = tx.check_transaction_values(
+        comment, outputAddresses, outputBackChange, enough_source, issuer_pubkey
+    )
+    assert capsys.readouterr().out == ""
+    assert result == expected_outputBackchange
+
+
+# test check_transaction_values()
+@pytest.mark.parametrize(
+    # issuer_pubkey can be invalid. It is only used for display.
+    "comment, outputAddresses, outputBackChange, enough_source, issuer_pubkey",
+    [
+        (
+            "Wrong_Char_é",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            ],
+            "",
+            False,
+            "A",
+        ),
+        (
+            "Test",
+            [
+                "Wrong_Pubkey",
+            ],
+            "",
+            False,
+            "A",
+        ),
+        (
+            "Test",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+                "Wrong_Pubkey",
+            ],
+            "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            False,
+            "A",
+        ),
+        (
+            "Test",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            ],
+            "Wrong_Pubkey",
+            False,
+            "A",
+        ),
+        (
+            "Test",
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            ],
+            "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            True,
+            "A",
+        ),
+        (
+            "a" * 256,
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            ],
+            "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat",
+            False,
+            "A",
+        ),
+    ],
+)
+def test_check_transaction_values_errors(
+    comment, outputAddresses, outputBackChange, enough_source, issuer_pubkey, capsys
+):
+    with pytest.raises(SystemExit) as pytest_exit:
+        result = tx.check_transaction_values(
+            comment, outputAddresses, outputBackChange, enough_source, issuer_pubkey
+        )
+        display = capsys.readouterr()
+        if comment.find("Wrong_Char_") != -1:
+            assert display == "Error: the format of the comment is invalid"
+        elif len(comment) > tx.MAX_COMMENT_LENGTH:
+            assert display == "Error: the format of the comment is invalid"
+        elif "Wrong_Pubkey" in outputAddresses:
+            assert display.out.find("Error: bad format for following public key:") != -1
+        elif outputBackChange:
+            if outputBackChange == "Wrong_Pubkey":
+                assert (
+                    display.out.find("Error: bad format for following public key:")
+                    != -1
+                )
+        elif enough_source is True:
+            assert (
+                display.out.find(
+                    "pubkey doesn’t have enough money for this transaction."
+                )
+                != -1
+            )
+        assert result == ""
+    assert pytest_exit.type == SystemExit
