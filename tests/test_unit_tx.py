@@ -1398,3 +1398,76 @@ def test_check_transaction_values_errors(
 )
 def test_generate_unlocks(listinput, expected):
     assert expected == tx.generate_unlocks(listinput)
+
+
+# test generate_output
+@pytest.mark.parametrize(
+    "listoutput, unitbase, rest, recipient_address, expected",
+    [
+        (
+            [],
+            0,
+            500,
+            "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
+            [
+                OutputSource(
+                    amount="500",
+                    base=0,
+                    condition="SIG(2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY)",
+                )
+            ],
+        ),
+        (
+            [],
+            2,
+            314,
+            "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
+            [
+                OutputSource(
+                    amount="3",
+                    base=2,
+                    condition="SIG(2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY)",
+                ),
+                OutputSource(
+                    amount="1",
+                    base=1,
+                    condition="SIG(2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY)",
+                ),
+                OutputSource(
+                    amount="4",
+                    base=0,
+                    condition="SIG(2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY)",
+                ),
+            ],
+        ),
+        (
+            [
+                OutputSource(
+                    amount="100",
+                    base=0,
+                    condition="SIG(2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY)",
+                )
+            ],
+            0,
+            500,
+            "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY",
+            [
+                OutputSource(
+                    amount="100",
+                    base=0,
+                    condition="SIG(2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY)",
+                ),
+                OutputSource(
+                    amount="500",
+                    base=0,
+                    condition="SIG(2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY)",
+                ),
+            ],
+        ),
+    ],
+)
+def test_generate_output(listoutput, unitbase, rest, recipient_address, expected):
+    tx.generate_output(listoutput, unitbase, rest, recipient_address)
+    assert len(expected) == len(listoutput)
+    for e, o in zip(expected, listoutput):
+        assert e == o
