@@ -275,6 +275,7 @@ async def list_blocks(number, detailed):
             issuer["gentime"] = convert_time(blocks[j]["time"], "all")
             issuer["mediantime"] = convert_time(blocks[j]["medianTime"], "all")
             issuer["hash"] = blocks[j]["hash"][:10]
+            issuer["powMin"] = blocks[j]["powMin"]
         issuers_dict[issuer["pubkey"]] = issuer
         list_issuers.append(issuer)
         j += 1
