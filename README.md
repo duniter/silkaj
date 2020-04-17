@@ -73,3 +73,6 @@ I finally called it `Silkaj` as `Silk` in esperanto.
 
 ### Website
 - [Silkaj website sources](https://git.duniter.org/websites/silkaj_website/)
+
+## Packaging status
+[![Packaging status](https://repology.org/badge/vertical-allrepos/silkaj.svg)](https://repology.org/project/silkaj/versions)
