@@ -38,7 +38,7 @@ silkaj -p <address>:<port> <sub-command>
 - Send transaction
 - Consult the wallet balance
 
-### Money management
+### Web-of-Trust management
 - Check sent and received certifications and consult the membership status of any given identity in the Web of Trust
 - Check the present currency information stand
 - Send certification
