@@ -11,14 +11,14 @@ variables:
 image: $DOCKER_IMAGE/$PYTHON_VERSION:latest
 
 .code_changes:
-  only:
-    changes:
+  rules:
+    - changes:
       - silkaj/*.py
       - tests/*.py
 
 .changes:
-  only:
-    changes:
+  rules:
+    - changes:
       - silkaj/*.py
       - tests/*.py
       - .gitlab-ci.yml
@@ -78,23 +78,26 @@ tests-3.8:
 
 pypi_test:
   stage: publish
-  only: [tags]
-  when: manual
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: manual
   script:
     - poetry config repositories.pypi_test https://test.pypi.org/legacy/
     - poetry publish --build --username $PYPI_TEST_LOGIN --password $PYPI_TEST_PASSWORD --repository pypi_test
 
 pypi:
   stage: publish
-  only: [tags]
-  when: manual
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: manual
   script:
     - poetry publish --build --username $PYPI_LOGIN --password $PYPI_PASSWORD
 
 pages:
   extends: .changes
   needs: [tests-3.7-coverage]
-  only: [dev]
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
   stage: coverage
   script: mv cov_html/ public/
   artifacts:
