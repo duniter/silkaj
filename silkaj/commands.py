@@ -265,24 +265,23 @@ async def list_blocks(number, detailed):
         number = head_block["issuersFrame"]
     client = ClientInstance().client
     blocks = await client(bma.blockchain.blocks, number, current_nbr - number + 1)
-    list_issuers, j = list(), 0
+    issuers = list()
     issuers_dict = dict()
-    while j < len(blocks):
+    for block in blocks:
         issuer = OrderedDict()
-        issuer["pubkey"] = blocks[j]["issuer"]
+        issuer["pubkey"] = block["issuer"]
         if detailed or number <= 30:
-            issuer["block"] = blocks[j]["number"]
-            issuer["gentime"] = convert_time(blocks[j]["time"], "all")
-            issuer["mediantime"] = convert_time(blocks[j]["medianTime"], "all")
-            issuer["hash"] = blocks[j]["hash"][:10]
-            issuer["powMin"] = blocks[j]["powMin"]
+            issuer["block"] = block["number"]
+            issuer["gentime"] = convert_time(block["time"], "all")
+            issuer["mediantime"] = convert_time(block["medianTime"], "all")
+            issuer["hash"] = block["hash"][:10]
+            issuer["powMin"] = block["powMin"]
         issuers_dict[issuer["pubkey"]] = issuer
-        list_issuers.append(issuer)
-        j += 1
+        issuers.append(issuer)
     for pubkey in issuers_dict.keys():
         issuer = issuers_dict[pubkey]
         idty = await identity_of(issuer["pubkey"])
-        for issuer2 in list_issuers:
+        for issuer2 in issuers:
             if (
                 issuer2.get("pubkey") is not None
                 and issuer.get("pubkey") is not None
@@ -299,7 +298,7 @@ async def list_blocks(number, detailed):
         end=" ",
     )
     if detailed or number <= 30:
-        sorted_list = sorted(list_issuers, key=itemgetter("block"), reverse=True)
+        sorted_list = sorted(issuers, key=itemgetter("block"), reverse=True)
         print(
             "\n"
             + tabulate(
@@ -307,28 +306,21 @@ async def list_blocks(number, detailed):
             )
         )
     else:
-        i, list_issued = 0, list()
-        while i < len(list_issuers):
-            j, found = 0, 0
-            while j < len(list_issued):
-                if (
-                    list_issued[j].get("uid") is not None
-                    and list_issued[j]["uid"] == list_issuers[i]["uid"]
-                ):
-                    list_issued[j]["blocks"] += 1
-                    found = 1
+        list_issued = list()
+        for issuer in issuers:
+            found = False
+            for issued in list_issued:
+                if issued.get("uid") is not None and issued["uid"] == issuer["uid"]:
+                    issued["blocks"] += 1
+                    found = True
                     break
-                j += 1
-            if found == 0:
+            if not found:
                 issued = OrderedDict()
-                issued["uid"] = list_issuers[i]["uid"]
+                issued["uid"] = issuer["uid"]
                 issued["blocks"] = 1
                 list_issued.append(issued)
-            i += 1
-        i = 0
-        while i < len(list_issued):
-            list_issued[i]["percent"] = list_issued[i]["blocks"] / number * 100
-            i += 1
+        for issued in list_issued:
+            issued["percent"] = issued["blocks"] / number * 100
         sorted_list = sorted(list_issued, key=itemgetter("blocks"), reverse=True)
         print(
             "from {0} issuers\n{1}".format(
