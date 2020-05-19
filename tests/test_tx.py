@@ -3,7 +3,7 @@ from click.testing import CliRunner
 from silkaj.tx import transaction_amount
 from silkaj.money import UDValue
 from silkaj.cli import cli
-from silkaj.constants import MINIMAL_TX_AMOUNT
+from silkaj.constants import MINIMAL_TX_AMOUNT, FAILURE_EXIT_STATUS
 
 
 @pytest.mark.asyncio
@@ -66,14 +66,14 @@ def test_tx_passed_amount_cli():
 
     result = CliRunner().invoke(cli, ["tx", "-r", "A"])
     assert "Error: amount, amountUD or allSources is not set." in result.output
-    assert result.exit_code == 1
+    assert result.exit_code == FAILURE_EXIT_STATUS
 
     result = CliRunner().invoke(cli, ["tx", "-r", "A", "-r", "B", "--allSources"])
     assert (
         "Error: the --allSources option can only be used with one recipient."
         in result.output
     )
-    assert result.exit_code == 1
+    assert result.exit_code == FAILURE_EXIT_STATUS
 
     result = CliRunner().invoke(cli, ["tx", "-r", "A", "-a", MINIMAL_TX_AMOUNT - 0.001])
     assert 'Error: Invalid value for "--amount"' in result.output
@@ -84,7 +84,7 @@ def test_tx_passed_amount_cli():
         "Error: The number of passed recipients is not the same as the passed amounts."
         in result.output
     )
-    assert result.exit_code == 1
+    assert result.exit_code == FAILURE_EXIT_STATUS
 
     result = CliRunner().invoke(
         cli, ["tx", "-r", "A", "-r", "B", "-r", "C", "-a", 1, "-a", 2]
@@ -93,4 +93,4 @@ def test_tx_passed_amount_cli():
         "Error: The number of passed recipients is not the same as the passed amounts."
         in result.output
     )
-    assert result.exit_code == 1
+    assert result.exit_code == FAILURE_EXIT_STATUS
