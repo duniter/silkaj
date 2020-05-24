@@ -86,12 +86,6 @@ async def show_amount_from_pubkey(pubkey, value):
             "{0} x M/N".format(round(totalAmountInput / average, 2)),
         ]
     )
-    display.append(
-        [
-            "Total relative to M",
-            "{0} % M".format(round(totalAmountInput / monetary_mass, 2)),
-        ]
-    )
     echo(tabulate(display, tablefmt="fancy_grid"))
 
 
