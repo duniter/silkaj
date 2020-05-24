@@ -81,7 +81,7 @@ Sending to many recipients is possible:\n\
 * With one amount, all will receive the amount\n\
 * With many amounts (one per recipient)",
 )
-@option("--comment", default="", help="Comment")
+@option("--comment", "-c", default="", help="Comment")
 @option(
     "--outputBackChange",
     help="Pubkey recipient to send the rest of the transaction: <pubkey[!checksum]>",
