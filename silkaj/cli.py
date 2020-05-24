@@ -34,7 +34,11 @@ from silkaj.wot import received_sent_certifications, id_pubkey_correspondence
 from silkaj.auth import generate_auth_file
 from silkaj.license import license_command
 from silkaj.blocks import verify_blocks_signatures
-from silkaj.constants import SILKAJ_VERSION
+from silkaj.constants import (
+    SILKAJ_VERSION,
+    G1_DEFAULT_ENDPOINT,
+    G1_TEST_DEFAULT_ENDPOINT,
+)
 
 
 @group()
@@ -43,11 +47,20 @@ from silkaj.constants import SILKAJ_VERSION
 @option(
     "--peer",
     "-p",
-    help="Default endpoint will reach Ğ1 currency with `https://g1.duniter.org` endpoint.\
- Custom endpoint can be specified with `-p` option followed by <domain>:<port>",
+    help="Default endpoint to reach Ğ1 currency by its official node {}\
+ This option allows to specify a custom endpoint as follow: <host>:<port>.\
+ In case no port is specified, it defaults to 443.".format(
+        ":".join(G1_DEFAULT_ENDPOINT)
+    ),
 )
 @option(
-    "--gtest", "-gt", is_flag=True, help="ĞTest: `https://g1-test.duniter.org` endpoint"
+    "--gtest",
+    "-gt",
+    is_flag=True,
+    help="Default endpoint to reach ĞTest currency by its official node: {}\
+".format(
+        ":".join(G1_TEST_DEFAULT_ENDPOINT)
+    ),
 )
 @option(
     "--auth-scrypt",
