@@ -48,10 +48,10 @@ async def cmd_amount(ctx, pubkeys):
                 return
         total = [0, 0]
         for pubkey in pubkeys:
-            value = await get_amount_from_pubkey(pubkey)
-            await show_amount_from_pubkey(pubkey, value)
-            total[0] += value[0]
-            total[1] += value[1]
+            inputs_balance = await get_amount_from_pubkey(pubkey)
+            await show_amount_from_pubkey(pubkey, inputs_balance)
+            total[0] += inputs_balance[0]
+            total[1] += inputs_balance[1]
         if len(pubkeys) > 1:
             await show_amount_from_pubkey("Total", total)
     else:
@@ -61,21 +61,21 @@ async def cmd_amount(ctx, pubkeys):
     await client.close()
 
 
-async def show_amount_from_pubkey(pubkey, value):
-    totalAmountInput = value[0]
-    amount = value[1]
+async def show_amount_from_pubkey(pubkey, inputs_balance):
+    totalAmountInput = inputs_balance[0]
+    balance = inputs_balance[1]
     currency_symbol = await CurrencySymbol().symbol
     ud_value = await UDValue().ud_value
     average, monetary_mass = await get_average()
     # display balance table
     display = list()
     display.append(["Balance of pubkey", pubkey])
-    if totalAmountInput - amount != 0:
+    if totalAmountInput - balance != 0:
         display_amount(display, "Blockchain", amount, ud_value, currency_symbol)
         display_amount(
             display,
             "Pending transaction",
-            (totalAmountInput - amount),
+            (totalAmountInput - balance),
             ud_value,
             currency_symbol,
         )
