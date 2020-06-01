@@ -51,6 +51,7 @@ silkaj -p <address>:<port> <sub-command>
 - [How-to: automate transactions and multi-output](doc/how-to_automate_transactions_and_multi-output.md)
 - [Transaction generator written in Shell](https://gitlab.com/jytou/tgen)
 - [Ğ1Cotis](https://git.duniter.org/matograine/g1-cotis)
+- [G1pourboire](https://git.duniter.org/matograine/g1pourboire)
 - [Ğ1SMS](https://git.duniter.org/clients/G1SMS/)
 - [Ğmixer](https://git.duniter.org/tuxmain/gmixer-py/)
 
