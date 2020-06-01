@@ -115,7 +115,7 @@ async def certification_confirmation(
     issuer, issuer_pubkey, id_to_certify, main_id_to_certify
 ):
     cert = list()
-    cert.append(["Cert", "From", "–>", "To: Published: #block-hash date"])
+    cert.append(["Cert", "Issuer", "–>", "Recipient: Published: #block-hash date"])
     client = ClientInstance().client
     idty_timestamp = main_id_to_certify["meta"]["timestamp"]
     block_uid_idty = block_uid(idty_timestamp)
