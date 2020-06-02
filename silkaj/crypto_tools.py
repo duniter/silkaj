@@ -22,7 +22,7 @@ from silkaj.constants import PUBKEY_PATTERN
 
 PUBKEY_DELIMITED_PATTERN = "^{0}$".format(PUBKEY_PATTERN)
 CHECKSUM_PATTERN = "[1-9A-HJ-NP-Za-km-z]{3}"
-PUBKEY_CHECKSUM_PATTERN = "^{0}!{1}$".format(PUBKEY_PATTERN, CHECKSUM_PATTERN)
+PUBKEY_CHECKSUM_PATTERN = "^{0}:{1}$".format(PUBKEY_PATTERN, CHECKSUM_PATTERN)
 
 
 def check_public_key(pubkey, display_error):
@@ -34,7 +34,7 @@ def check_public_key(pubkey, display_error):
     if re.search(re.compile(PUBKEY_DELIMITED_PATTERN), pubkey):
         return pubkey
     elif re.search(re.compile(PUBKEY_CHECKSUM_PATTERN), pubkey):
-        pubkey, checksum = pubkey.split("!")
+        pubkey, checksum = pubkey.split(":")
         pubkey_byte = b58_decode(pubkey)
         checksum_calculed = b58_encode(
             hash.sha256(
@@ -44,7 +44,7 @@ def check_public_key(pubkey, display_error):
         if checksum_calculed == checksum:
             return pubkey
         else:
-            print("Error: bad checksum for following public key:")
+            print("Error: Wrong checksum for following public key:")
             return False
 
     elif display_error:

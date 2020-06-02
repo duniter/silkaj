@@ -76,7 +76,7 @@ from duniterpy.documents.transaction import OutputSource, Unlock, SIGParameter
     "-r",
     multiple=True,
     required=True,
-    help="Pubkey(s)’ recipients + optional checksum:\n-r <pubkey>[!checksum]\n\
+    help="Pubkey(s)’ recipients + optional checksum:\n-r <pubkey>[:checksum]\n\
 Sending to many recipients is possible:\n\
 * With one amount, all will receive the amount\n\
 * With many amounts (one per recipient)",
@@ -84,7 +84,7 @@ Sending to many recipients is possible:\n\
 @option("--comment", "-c", default="", help="Comment")
 @option(
     "--outputBackChange",
-    help="Pubkey recipient to send the rest of the transaction: <pubkey[!checksum]>",
+    help="Pubkey recipient to send the rest of the transaction: <pubkey[:checksum]>",
 )
 @option("--yes", "-y", is_flag=True, help="Assume yes. Do not prompt confirmation")
 @coroutine
