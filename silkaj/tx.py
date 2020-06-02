@@ -111,7 +111,8 @@ async def send_transaction(
     if allsources:
         tx_amounts = [pubkey_amount[0]]
 
-    check_transaction_values(
+    recipients = list(recipients)
+    outputbackchange = check_transaction_values(
         comment,
         recipients,
         outputbackchange,
@@ -189,18 +190,27 @@ def compute_amounts(amounts, multiplicator):
 def check_transaction_values(
     comment, outputAddresses, outputBackChange, enough_source, issuer_pubkey
 ):
+    """
+    Check the comment format
+    Check the pubkeys and the checksums of the recipients and the outputbackchange
+    In case of a valid checksum, assign and return the pubkey without the checksum
+    Check the balance is big enough for the transaction
+    """
     checkComment(comment)
-    for outputAddress in outputAddresses:
-        if check_public_key(outputAddress, True) is False:
+    for i, outputAddress in enumerate(outputAddresses):
+        outputAddresses[i] = check_public_key(outputAddress, True)
+        if not outputAddresses[i]:
             message_exit(outputAddress)
     if outputBackChange:
+        pubkey = outputBackChange
         outputBackChange = check_public_key(outputBackChange, True)
-        if check_public_key(outputBackChange, True) is False:
-            message_exit(outputBackChange)
+        if not outputBackChange:
+            message_exit(pubkey)
     if enough_source:
         message_exit(
             issuer_pubkey + " pubkey doesn’t have enough money for this transaction."
         )
+    return outputBackChange
 
 
 async def transaction_confirmation(
