@@ -76,7 +76,7 @@ def test_tx_passed_amount_cli():
     assert result.exit_code == FAILURE_EXIT_STATUS
 
     result = CliRunner().invoke(cli, ["tx", "-r", "A", "-a", MINIMAL_TX_AMOUNT - 0.001])
-    assert 'Error: Invalid value for "--amount"' in result.output
+    assert "Error: Invalid value for '--amount'" in result.output
     assert result.exit_code == 2
 
     result = CliRunner().invoke(cli, ["tx", "-r", "A", "-a", 1, "-a", 2])
