@@ -26,10 +26,10 @@ from silkaj.cert import send_certification
 from silkaj.commands import (
     currency_info,
     difficulties,
-    network_info,
     argos_info,
     list_blocks,
 )
+from silkaj.net import network_info
 from silkaj.wot import received_sent_certifications, id_pubkey_correspondence
 from silkaj.auth import generate_auth_file
 from silkaj.license import license_command
