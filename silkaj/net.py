@@ -15,6 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
+"""
 from click import command, option, get_terminal_size
 from datetime import datetime
 from os import system
@@ -139,3 +140,5 @@ async def network_info(discover, sort):
     )
     infos = sorted(infos, key=get_network_sort_key)
     print(tabulate(infos, headers="keys", tablefmt="orgtbl", stralign="center"))
+
+"""

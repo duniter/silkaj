@@ -29,7 +29,8 @@ from silkaj.commands import (
     argos_info,
     list_blocks,
 )
-from silkaj.net import network_info
+
+# from silkaj.net import network_info
 from silkaj.wot import received_sent_certifications, id_pubkey_correspondence
 from silkaj.auth import generate_auth_file
 from silkaj.license import license_command
@@ -107,7 +108,7 @@ cli.add_command(transaction_history)
 cli.add_command(id_pubkey_correspondence)
 cli.add_command(currency_info)
 cli.add_command(license_command)
-cli.add_command(network_info)
+# cli.add_command(network_info)
 cli.add_command(send_transaction)
 cli.add_command(verify_blocks_signatures)
 cli.add_command(received_sent_certifications)
