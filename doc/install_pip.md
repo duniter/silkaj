@@ -24,7 +24,7 @@ On Ubuntu (14.04 and 16.04) and Debian 8, you need this package too:
 sudo apt install libffi-dev
 ```
 
-Linux Mint is reported to require the installation of this package too:
+Raspbian and Linux Mint are reported to require the installation of this package too:
 ```bash
 sudo apt install python3-dev
 ```
