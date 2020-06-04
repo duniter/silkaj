@@ -14,6 +14,7 @@ sudo dnf install libsodium # Fedora
 ### On Debian Buster
 ```bash
 sudo apt install python3-pip python3-venv
+sudo apt install libffi-dev # Required on ARMbian
 pip3 install poetry --user
 ```
 
