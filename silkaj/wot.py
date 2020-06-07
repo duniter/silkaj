@@ -25,7 +25,8 @@ from duniterpy.api.errors import DuniterError
 
 from silkaj.network_tools import ClientInstance
 from silkaj.crypto_tools import check_public_key
-from silkaj.tools import message_exit, convert_time, coroutine
+from silkaj.tools import message_exit, coroutine
+from silkaj.tui import convert_time
 from silkaj.blockchain_tools import BlockchainParams
 from silkaj.constants import ASYNC_SLEEP
 

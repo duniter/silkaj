@@ -22,7 +22,8 @@ from time import time
 from duniterpy.api.bma.tx import history
 from duniterpy.documents.transaction import Transaction
 from silkaj.network_tools import ClientInstance
-from silkaj.tools import convert_time, coroutine
+from silkaj.tools import coroutine
+from silkaj.tui import convert_time
 from silkaj.crypto_tools import check_public_key
 from silkaj.wot import identity_of, identities_from_pubkeys
 from silkaj.money import get_amount_from_pubkey, amount_in_current_base, UDValue

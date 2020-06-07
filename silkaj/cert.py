@@ -23,7 +23,8 @@ from duniterpy.api.bma import wot, blockchain
 from duniterpy.documents import BlockUID, block_uid, Identity, Certification
 
 from silkaj.auth import auth_method
-from silkaj.tools import convert_time, message_exit, coroutine
+from silkaj.tools import message_exit, coroutine
+from silkaj.tui import convert_time
 from silkaj.network_tools import ClientInstance, HeadBlock
 from silkaj.blockchain_tools import BlockchainParams
 from silkaj.license import license_approval

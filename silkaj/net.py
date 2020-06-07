@@ -33,7 +33,8 @@ from silkaj.network_tools import (
     best_endpoint_address,
     ClientInstance,
 )
-from silkaj.tools import convert_time, message_exit
+from silkaj.tools import message_exit
+from silkaj.tui import convert_time
 from silkaj.constants import ASYNC_SLEEP
 
 

@@ -35,7 +35,8 @@ from silkaj.network_tools import (
     ClientInstance,
     HeadBlock,
 )
-from silkaj.tools import convert_time, CurrencySymbol
+from silkaj.tools import CurrencySymbol
+from silkaj.tui import convert_time
 from silkaj.constants import ASYNC_SLEEP
 
 

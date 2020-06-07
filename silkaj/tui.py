@@ -15,6 +15,8 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
+from datetime import datetime
+
 from silkaj import wot
 
 
@@ -43,3 +45,19 @@ async def display_pubkey(tx, message, pubkey):
     id = await wot.is_member(pubkey)
     if id:
         tx.append([message + " (id)", id["uid"]])
+
+
+def convert_time(timestamp, kind):
+    ts = int(timestamp)
+    date = "%Y-%m-%d"
+    hour = "%H:%M"
+    second = ":%S"
+    if kind == "all":
+        pattern = date + " " + hour + second
+    elif kind == "date":
+        pattern = date
+    elif kind == "hour":
+        pattern = hour
+        if ts >= 3600:
+            pattern += second
+    return datetime.fromtimestamp(ts).strftime(pattern)

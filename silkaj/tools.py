@@ -15,29 +15,12 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from datetime import datetime
 from sys import exit
 from asyncio import get_event_loop
 from functools import update_wrapper
 
 from silkaj.constants import G1_SYMBOL, GTEST_SYMBOL, FAILURE_EXIT_STATUS
 from silkaj.blockchain_tools import BlockchainParams
-
-
-def convert_time(timestamp, kind):
-    ts = int(timestamp)
-    date = "%Y-%m-%d"
-    hour = "%H:%M"
-    second = ":%S"
-    if kind == "all":
-        pattern = date + " " + hour + second
-    elif kind == "date":
-        pattern = date
-    elif kind == "hour":
-        pattern = hour
-        if ts >= 3600:
-            pattern += second
-    return datetime.fromtimestamp(ts).strftime(pattern)
 
 
 class CurrencySymbol(object):
