@@ -33,3 +33,19 @@ class BlockchainParams(object):
     async def get_params(self):
         client = ClientInstance().client
         return await client(blockchain.parameters)
+
+
+class HeadBlock(object):
+    __instance = None
+
+    def __new__(cls):
+        if HeadBlock.__instance is None:
+            HeadBlock.__instance = object.__new__(cls)
+        return HeadBlock.__instance
+
+    def __init__(self):
+        self.head_block = self.get_head()
+
+    async def get_head(self):
+        client = ClientInstance().client
+        return await client(blockchain.current)

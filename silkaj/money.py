@@ -18,7 +18,8 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 from click import command, argument, pass_context, echo
 from tabulate import tabulate
 
-from silkaj.network_tools import ClientInstance, HeadBlock
+from silkaj.network_tools import ClientInstance
+from silkaj.blockchain_tools import HeadBlock
 from silkaj.tools import CurrencySymbol, message_exit, coroutine
 from silkaj.auth import auth_method
 from silkaj.wot import check_public_key

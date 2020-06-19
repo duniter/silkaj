@@ -447,7 +447,9 @@ async def test_generate_transaction_document(
     monkeypatch,
 ):
     # patch Head_block
-    monkeypatch.setattr("silkaj.network_tools.HeadBlock.get_head", patched.head_block)
+    monkeypatch.setattr(
+        "silkaj.blockchain_tools.HeadBlock.get_head", patched.head_block
+    )
 
     assert result == await generate_transaction_document(
         issuers,

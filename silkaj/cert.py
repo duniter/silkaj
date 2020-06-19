@@ -25,8 +25,8 @@ from duniterpy.documents import BlockUID, block_uid, Identity, Certification
 from silkaj.auth import auth_method
 from silkaj.tools import message_exit, coroutine
 from silkaj.tui import convert_time
-from silkaj.network_tools import ClientInstance, HeadBlock
-from silkaj.blockchain_tools import BlockchainParams
+from silkaj.network_tools import ClientInstance
+from silkaj.blockchain_tools import BlockchainParams, HeadBlock
 from silkaj.license import license_approval
 from silkaj.wot import is_member, get_informations_for_identity
 from silkaj.constants import SUCCESS_EXIT_STATUS

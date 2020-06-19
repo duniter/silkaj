@@ -22,7 +22,8 @@ from tabulate import tabulate
 from click import command, option, FloatRange
 
 from silkaj.cli_tools import MutuallyExclusiveOption
-from silkaj.network_tools import ClientInstance, HeadBlock
+from silkaj.network_tools import ClientInstance
+from silkaj.blockchain_tools import HeadBlock
 from silkaj.crypto_tools import check_public_key
 from silkaj.tools import message_exit, CurrencySymbol, coroutine
 from silkaj.auth import auth_method

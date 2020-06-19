@@ -33,8 +33,8 @@ from silkaj.network_tools import (
     best_endpoint_address,
     EndPoint,
     ClientInstance,
-    HeadBlock,
 )
+from silkaj.blockchain_tools import HeadBlock
 from silkaj.tools import CurrencySymbol
 from silkaj.tui import convert_time
 from silkaj.constants import ASYNC_SLEEP

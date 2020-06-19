@@ -22,7 +22,7 @@ import logging
 from sys import exit, stderr
 from asyncio import sleep
 from duniterpy.api.client import Client
-from duniterpy.api.bma import blockchain, network
+from duniterpy.api.bma import network
 
 from silkaj.constants import (
     G1_DEFAULT_ENDPOINT,
@@ -234,19 +234,3 @@ def check_port(port):
         print("Wrong port number", file=stderr)
         return False
     return True
-
-
-class HeadBlock(object):
-    __instance = None
-
-    def __new__(cls):
-        if HeadBlock.__instance is None:
-            HeadBlock.__instance = object.__new__(cls)
-        return HeadBlock.__instance
-
-    def __init__(self):
-        self.head_block = self.get_head()
-
-    async def get_head(self):
-        client = ClientInstance().client
-        return await client(blockchain.current)
