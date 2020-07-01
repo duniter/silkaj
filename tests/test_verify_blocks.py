@@ -23,8 +23,8 @@ from duniterpy.api.client import Client
 from duniterpy.api import bma
 
 from silkaj.network_tools import EndPoint
+from silkaj import cli
 from silkaj.blocks import (
-    verify_blocks_signatures,
     check_passed_blocks_range,
     get_chunk_size,
     get_chunk,
@@ -51,7 +51,7 @@ async def current(self):
 )
 @pytest.mark.asyncio
 async def test_check_passed_blocks_range(from_block, to_block, capsys, monkeypatch):
-    monkeypatch.setattr("duniterpy.api.bma.blockchain.current", current)
+    monkeypatch.setattr(bma.blockchain, "current", current)
     client = Client(EndPoint().BMA_ENDPOINT)
     # https://medium.com/python-pandemonium/testing-sys-exit-with-pytest-10c6e5f7726f
     with pytest.raises(SystemExit) as pytest_wrapped_e:
@@ -78,9 +78,8 @@ async def test_check_passed_blocks_range(from_block, to_block, capsys, monkeypat
     ],
 )
 def test_verify_blocks_signatures(from_block, to_block, monkeypatch):
-    monkeypatch.setattr("duniterpy.api.bma.blockchain.current", current)
-    blocks_range = [str(from_block), str(to_block)]
-    result = CliRunner().invoke(verify_blocks_signatures, blocks_range)
+    monkeypatch.setattr(bma.blockchain, "current", current)
+    result = CliRunner().invoke(cli.cli, ["verify", str(from_block), str(to_block)])
     assert result.exit_code == SUCCESS_EXIT_STATUS
     if to_block == 0:
         to_block = HEAD_BLOCK
