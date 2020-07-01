@@ -25,7 +25,7 @@ black = {version = "^19.10b0", python = "^3.6"}
 pre-commit = "^1.18"
 pytest = "^5.1"
 pytest-cov = "^2.7"
-pytest-asyncio = "^0.10.0"
+pytest-asyncio = "^0.14.0"
 coverage-badge = "^1.0"
 pytest-sugar = "^0.9.2"
 
