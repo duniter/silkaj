@@ -54,7 +54,7 @@ def test_truncBase(amount, base, expected):
 )
 def test_display_amount(message, amount, currency_symbol, monkeypatch):
     ud_value = patched.mock_ud_value
-    amount_UD = round(amount / ud_value, 4)
+    amount_UD = round(amount / ud_value, 2)
     expected = [
         [
             message + " (unit|relative)",

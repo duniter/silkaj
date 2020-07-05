@@ -24,7 +24,7 @@ def display_amount(tx, message, amount, ud_value, currency_symbol):
     """
     Displays an amount in unit and relative reference.
     """
-    amount_UD = round((amount / ud_value), 4)
+    amount_UD = round((amount / ud_value), 2)
     tx.append(
         [
             message + " (unit|relative)",
