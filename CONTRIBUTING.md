@@ -3,9 +3,9 @@
 ## Goals
 Part of the Duniter project running the Ğ1 currency, Silkaj project is aiming to create a generic tool to manage his account and wallets, and to monitor the currency.
 
-## Install the development environement
-We are using [Poetry](https://poetry.eustace.io/) as a development environement solution. Start [installing Poetry](install_poetry.md).
-This will install a sandboxed Python environement.
+## Install the development environment
+We are using [Poetry](https://poetry.eustace.io/) as a development environment solution. Start [installing Poetry](doc/install_poetry.md).
+This will install a sandboxed Python environment.
 Dependencies will be installed in it in order to have Silkaj running and to have pre-installed developement tools.
 
 ## Workflow
@@ -50,7 +50,7 @@ Black is called on staged files, so commit should fail in case black made change
 You will have to add Black changes in order to commit your changes.
 
 ## Tests
-We are using [Pytest](https://pytest.org) as a tests framework. To know more about how Silkaj implement it read the [project test documentation](test_and_coverage.md).
+We are using [Pytest](https://pytest.org) as a tests framework. To know more about how Silkaj implement it read the [project test documentation](doc/test_and_coverage.md).
 
 To run tests, within `silkaj` repository:
 ```bash
