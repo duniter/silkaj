@@ -445,7 +445,7 @@ def checkComment(Comment):
     if len(Comment) > 255:
         message_exit("Error: Comment is too long")
     regex = compile(
-        "^[0-9a-zA-Z\ \-\_\:\/\;\*\[\]\(\)\?\!\^\+\=\@\&\~\#\{\}\|\\\<\>\%\.]*$"
+        "^[0-9a-zA-Z\\ \\-\\_\\:\\/\\;\\*\\[\\]\\(\\)\\?\\!\\^\\+\\=\\@\\&\\~\\#\\{\\}\\|\\\\<\\>\\%\\.]*$"
     )
     if not search(regex, Comment):
         message_exit("Error: the format of the comment is invalid")
