@@ -52,7 +52,7 @@ def test_truncBase(amount, base, expected):
 @pytest.mark.parametrize(
     "message, amount, currency_symbol", [("Total", 1000, G1_SYMBOL)]
 )
-def test_display_amount(message, amount, currency_symbol, monkeypatch):
+def test_display_amount(message, amount, currency_symbol):
     ud_value = patched.mock_ud_value
     amount_UD = round(amount / ud_value, 2)
     expected = [
