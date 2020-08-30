@@ -19,7 +19,7 @@ import sys
 from click import command, argument, echo, confirm
 from time import time
 from tabulate import tabulate
-from duniterpy.api.bma import wot, blockchain
+from duniterpy.api import bma
 from duniterpy.documents import BlockUID, block_uid, Identity, Certification
 
 from silkaj.auth import auth_method
@@ -28,7 +28,7 @@ from silkaj.tui import convert_time
 from silkaj.network_tools import ClientInstance
 from silkaj.blockchain_tools import BlockchainParams, HeadBlock
 from silkaj.license import license_approval
-from silkaj.wot import is_member, get_informations_for_identity
+from silkaj import wot
 from silkaj.constants import SUCCESS_EXIT_STATUS
 
 
@@ -37,23 +37,24 @@ from silkaj.constants import SUCCESS_EXIT_STATUS
 @coroutine
 async def send_certification(id_to_certify):
     client = ClientInstance().client
-    id_to_certify = await get_informations_for_identity(id_to_certify)
-    main_id_to_certify = id_to_certify["uids"][0]
+    idty_to_certify, pubkey_to_certify, send_certs = await wot.choose_identity(
+        id_to_certify
+    )
 
     # Authentication
     key = auth_method()
 
     # Check whether current user is member
     issuer_pubkey = key.pubkey
-    issuer = await is_member(issuer_pubkey)
+    issuer = await wot.is_member(issuer_pubkey)
     if not issuer:
         message_exit("Current identity is not member.")
 
-    if issuer_pubkey == id_to_certify["pubkey"]:
+    if issuer_pubkey == pubkey_to_certify:
         message_exit("You can’t certify yourself!")
 
     # Check if the certification can be renewed
-    req = await client(wot.requirements, id_to_certify["pubkey"])
+    req = await client(bma.wot.requirements, pubkey_to_certify)
     req = req["identities"][0]
     for cert in req["certifications"]:
         if cert["from"] == issuer_pubkey:
@@ -77,16 +78,16 @@ async def send_certification(id_to_certify):
 
     # Certification confirmation
     await certification_confirmation(
-        issuer, issuer_pubkey, id_to_certify, main_id_to_certify
+        issuer, issuer_pubkey, pubkey_to_certify, idty_to_certify
     )
 
     identity = Identity(
         version=10,
         currency=currency,
-        pubkey=id_to_certify["pubkey"],
-        uid=main_id_to_certify["uid"],
-        ts=block_uid(main_id_to_certify["meta"]["timestamp"]),
-        signature=main_id_to_certify["self"],
+        pubkey=pubkey_to_certify,
+        uid=idty_to_certify["uid"],
+        ts=block_uid(idty_to_certify["meta"]["timestamp"]),
+        signature=idty_to_certify["self"],
     )
 
     certification = Certification(
@@ -102,7 +103,7 @@ async def send_certification(id_to_certify):
     certification.sign([key])
 
     # Send certification document
-    response = await client(wot.certify, certification.signed_raw())
+    response = await client(bma.wot.certify, certification.signed_raw())
 
     if response.status == 200:
         print("Certification successfully sent.")
@@ -113,19 +114,19 @@ async def send_certification(id_to_certify):
 
 
 async def certification_confirmation(
-    issuer, issuer_pubkey, id_to_certify, main_id_to_certify
+    issuer, issuer_pubkey, pubkey_to_certify, idty_to_certify
 ):
     cert = list()
     cert.append(["Cert", "Issuer", "–>", "Recipient: Published: #block-hash date"])
     client = ClientInstance().client
-    idty_timestamp = main_id_to_certify["meta"]["timestamp"]
+    idty_timestamp = idty_to_certify["meta"]["timestamp"]
     block_uid_idty = block_uid(idty_timestamp)
-    block = await client(blockchain.block, block_uid_idty.number)
+    block = await client(bma.blockchain.block, block_uid_idty.number)
     block_uid_date = (
         ": #" + idty_timestamp[:15] + "… " + convert_time(block["time"], "all")
     )
-    cert.append(["ID", issuer["uid"], "–>", main_id_to_certify["uid"] + block_uid_date])
-    cert.append(["Pubkey", issuer_pubkey, "–>", id_to_certify["pubkey"]])
+    cert.append(["ID", issuer["uid"], "–>", idty_to_certify["uid"] + block_uid_date])
+    cert.append(["Pubkey", issuer_pubkey, "–>", pubkey_to_certify])
     params = await BlockchainParams().params
     cert_begins = convert_time(time(), "date")
     cert_ends = convert_time(time() + params["sigValidity"], "date")

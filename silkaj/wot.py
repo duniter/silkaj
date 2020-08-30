@@ -15,7 +15,7 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
-from click import command, argument
+import click
 from time import time
 from tabulate import tabulate
 from collections import OrderedDict
@@ -31,11 +31,11 @@ from silkaj.blockchain_tools import BlockchainParams
 from silkaj.constants import ASYNC_SLEEP
 
 
-def get_sent_certifications(certs, time_first_block, params):
+def get_sent_certifications(signed, time_first_block, params):
     sent = list()
     expire = list()
-    if certs["signed"]:
-        for cert in certs["signed"]:
+    if signed:
+        for cert in signed:
             sent.append(cert["uid"])
             expire.append(
                 expiration_date_from_block_id(
@@ -45,11 +45,11 @@ def get_sent_certifications(certs, time_first_block, params):
     return sent, expire
 
 
-@command(
+@click.command(
     "wot",
     help="Check received and sent certifications and consult the membership status of any given identity",
 )
-@argument("id")
+@click.argument("id")
 @coroutine
 async def received_sent_certifications(id):
     """
@@ -60,50 +60,45 @@ async def received_sent_certifications(id):
     client = ClientInstance().client
     first_block = await client(blockchain.block, 1)
     time_first_block = first_block["time"]
-    id_certs = await get_informations_for_identity(id)
+    identity, pubkey, signed = await choose_identity(id)
     certifications = OrderedDict()
     params = await BlockchainParams().params
-    for certs in id_certs["uids"]:
-        if certs["uid"].lower() == id.lower():
-            pubkey = id_certs["pubkey"]
-            req = await client(wot.requirements, pubkey)
-            req = req["identities"][0]
-            certifications["received_expire"] = list()
-            certifications["received"] = list()
-            for cert in certs["others"]:
-                certifications["received_expire"].append(
-                    expiration_date_from_block_id(
-                        cert["meta"]["block_number"], time_first_block, params
-                    )
-                )
-                certifications["received"].append(
-                    cert_written_in_the_blockchain(req["certifications"], cert)
-                )
-                (
-                    certifications["sent"],
-                    certifications["sent_expire"],
-                ) = get_sent_certifications(id_certs, time_first_block, params)
-            nbr_sent_certs = (
-                len(certifications["sent"]) if "sent" in certifications else 0
+    req = await client(wot.requirements, pubkey)
+    req = req["identities"][0]
+    certifications["received_expire"] = list()
+    certifications["received"] = list()
+    for cert in identity["others"]:
+        certifications["received_expire"].append(
+            expiration_date_from_block_id(
+                cert["meta"]["block_number"], time_first_block, params
             )
-            print(
-                "{0} ({1}) from block #{2}\nreceived {3} and sent {4}/{5} certifications:\n{6}\n{7}\n".format(
-                    id,
-                    pubkey[:5] + "…",
-                    certs["meta"]["timestamp"][:15] + "…",
-                    len(certifications["received"]),
-                    nbr_sent_certs,
-                    params["sigStock"],
-                    tabulate(
-                        certifications,
-                        headers="keys",
-                        tablefmt="orgtbl",
-                        stralign="center",
-                    ),
-                    "✔: Certifications written into the blockchain",
-                )
-            )
-            await membership_status(certifications, certs, pubkey, req)
+        )
+        certifications["received"].append(
+            cert_written_in_the_blockchain(req["certifications"], cert)
+        )
+        (
+            certifications["sent"],
+            certifications["sent_expire"],
+        ) = get_sent_certifications(signed, time_first_block, params)
+    nbr_sent_certs = len(certifications["sent"]) if "sent" in certifications else 0
+    print(
+        "{0} ({1}) from block #{2}\nreceived {3} and sent {4}/{5} certifications:\n{6}\n{7}\n".format(
+            id,
+            pubkey[:5] + "…",
+            identity["meta"]["timestamp"][:15] + "…",
+            len(certifications["received"]),
+            nbr_sent_certs,
+            params["sigStock"],
+            tabulate(
+                certifications,
+                headers="keys",
+                tablefmt="orgtbl",
+                stralign="center",
+            ),
+            "✔: Certifications written into the blockchain",
+        )
+    )
+    await membership_status(certifications, pubkey, req)
     await client.close()
 
 
@@ -114,7 +109,7 @@ def cert_written_in_the_blockchain(written_certs, certifieur):
     return certifieur["uids"][0]
 
 
-async def membership_status(certifications, certs, pubkey, req):
+async def membership_status(certifications, pubkey, req):
     params = await BlockchainParams().params
     if len(certifications["received"]) >= params["sigQty"]:
         print(
@@ -157,8 +152,10 @@ def date_approximation(block_id, time_first_block, avgentime):
     return time_first_block + block_id * avgentime
 
 
-@command("id", help="Find corresponding identity or pubkey from pubkey or identity")
-@argument("id_pubkey")
+@click.command(
+    "id", help="Find corresponding identity or pubkey from pubkey or identity"
+)
+@click.argument("id_pubkey")
 @coroutine
 async def id_pubkey_correspondence(id_pubkey):
     client = ClientInstance().client
@@ -185,17 +182,48 @@ async def id_pubkey_correspondence(id_pubkey):
     await client.close()
 
 
-async def get_informations_for_identity(id):
+async def choose_identity(pubkey_uid):
     """
-    Check that the id is present on the network
-    many identities could match
-    return the one searched
+    Get lookup from a pubkey or an uid
+    Loop over the double lists: pubkeys, then uids
+    If there is one uid, returns it
+    If there is multiple uids, prompt a selector
     """
-    certs_req = await wot_lookup(id)
-    for certs_id in certs_req:
-        if certs_id["uids"][0]["uid"].lower() == id.lower():
-            return certs_id
-    message_exit("No matching identity")
+    lookups = await wot_lookup(pubkey_uid)
+
+    # Generate table containing the choices
+    identities_choices = {"id": [], "uid": [], "pubkey": [], "timestamp": []}
+    for pubkey_index, lookup in enumerate(lookups):
+        for uid_index, identity in enumerate(lookup["uids"]):
+            identities_choices["id"].append(str(pubkey_index) + str(uid_index))
+            identities_choices["pubkey"].append(lookup["pubkey"])
+            identities_choices["uid"].append(identity["uid"])
+            identities_choices["timestamp"].append(
+                identity["meta"]["timestamp"][:20] + "…"
+            )
+
+    identities = len(identities_choices["uid"])
+    if identities == 1:
+        pubkey_index = 0
+        uid_index = 0
+    elif identities > 1:
+        table = tabulate(identities_choices, headers="keys", tablefmt="orgtbl")
+        click.echo(table)
+
+        # Loop till the passed value is in identities_choices
+        message = "Which identity would you like to select (id)?"
+        selected_id = None
+        while selected_id not in identities_choices["id"]:
+            selected_id = click.prompt(message)
+
+        pubkey_index = int(selected_id[:-1])
+        uid_index = int(selected_id[-1:])
+
+    return (
+        lookups[pubkey_index]["uids"][uid_index],
+        lookups[pubkey_index]["pubkey"],
+        lookups[pubkey_index]["signed"],
+    )
 
 
 async def identity_of(pubkey_uid):
