@@ -34,6 +34,7 @@ from silkaj.commands import (
 from silkaj.wot import received_sent_certifications, id_pubkey_correspondence
 from silkaj.auth import generate_auth_file
 from silkaj.license import license_command
+from silkaj.membership import send_membership
 from silkaj.blocks import verify_blocks_signatures
 from silkaj.constants import (
     SILKAJ_VERSION,
@@ -108,6 +109,7 @@ cli.add_command(transaction_history)
 cli.add_command(id_pubkey_correspondence)
 cli.add_command(currency_info)
 cli.add_command(license_command)
+cli.add_command(send_membership)
 # cli.add_command(network_info)
 cli.add_command(send_transaction)
 cli.add_command(verify_blocks_signatures)
