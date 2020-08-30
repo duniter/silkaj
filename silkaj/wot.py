@@ -49,9 +49,9 @@ def get_sent_certifications(signed, time_first_block, params):
     "wot",
     help="Check received and sent certifications and consult the membership status of any given identity",
 )
-@click.argument("id")
+@click.argument("uid_pubkey")
 @coroutine
-async def received_sent_certifications(id):
+async def received_sent_certifications(uid_pubkey):
     """
     get searched id
     get id of received and sent certifications
@@ -60,7 +60,7 @@ async def received_sent_certifications(id):
     client = ClientInstance().client
     first_block = await client(blockchain.block, 1)
     time_first_block = first_block["time"]
-    identity, pubkey, signed = await choose_identity(id)
+    identity, pubkey, signed = await choose_identity(uid_pubkey)
     certifications = OrderedDict()
     params = await BlockchainParams().params
     req = await client(wot.requirements, pubkey)
@@ -83,7 +83,7 @@ async def received_sent_certifications(id):
     nbr_sent_certs = len(certifications["sent"]) if "sent" in certifications else 0
     print(
         "{0} ({1}) from block #{2}\nreceived {3} and sent {4}/{5} certifications:\n{6}\n{7}\n".format(
-            id,
+            identity["uid"],
             pubkey[:5] + "…",
             identity["meta"]["timestamp"][:15] + "…",
             len(certifications["received"]),

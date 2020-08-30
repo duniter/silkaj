@@ -33,12 +33,12 @@ from silkaj.constants import SUCCESS_EXIT_STATUS
 
 
 @command("cert", help="Send certification")
-@argument("id_to_certify")
+@argument("uid_pubkey_to_certify")
 @coroutine
-async def send_certification(id_to_certify):
+async def send_certification(uid_pubkey_to_certify):
     client = ClientInstance().client
     idty_to_certify, pubkey_to_certify, send_certs = await wot.choose_identity(
-        id_to_certify
+        uid_pubkey_to_certify
     )
 
     # Authentication
