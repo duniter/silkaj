@@ -253,10 +253,18 @@ def prefix(tx_addresses, outputs, occurence):
     """
     Pretty print with texttable
     Break line when several values in a cell
-    Handle Total line in case of multi-output txs
+
+    Received tx case, 'outputs' is not defined, then add a breakline
+    between the pubkeys except for the first occurence for multi-sig support
+
+    Sent tx case, handle "Total" line in case of multi-output txs
+    In case of multiple outputs, there is a "Total" on the top,
+    where there must be a breakline
     """
+
+    if not outputs:
+        return "\n" if occurence > 0 else ""
+
     if tx_addresses == "Total":
         return "\n"
-    if not outputs:
-        return ""
-    return "\n" if occurence + len(outputs) > 1 else ""
+    return "\n" if len(outputs) > 1 else ""
