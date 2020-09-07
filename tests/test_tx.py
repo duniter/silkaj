@@ -41,7 +41,15 @@ async def test_transaction_amount(monkeypatch):
         ([141.89, 141.99], None, ["A", "B"], [14189, 14199]),
         # tests for --amount_UD
         (None, [1.1], ["A"], [round(1.1 * udvalue)]),
-        (None, [1.9], ["A", "B",], [round(1.9 * udvalue), round(1.9 * udvalue)]),
+        (
+            None,
+            [1.9],
+            [
+                "A",
+                "B",
+            ],
+            [round(1.9 * udvalue), round(1.9 * udvalue)],
+        ),
         (None, [1.0001], ["A"], [round(1.0001 * udvalue)]),
         (None, [9.9999], ["A"], [round(9.9999 * udvalue)]),
         (None, [1.9, 2.3], ["A", "B"], [round(1.9 * udvalue), round(2.3 * udvalue)]),

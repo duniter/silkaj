@@ -218,7 +218,8 @@ def test_compute_amounts_errors(capsys):
         with pytest.raises(SystemExit) as pytest_exit:
             # read output to check error.
             compute_amounts(
-                trial[0], trial[1],
+                trial[0],
+                trial[1],
             )
             expected_error = "Error: amount {0} is too low.".format(trial[0][0])
             assert capsys.readouterr() == expected_error
@@ -241,7 +242,8 @@ def test_compute_amounts():
     assert compute_amounts([1.001], ud_value) == [314]
     assert compute_amounts([1.009], ud_value) == [317]
     # This case will not happen in real use, but this particular function will allow it.
-    assert compute_amounts([0.0099], 100,) == [1]
+
+    assert compute_amounts([0.0099], 100) == [1]
 
 
 # transaction_amount()
@@ -289,7 +291,9 @@ def test_compute_amounts():
         (
             None,
             [0.00002],
-            ["DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",],
+            [
+                "DBM6F5ChMJzpmkUdL5zD9UXKExmZGfQ1AgPDQy4MxSBw",
+            ],
             "Error: amount 0.00002 is too low.",
         ),
         (

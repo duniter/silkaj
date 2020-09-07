@@ -140,7 +140,12 @@ async def send_transaction(
         == "yes"
     ):
         await handle_intermediaries_transactions(
-            key, issuer_pubkey, tx_amounts, recipients, comment, outputbackchange,
+            key,
+            issuer_pubkey,
+            tx_amounts,
+            recipients,
+            comment,
+            outputbackchange,
         )
     else:
         client = ClientInstance().client
@@ -232,10 +237,18 @@ async def transaction_confirmation(
     tx = list()
     # display account situation
     display_amount(
-        tx, "pubkey's balance before tx", pubkey_amount, ud_value, currency_symbol,
+        tx,
+        "pubkey's balance before tx",
+        pubkey_amount,
+        ud_value,
+        currency_symbol,
     )
     display_amount(
-        tx, "total transaction amount", total_tx_amount, ud_value, currency_symbol,
+        tx,
+        "total transaction amount",
+        total_tx_amount,
+        ud_value,
+        currency_symbol,
     )
     display_amount(
         tx,
@@ -280,7 +293,12 @@ async def get_list_input_for_transaction(pubkey, TXamount):
 
 
 async def handle_intermediaries_transactions(
-    key, issuers, tx_amounts, outputAddresses, Comment="", OutputbackChange=None,
+    key,
+    issuers,
+    tx_amounts,
+    outputAddresses,
+    Comment="",
+    OutputbackChange=None,
 ):
     client = ClientInstance().client
     while True:
