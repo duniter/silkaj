@@ -16,16 +16,9 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
 import pytest
-from silkaj.tx import (
-    truncBase,
-    transaction_confirmation,
-    compute_amounts,
-    transaction_amount,
-    generate_transaction_document,
-    get_list_input_for_transaction,
-)
+
+from silkaj import tx
 from silkaj.tui import display_pubkey, display_amount
-from silkaj.money import UDValue
 from silkaj.constants import (
     G1_SYMBOL,
     CENT_MULT_TO_UNIT,
@@ -53,12 +46,12 @@ from patched.blockchain_tools import patched_head_block
     [(0, 0, 0), (10, 2, 0), (100, 2, 100), (306, 2, 300), (3060, 3, 3000)],
 )
 def test_truncBase(amount, base, expected):
-    assert truncBase(amount, base) == expected
+    assert tx.truncBase(amount, base) == expected
 
 
 # transaction_confirmation()
 @pytest.mark.parametrize(
-    "issuer_pubkey, pubkey_balance, tx_amounts, outputAddresses, outputBackChange, comment, currency_symbol",
+    "issuer_pubkey, pubkey_balance, tx_amounts, outputAddresses, outputBackChange, comment",
     [
         # only one receiver
         [
@@ -68,7 +61,6 @@ def test_truncBase(amount, base, expected):
             ["4szFkvQ5tzzhwcfUtZD32hdoG2ZzhvG3ZtfR61yjnxdw"],
             "",
             "",
-            G1_SYMBOL,
         ],
         # one member receiver
         [
@@ -78,7 +70,6 @@ def test_truncBase(amount, base, expected):
             ["BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh"],
             "",
             "This is a comment",
-            G1_SYMBOL,
         ],
         # many receivers and backchange
         [
@@ -91,7 +82,6 @@ def test_truncBase(amount, base, expected):
             ],
             "C1oAV9FX2y9iz2sdp7kZBFu3EBNAa6UkrrRG3EwouPeH",
             "This is a comment",
-            G1_SYMBOL,
         ],
         # many receivers and outputs
         [
@@ -104,7 +94,6 @@ def test_truncBase(amount, base, expected):
             ],
             "",
             "This is a comment",
-            G1_SYMBOL,
         ],
     ],
 )
@@ -116,7 +105,6 @@ async def test_transaction_confirmation(
     outputAddresses,
     outputBackChange,
     comment,
-    currency_symbol,
     monkeypatch,
 ):
     # patched functions
@@ -135,34 +123,34 @@ async def test_transaction_confirmation(
         "Initial balance",
         pubkey_balance,
         mock_ud_value,
-        currency_symbol,
+        G1_SYMBOL,
     )
     display_amount(
         expected,
         "Total transaction amount",
         total_tx_amount,
         mock_ud_value,
-        currency_symbol,
+        G1_SYMBOL,
     )
     display_amount(
         expected,
         "Balance after transaction",
         (pubkey_balance - total_tx_amount),
         mock_ud_value,
-        currency_symbol,
+        G1_SYMBOL,
     )
     await display_pubkey(expected, "From", issuer_pubkey)
     # display recipients and amounts
     for outputAddress, tx_amount in zip(outputAddresses, tx_amounts):
         await display_pubkey(expected, "To", outputAddress)
-        display_amount(expected, "Amount", tx_amount, mock_ud_value, currency_symbol)
+        display_amount(expected, "Amount", tx_amount, mock_ud_value, G1_SYMBOL)
     # display backchange and comment
     if outputBackChange:
         await display_pubkey(expected, "Backchange", outputBackChange)
     expected.append(["Comment", comment])
 
     # asserting
-    tx = await transaction_confirmation(
+    table_list = await tx.transaction_confirmation(
         issuer_pubkey,
         pubkey_balance,
         tx_amounts,
@@ -170,7 +158,7 @@ async def test_transaction_confirmation(
         outputBackChange,
         comment,
     )
-    assert tx == expected
+    assert table_list == expected
 
 
 # compute_amounts()
@@ -180,7 +168,7 @@ def test_compute_amounts_errors(capsys):
         # check program exit on error
         with pytest.raises(SystemExit) as pytest_exit:
             # read output to check error.
-            compute_amounts(
+            tx.compute_amounts(
                 trial[0],
                 trial[1],
             )
@@ -190,22 +178,27 @@ def test_compute_amounts_errors(capsys):
 
 
 def test_compute_amounts():
-    assert compute_amounts((10.0, 2.0, 0.01, 0.011, 0.019), 100) == [
+    assert tx.compute_amounts((10.0, 2.0, 0.01, 0.011, 0.019), 100) == [
         1000,
         200,
         1,
         1,
         2,
     ]
-    assert compute_amounts([0.0032], mock_ud_value) == [1]
-    assert compute_amounts([1.00], mock_ud_value) == [314]
-    assert compute_amounts([1.01], mock_ud_value) == [317]
-    assert compute_amounts([1.99], mock_ud_value) == [625]
-    assert compute_amounts([1.001], mock_ud_value) == [314]
-    assert compute_amounts([1.009], mock_ud_value) == [317]
+    assert tx.compute_amounts([0.0032], mock_ud_value) == [1]
+    assert tx.compute_amounts([1.00], mock_ud_value) == [314]
+    assert tx.compute_amounts([1.01], mock_ud_value) == [317]
+    assert tx.compute_amounts([1.99], mock_ud_value) == [625]
+    assert tx.compute_amounts([1.001], mock_ud_value) == [314]
+    assert tx.compute_amounts([1.009], mock_ud_value) == [317]
     # This case will not happen in real use, but this particular function will allow it.
-
-    assert compute_amounts([0.0099], 100) == [1]
+    assert (
+        tx.compute_amounts(
+            [0.0099],
+            100,
+        )
+        == [1]
+    )
 
 
 # transaction_amount()
@@ -299,12 +292,12 @@ async def test_transaction_amount(
         # check program exit on error
         with pytest.raises(SystemExit) as pytest_exit:
             # read output to check error.
-            await transaction_amount(amounts, UDs_amounts, outputAddresses)
+            await tx.transaction_amount(amounts, UDs_amounts, outputAddresses)
             assert expected == capsys.readouterr()
         assert pytest_exit.type == SystemExit
     # test good values
     else:
-        assert expected == await transaction_amount(
+        assert expected == await tx.transaction_amount(
             amounts, UDs_amounts, outputAddresses
         )
 
@@ -416,7 +409,7 @@ async def test_generate_transaction_document(
         "silkaj.blockchain_tools.HeadBlock.get_head", patched_head_block
     )
 
-    assert result == await generate_transaction_document(
+    assert result == await tx.generate_transaction_document(
         issuers,
         tx_amounts,
         listinput_and_amount,
@@ -487,10 +480,10 @@ async def test_get_list_input_for_transaction(
     # testing error exit
     if isinstance(expected, str):
         with pytest.raises(SystemExit) as pytest_exit:
-            result = await get_list_input_for_transaction(pubkey, TXamount)
+            result = await tx.get_list_input_for_transaction(pubkey, TXamount)
             assert expected == capsys.readouterr()
         assert pytest_exit.type == SystemExit
     # testing good values
     else:
-        result = await get_list_input_for_transaction(pubkey, TXamount)
+        result = await tx.get_list_input_for_transaction(pubkey, TXamount)
         assert (len(result[0]), result[1], result[2]) == expected

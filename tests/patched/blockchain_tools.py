@@ -1,5 +1,6 @@
 # This file contains fake values for testing purposes
 
+from duniterpy.documents.block_uid import BlockUID
 
 currency = "g1"
 
