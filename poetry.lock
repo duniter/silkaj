@@ -96,8 +96,8 @@ category = "main"
 description = "Base58 and Base58Check implementation"
 name = "base58"
 optional = false
-python-versions = "*"
-version = "1.0.3"
+python-versions = ">=3.5"
+version = "2.0.1"
 
 [[package]]
 category = "dev"
@@ -215,12 +215,12 @@ description = "Python library for developers of Duniter clients"
 name = "duniterpy"
 optional = false
 python-versions = ">=3.5.3,<4.0.0"
-version = "0.57.0"
+version = "0.58.0"
 
 [package.dependencies]
 aiohttp = ">=3.6.1,<4.0.0"
 attrs = ">=19.3.0,<20.0.0"
-base58 = ">=1.0.3,<2.0.0"
+base58 = ">=2.0.0,<3.0.0"
 jsonschema = ">=3.0.2,<4.0.0"
 libnacl = ">=1.6.1,<2.0.0"
 pyaes = ">=1.6.1,<2.0.0"
@@ -766,7 +766,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "5fb062da355b9170f5dc0772c2ae50d4231081e04849305a97ac4d003b05bfde"
+content-hash = "a96244d66d62c496b64c1fcede2cab1ccdae720946b68f024cd1b27cb2c723b6"
 python-versions = "^3.5.3"
 
 [metadata.files]
@@ -813,9 +813,8 @@ attrs = [
     {file = "attrs-19.3.0.tar.gz", hash = "sha256:f7b7ce16570fe9965acd6d30101a28f62fb4a7f9e926b3bbc9b61f8b04247e72"},
 ]
 base58 = [
-    {file = "base58-1.0.3-py2-none-any.whl", hash = "sha256:1e42993c0628ed4f898c03b522b26af78fb05115732549b21a028bc4633d19ab"},
-    {file = "base58-1.0.3-py3-none-any.whl", hash = "sha256:6aa0553e477478993588303c54659d15e3c17ae062508c854a8b752d07c716bd"},
-    {file = "base58-1.0.3.tar.gz", hash = "sha256:9a793c599979c497800eb414c852b80866f28daaed5494703fc129592cc83e60"},
+    {file = "base58-2.0.1-py3-none-any.whl", hash = "sha256:447adc750d6b642987ffc6d397ecd15a799852d5f6a1d308d384500243825058"},
+    {file = "base58-2.0.1.tar.gz", hash = "sha256:365c9561d9babac1b5f18ee797508cd54937a724b6e419a130abad69cec5ca79"},
 ]
 black = [
     {file = "black-20.8b1-py3-none-any.whl", hash = "sha256:70b62ef1527c950db59062cda342ea224d772abdf6adc58b86a45421bab20a6b"},
@@ -916,8 +915,8 @@ distlib = [
     {file = "distlib-0.3.1.zip", hash = "sha256:edf6116872c863e1aa9d5bb7cb5e05a022c519a4594dc703843343a9ddd9bff1"},
 ]
 duniterpy = [
-    {file = "duniterpy-0.57.0-py3-none-any.whl", hash = "sha256:23a8b08d87c1d6f55eddf78b962748232914f481b89048a86c01f0bdc35b8145"},
-    {file = "duniterpy-0.57.0.tar.gz", hash = "sha256:d4c0032700cf30c9db26bd6011f5f50bff42fc0c733d816ef510b397f2618267"},
+    {file = "duniterpy-0.58.0-py3-none-any.whl", hash = "sha256:7024c6c74fccbec0014c5fafe7c03b72aca81241176fb9f67b35ed0eb2b92cdc"},
+    {file = "duniterpy-0.58.0.tar.gz", hash = "sha256:a6f7629f1cc3504611912e04bec59ba637d30bd14ee61a52423261c9b4d7e718"},
 ]
 filelock = [
     {file = "filelock-3.0.12-py3-none-any.whl", hash = "sha256:929b7d63ec5b7d6b71b0fa5ac14e030b3f70b75747cef1b10da9b879fef15836"},
