@@ -135,10 +135,10 @@ async def display_confirmation_table(identity_uid, pubkey, identity_timestamp):
         expiration = pendulum.now().add(seconds=pending_expires).diff_for_humans()
         table.append(["Pending membership documents will expire", expiration])
 
-    table.append(["Identity uid", identity_uid])
-    table.append(["Pubkey", pubkey])
+    table.append(["User Identifier (UID)", identity_uid])
+    table.append(["Public Key", pubkey])
 
-    table.append(["Identity block UID", identity_timestamp])
+    table.append(["Block Identity", identity_timestamp])
 
     block = await client(bma.blockchain.block, identity_timestamp.number)
     table.append(
