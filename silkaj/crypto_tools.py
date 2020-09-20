@@ -35,12 +35,7 @@ def check_public_key(pubkey, display_error):
         return pubkey
     elif re.search(re.compile(PUBKEY_CHECKSUM_PATTERN), pubkey):
         pubkey, checksum = pubkey.split(":")
-        pubkey_byte = b58_decode(pubkey)
-        checksum_calculed = b58_encode(
-            hash.sha256(
-                hash.sha256(pubkey_byte, encoding.RawEncoder), encoding.RawEncoder
-            )
-        )[:3]
+        checksum_calculed = gen_checksum(pubkey)
         if checksum_calculed == checksum:
             return pubkey
         else:
@@ -50,6 +45,16 @@ def check_public_key(pubkey, display_error):
     elif display_error:
         print("Error: bad format for following public key:", pubkey)
     return False
+
+
+def gen_checksum(pubkey):
+    """
+    Returns the checksum of the input pubkey (encoded in b58)
+    """
+    pubkey_byte = b58_decode(pubkey)
+    return b58_encode(
+        hash.sha256(hash.sha256(pubkey_byte, encoding.RawEncoder), encoding.RawEncoder)
+    )[:3]
 
 
 b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
