@@ -24,6 +24,8 @@ from silkaj import wot
 pubkey_titi_tata = "B4RoF48cTxzmsQDB3UjodKdZ2cVymKSKzgiPVRoMeA88"
 pubkey_toto_tutu = "totoF48cTxzmsQDB3UjodKdZ2cVymKSKzgiPVRoMeA88"
 
+pubkey_titi_tata_checksum = "B4RoF48cTxzmsQDB3UjodKdZ2cVymKSKzgiPVRoMeA88:9iP"
+
 
 def identity_card(uid, timestamp):
     return {
@@ -135,6 +137,7 @@ def patched_prompt_tutu(message):
     "selected_uid, pubkey, patched_prompt, patched_lookup",
     [
         ("titi", pubkey_titi_tata, patched_prompt_titi, patched_lookup_one),
+        ("titi", pubkey_titi_tata_checksum, patched_prompt_titi, patched_lookup_one),
         ("tata", pubkey_titi_tata, patched_prompt_tata, patched_lookup_two),
         ("toto", pubkey_toto_tutu, patched_prompt_toto, patched_lookup_three),
         ("tutu", pubkey_toto_tutu, patched_prompt_tutu, patched_lookup_four),
@@ -148,7 +151,8 @@ async def test_choose_identity(
     monkeypatch.setattr(wot, "wot_lookup", patched_lookup)
     monkeypatch.setattr(click, "prompt", patched_prompt)
     identity_card, get_pubkey, signed = await wot.choose_identity(pubkey)
-    assert pubkey == get_pubkey
+    expected_pubkey = pubkey.split(":")[0]
+    assert expected_pubkey == get_pubkey
     assert selected_uid == identity_card["uid"]
 
     # Check whether the table is not displayed in case of one identity

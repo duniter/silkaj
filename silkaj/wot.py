@@ -26,7 +26,7 @@ from duniterpy.api.errors import DuniterError
 from silkaj.network_tools import ClientInstance
 from silkaj.crypto_tools import is_pubkey_and_check
 from silkaj.tools import message_exit, coroutine
-from silkaj.tui import convert_time
+from silkaj.tui import convert_time, display_pubkey_and_checksum
 from silkaj.blockchain_tools import BlockchainParams
 from silkaj.constants import ASYNC_SLEEP
 
@@ -60,6 +60,11 @@ async def received_sent_certifications(uid_pubkey):
     client = ClientInstance().client
     first_block = await client(blockchain.block, 1)
     time_first_block = first_block["time"]
+
+    checked_pubkey = is_pubkey_and_check(uid_pubkey)
+    if checked_pubkey:
+        uid_pubkey = checked_pubkey
+
     identity, pubkey, signed = await choose_identity(uid_pubkey)
     certifications = OrderedDict()
     params = await BlockchainParams().params
@@ -84,7 +89,7 @@ async def received_sent_certifications(uid_pubkey):
     print(
         "{0} ({1}) from block #{2}\nreceived {3} and sent {4}/{5} certifications:\n{6}\n{7}\n".format(
             identity["uid"],
-            pubkey[:5] + "…",
+            display_pubkey_and_checksum(pubkey, True),
             identity["meta"]["timestamp"][:15] + "…",
             len(certifications["received"]),
             nbr_sent_certs,
@@ -167,7 +172,7 @@ async def id_pubkey_correspondence(id_pubkey):
             idty = await identity_of(id_pubkey)
             print(
                 "{} public key corresponds to identity: {}".format(
-                    id_pubkey, idty["uid"]
+                    display_pubkey_and_checksum(id_pubkey), idty["uid"]
                 )
             )
         except:
@@ -177,7 +182,7 @@ async def id_pubkey_correspondence(id_pubkey):
         pubkeys = await wot_lookup(id_pubkey)
         print("Public keys found matching '{}':\n".format(id_pubkey))
         for pubkey in pubkeys:
-            print("→", pubkey["pubkey"], end=" ")
+            print("→", display_pubkey_and_checksum(pubkey["pubkey"]), end=" ")
             try:
                 corresponding_id = await client(wot.identity_of, pubkey["pubkey"])
                 print("↔ " + corresponding_id["uid"])
@@ -200,7 +205,9 @@ async def choose_identity(pubkey_uid):
     for pubkey_index, lookup in enumerate(lookups):
         for uid_index, identity in enumerate(lookup["uids"]):
             identities_choices["id"].append(str(pubkey_index) + str(uid_index))
-            identities_choices["pubkey"].append(lookup["pubkey"])
+            identities_choices["pubkey"].append(
+                display_pubkey_and_checksum(lookup["pubkey"])
+            )
             identities_choices["uid"].append(identity["uid"])
             identities_choices["timestamp"].append(
                 identity["meta"]["timestamp"][:20] + "…"
