@@ -23,7 +23,7 @@ from duniterpy.api.bma.tx import history
 from duniterpy.documents.transaction import Transaction
 from silkaj.network_tools import ClientInstance
 from silkaj.tools import coroutine
-from silkaj.tui import convert_time
+from silkaj.tui import convert_time, display_pubkey_and_checksum
 from silkaj.crypto_tools import validate_checksum, check_pubkey_format
 from silkaj.wot import identity_of, identities_from_pubkeys
 from silkaj.money import get_amount_from_pubkey, amount_in_current_base, UDValue
@@ -65,7 +65,7 @@ async def generate_header(pubkey, currency_symbol, ud_value):
 Current balance: {balance} {currency}, {balance_ud} UD {currency} on the {date}\n\
 ".format(
         uid=idty["uid"],
-        pubkey=pubkey,
+        pubkey=display_pubkey_and_checksum(pubkey),
         currency=currency_symbol,
         balance=balance[1] / 100,
         balance_ud=round(balance[1] / ud_value, 2),
@@ -242,10 +242,12 @@ def output_available(condition, comparison, value):
 
 
 def assign_idty_from_pubkey(pubkey, identities):
-    idty = pubkey[:18]
+    idty = display_pubkey_and_checksum(pubkey, True)
     for identity in identities:
         if pubkey == identity["pubkey"]:
-            idty = identity["uid"] + " - " + pubkey[:13]
+            idty = "{0} - {1}".format(
+                identity["uid"], display_pubkey_and_checksum(pubkey, True)
+            )
     return idty
 
 
