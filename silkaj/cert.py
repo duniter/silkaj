@@ -24,12 +24,13 @@ from duniterpy.documents import BlockUID, block_uid, Identity, Certification
 
 from silkaj.auth import auth_method
 from silkaj.tools import message_exit, coroutine
-from silkaj.tui import convert_time
+from silkaj.tui import convert_time, display_pubkey_and_checksum
 from silkaj.network_tools import ClientInstance
 from silkaj.blockchain_tools import BlockchainParams, HeadBlock
 from silkaj.license import license_approval
 from silkaj import wot
 from silkaj.constants import SUCCESS_EXIT_STATUS
+from silkaj.crypto_tools import is_pubkey_and_check
 
 
 @command("cert", help="Send certification")
@@ -37,6 +38,11 @@ from silkaj.constants import SUCCESS_EXIT_STATUS
 @coroutine
 async def send_certification(uid_pubkey_to_certify):
     client = ClientInstance().client
+
+    checked_pubkey = is_pubkey_and_check(uid_pubkey_to_certify)
+    if checked_pubkey:
+        uid_pubkey_to_certify = checked_pubkey
+
     idty_to_certify, pubkey_to_certify, send_certs = await wot.choose_identity(
         uid_pubkey_to_certify
     )
@@ -126,7 +132,14 @@ async def certification_confirmation(
         ": #" + idty_timestamp[:15] + "… " + convert_time(block["time"], "all")
     )
     cert.append(["ID", issuer["uid"], "–>", idty_to_certify["uid"] + block_uid_date])
-    cert.append(["Pubkey", issuer_pubkey, "–>", pubkey_to_certify])
+    cert.append(
+        [
+            "Pubkey",
+            display_pubkey_and_checksum(issuer_pubkey),
+            "–>",
+            display_pubkey_and_checksum(pubkey_to_certify),
+        ]
+    )
     params = await BlockchainParams().params
     cert_begins = convert_time(time(), "date")
     cert_ends = convert_time(time() + params["sigValidity"], "date")
