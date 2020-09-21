@@ -23,8 +23,11 @@ from pathlib import Path
 from duniterpy.key import SigningKey
 from duniterpy.key.scrypt_params import ScryptParams
 
+# had to import display_pubkey_and_checksum from wot to avoid loop dependency.
+from silkaj.wot import display_pubkey_and_checksum
 from silkaj.tools import message_exit
 from silkaj.constants import PUBKEY_PATTERN
+
 
 SEED_HEX_PATTERN = "^[0-9a-fA-F]{64}$"
 PUBSEC_PUBKEY_PATTERN = "pub: ({0})".format(PUBKEY_PATTERN)
@@ -48,12 +51,13 @@ def auth_method(ctx):
 def generate_auth_file(file):
     key = auth_method()
     authfile = Path(file)
+    pubkey_cksum = display_pubkey_and_checksum(key.pubkey)
     if authfile.is_file():
         confirm(
             "Would you like to erase "
             + file
             + " by an authfile corresponding to following pubkey `"
-            + key.pubkey
+            + pubkey_cksum
             + "`?",
             abort=True,
         )
@@ -61,7 +65,7 @@ def generate_auth_file(file):
     print(
         "Authentication file 'authfile' generated and stored in current\
  folder for following public key:",
-        key.pubkey,
+        pubkey_cksum,
     )
 
 
