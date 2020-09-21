@@ -37,6 +37,7 @@ from silkaj.constants import (
     SUCCESS_EXIT_STATUS,
     FAILURE_EXIT_STATUS,
 )
+from silkaj.tui import display_pubkey_and_checksum
 
 # AsyncMock available from Python 3.8. asynctest is used for Py < 3.8
 if sys.version_info[1] > 7:
@@ -213,7 +214,7 @@ async def test_display_confirmation_table(
         table.append(["Pending membership documents will expire", expiration])
 
     table.append(["User Identifier (UID)", identity_uid])
-    table.append(["Public Key", pubkey])
+    table.append(["Public Key", display_pubkey_and_checksum(pubkey)])
 
     table.append(["Block Identity", str(identity_timestamp)[:45] + "…"])
 

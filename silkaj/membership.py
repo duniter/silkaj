@@ -31,6 +31,7 @@ from silkaj.network_tools import ClientInstance
 from silkaj.blockchain_tools import BlockchainParams, HeadBlock
 from silkaj.license import license_approval
 from silkaj.constants import SUCCESS_EXIT_STATUS
+from silkaj.tui import display_pubkey_and_checksum
 
 
 @click.command(
@@ -136,7 +137,7 @@ async def display_confirmation_table(identity_uid, pubkey, identity_timestamp):
         table.append(["Pending membership documents will expire", expiration])
 
     table.append(["User Identifier (UID)", identity_uid])
-    table.append(["Public Key", pubkey])
+    table.append(["Public Key", display_pubkey_and_checksum(pubkey)])
 
     table.append(["Block Identity", str(identity_timestamp)[:45] + "…"])
 
