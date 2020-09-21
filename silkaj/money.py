@@ -26,7 +26,7 @@ from silkaj.auth import auth_method
 # had to import wot to prevent loop dependency. No use here.
 from silkaj import wot
 from silkaj.crypto_tools import check_pubkey_format, validate_checksum
-from silkaj.tui import display_amount
+from silkaj.tui import display_amount, display_pubkey_and_checksum
 
 from duniterpy.api.bma import tx, blockchain
 from duniterpy.documents.transaction import InputSource
@@ -73,6 +73,9 @@ async def show_amount_from_pubkey(pubkey, inputs_balance):
     currency_symbol = await CurrencySymbol().symbol
     ud_value = await UDValue().ud_value
     average, monetary_mass = await get_average()
+    # if `pubkey` is a pubkey, get pubkey:checksum
+    if pubkey != "Total":
+        pubkey = display_pubkey_and_checksum(pubkey)
     # display balance table
     display = list()
     display.append(["Balance of pubkey", pubkey])

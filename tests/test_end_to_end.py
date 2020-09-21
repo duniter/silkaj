@@ -52,7 +52,7 @@ def test_balance():
         silkaj + ["--gtest", "balance", "3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj"]
     ).decode()
     assert (
-        "│ Balance of pubkey            │ 3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj │"
+        "│ Balance of pubkey            │ 3dnbnYY9i2bHMQUGyFp5GVvJ2wBkVpus31cDJA5cfRpj:EyF │"
         in output
     )
     assert "│ Total amount (unit|relative) │" in output
