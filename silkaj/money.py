@@ -25,7 +25,11 @@ from silkaj.auth import auth_method, has_auth_method
 
 # had to import wot to prevent loop dependency. No use here.
 from silkaj import wot
-from silkaj.crypto_tools import check_pubkey_format, validate_checksum
+from silkaj.crypto_tools import (
+    is_pubkey_and_check,
+    check_pubkey_format,
+    validate_checksum,
+)
 from silkaj.tui import display_amount, display_pubkey_and_checksum
 
 from duniterpy.api.bma import tx, blockchain
@@ -39,21 +43,32 @@ from duniterpy.documents.transaction import InputSource
 async def cmd_amount(ctx, pubkeys):
     client = ClientInstance().client
     if not has_auth_method():
+
+        # check input pubkeys
         if not pubkeys:
             message_exit("You should specify one or many pubkeys")
-        pubkey_list = list()
-        for pubkey in pubkeys:
-            if check_pubkey_format(pubkey):
-                pubkey_list.append(validate_checksum(pubkey))
-            else:
-                pubkey_list.append(pubkey)
+        pubkeys_list = list()
+        wrong_pubkeys = False
+        for inputPubkey in pubkeys:
+            pubkey = is_pubkey_and_check(inputPubkey)
+            if not pubkey:
+                wrong_pubkeys = True
+                print(f"ERROR: pubkey {inputPubkey} has a wrong format")
+            elif pubkey in pubkeys_list:
+                message_exit(
+                    f"ERROR: pubkey {display_pubkey_and_checksum(pubkey)} was specified many times"
+                )
+            pubkeys_list.append(pubkey)
+        if wrong_pubkeys:
+            message_exit("Please check the pubkeys format.")
+
         total = [0, 0]
-        for pubkey in pubkey_list:
+        for pubkey in pubkeys_list:
             inputs_balance = await get_amount_from_pubkey(pubkey)
             await show_amount_from_pubkey(pubkey, inputs_balance)
             total[0] += inputs_balance[0]
             total[1] += inputs_balance[1]
-        if len(pubkey_list) > 1:
+        if len(pubkeys_list) > 1:
             await show_amount_from_pubkey("Total", total)
     else:
         key = auth_method()
