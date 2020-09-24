@@ -18,6 +18,8 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 from datetime import datetime
 
 from silkaj import wot
+from silkaj import crypto_tools as ct
+from silkaj.constants import SHORT_PUBKEY_SIZE
 
 
 def display_amount(tx, message, amount, ud_value, currency_symbol):
@@ -45,6 +47,16 @@ async def display_pubkey(tx, message, pubkey):
     id = await wot.is_member(pubkey)
     if id:
         tx.append([message + " (id)", id["uid"]])
+
+
+def display_pubkey_and_checksum(pubkey, short=False, length=SHORT_PUBKEY_SIZE):
+    """
+    Returns "<pubkey>:<checksum>" in full form.
+    returns `length` first chars of pubkey and checksum in short form.
+    `length` defaults to SHORT_PUBKEY_SIZE.
+    """
+    short_pubkey = pubkey[:length] + "…" if short else pubkey
+    return short_pubkey + ":" + ct.gen_checksum(pubkey)
 
 
 def convert_time(timestamp, kind):

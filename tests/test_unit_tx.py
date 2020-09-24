@@ -26,7 +26,11 @@ from silkaj.tx import (
 )
 from silkaj.tui import display_pubkey, display_amount
 from silkaj.money import UDValue
-from silkaj.constants import G1_SYMBOL, CENT_MULT_TO_UNIT, MINIMAL_TX_AMOUNT
+from silkaj.constants import (
+    G1_SYMBOL,
+    CENT_MULT_TO_UNIT,
+    MINIMAL_TX_AMOUNT,
+)
 from duniterpy.documents.transaction import (
     InputSource,
     Transaction,

@@ -16,8 +16,8 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
 import pytest
-from silkaj.tui import display_pubkey, display_amount
-from silkaj.constants import G1_SYMBOL
+from silkaj.tui import display_pubkey, display_amount, display_pubkey_and_checksum
+from silkaj.constants import G1_SYMBOL, SHORT_PUBKEY_SIZE
 
 import patched
 
@@ -63,3 +63,20 @@ async def test_display_pubkey(message, pubkey, id, monkeypatch):
     tx = list()
     await display_pubkey(tx, message, pubkey)
     assert tx == expected
+
+
+# display_pubkey_and_checksum
+@pytest.mark.parametrize(
+    "pubkey, checksum",
+    [
+        ("J4c8CARmP9vAFNGtHRuzx14zvxojyRWHW2darguVqjtX", "KAv"),
+    ],
+)
+def test_display_pubkey_and_checksum(pubkey, checksum):
+    assert pubkey + ":" + checksum == display_pubkey_and_checksum(pubkey)
+    assert pubkey[:SHORT_PUBKEY_SIZE] + "…:" + checksum == display_pubkey_and_checksum(
+        pubkey, short=True
+    )
+    assert pubkey[:14] + "…:" + checksum == display_pubkey_and_checksum(
+        pubkey, short=True, length=14
+    )
