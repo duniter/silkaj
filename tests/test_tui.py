@@ -25,7 +25,7 @@ import patched
 @pytest.mark.parametrize(
     "message, amount, currency_symbol", [("Total", 1000, G1_SYMBOL)]
 )
-def test_display_amount(message, amount, currency_symbol, monkeypatch):
+def test_display_amount(message, amount, currency_symbol):
     ud_value = patched.mock_ud_value
     amount_UD = round(amount / ud_value, 2)
     expected = [
@@ -57,7 +57,7 @@ def test_display_amount(message, amount, currency_symbol, monkeypatch):
 async def test_display_pubkey(message, pubkey, id, monkeypatch):
     monkeypatch.setattr("silkaj.wot.is_member", patched.is_member)
 
-    expected = [[message + " (pubkey)", pubkey]]
+    expected = [[message + " (pubkey:checksum)", display_pubkey_and_checksum(pubkey)]]
     if id:
         expected.append([message + " (id)", id])
     tx = list()

@@ -43,7 +43,7 @@ async def display_pubkey(tx, message, pubkey):
     """
     Displays a pubkey and the eventually associated id.
     """
-    tx.append([message + " (pubkey)", pubkey])
+    tx.append([message + " (pubkey:checksum)", display_pubkey_and_checksum(pubkey)])
     id = await wot.is_member(pubkey)
     if id:
         tx.append([message + " (id)", id["uid"]])

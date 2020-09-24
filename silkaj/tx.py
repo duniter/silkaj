@@ -34,7 +34,7 @@ from silkaj.constants import (
     CENT_MULT_TO_UNIT,
     ASYNC_SLEEP,
 )
-from silkaj.tui import display_amount, display_pubkey
+from silkaj.tui import display_amount, display_pubkey, display_pubkey_and_checksum
 
 from duniterpy.api.bma.tx import process
 from duniterpy.documents import BlockUID, Transaction
@@ -211,7 +211,8 @@ def check_transaction_values(
             outputBackChange = validate_checksum(outputBackChange)
     if enough_source:
         message_exit(
-            issuer_pubkey + " pubkey doesn’t have enough money for this transaction."
+            display_pubkey_and_checksum(issuer_pubkey)
+            + " pubkey doesn’t have enough money for this transaction."
         )
     return outputBackChange
 
@@ -348,7 +349,7 @@ async def generate_and_send_transaction(
         print("Generate Change Transaction")
     else:
         print("Generate Transaction:")
-    print("   - From:    " + issuers)
+    print("   - From:    " + display_pubkey_and_checksum(issuers))
     for tx_amount, outputAddress in zip(tx_amounts, outputAddresses):
         display_sent_tx(outputAddress, tx_amount)
     print("   - Total:   " + str(sum(tx_amounts) / 100))
@@ -373,7 +374,12 @@ async def generate_and_send_transaction(
 
 
 def display_sent_tx(outputAddress, amount):
-    print("   - To:     ", outputAddress, "\n   - Amount: ", amount / 100)
+    print(
+        "   - To:     ",
+        display_pubkey_and_checksum(outputAddress),
+        "\n   - Amount: ",
+        amount / 100,
+    )
 
 
 async def generate_transaction_document(
