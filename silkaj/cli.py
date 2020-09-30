@@ -23,6 +23,7 @@ from silkaj.tx import send_transaction
 from silkaj.tx_history import transaction_history
 from silkaj.money import cmd_amount
 from silkaj.cert import send_certification
+from silkaj.checksum import checksum_command
 from silkaj.commands import (
     currency_info,
     difficulties,
@@ -104,6 +105,7 @@ cli.add_command(generate_auth_file)
 cli.add_command(cmd_amount)
 cli.add_command(list_blocks)
 cli.add_command(send_certification)
+cli.add_command(checksum_command)
 cli.add_command(difficulties)
 cli.add_command(transaction_history)
 cli.add_command(id_pubkey_correspondence)
