@@ -238,35 +238,35 @@ async def transaction_confirmation(
     # display account situation
     display_amount(
         tx,
-        "pubkey's balance before tx",
+        "Initial balance",
         pubkey_amount,
         ud_value,
         currency_symbol,
     )
     display_amount(
         tx,
-        "total transaction amount",
+        "Total transaction amount",
         total_tx_amount,
         ud_value,
         currency_symbol,
     )
     display_amount(
         tx,
-        "pubkey's balance after tx",
+        "Balance after transaction",
         (pubkey_amount - total_tx_amount),
         ud_value,
         currency_symbol,
     )
-    await display_pubkey(tx, "from", issuer_pubkey)
+    await display_pubkey(tx, "From", issuer_pubkey)
     # display outputs and amounts
     for outputAddress, tx_amount in zip(outputAddresses, tx_amounts):
-        await display_pubkey(tx, "to", outputAddress)
+        await display_pubkey(tx, "To", outputAddress)
         await sleep(ASYNC_SLEEP)
-        display_amount(tx, "amount", tx_amount, ud_value, currency_symbol)
+        display_amount(tx, "Amount", tx_amount, ud_value, currency_symbol)
     # display last informations
     if outputBackChange:
         await display_pubkey(tx, "Backchange", outputBackChange)
-    tx.append(["comment", comment])
+    tx.append(["Comment", comment])
     return tx
 
 

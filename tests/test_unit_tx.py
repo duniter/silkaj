@@ -169,34 +169,34 @@ async def test_transaction_confirmation(
     # display account situation
     display_amount(
         expected,
-        "pubkey's balance before tx",
+        "Initial balance",
         pubkey_balance,
         ud_value,
         currency_symbol,
     )
     display_amount(
         expected,
-        "total transaction amount",
+        "Total transaction amount",
         total_tx_amount,
         ud_value,
         currency_symbol,
     )
     display_amount(
         expected,
-        "pubkey's balance after tx",
+        "Balance after transaction",
         (pubkey_balance - total_tx_amount),
         ud_value,
         currency_symbol,
     )
-    await display_pubkey(expected, "from", issuer_pubkey)
+    await display_pubkey(expected, "From", issuer_pubkey)
     # display recipients and amounts
     for outputAddress, tx_amount in zip(outputAddresses, tx_amounts):
-        await display_pubkey(expected, "to", outputAddress)
-        display_amount(expected, "amount", tx_amount, ud_value, currency_symbol)
+        await display_pubkey(expected, "To", outputAddress)
+        display_amount(expected, "Amount", tx_amount, ud_value, currency_symbol)
     # display backchange and comment
     if outputBackChange:
         await display_pubkey(expected, "Backchange", outputBackChange)
-    expected.append(["comment", comment])
+    expected.append(["Comment", comment])
 
     # asserting
     tx = await transaction_confirmation(
