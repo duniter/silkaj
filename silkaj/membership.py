@@ -123,7 +123,7 @@ async def display_confirmation_table(identity_uid, pubkey, identity_timestamp):
     table = list()
     if membership_expires:
         expires = pendulum.now().add(seconds=membership_expires).diff_for_humans()
-        table.append(["Current membership will expire", expires])
+        table.append(["Expiration date of current membership", expires])
 
     if pending_memberships:
         line = [
@@ -138,7 +138,7 @@ async def display_confirmation_table(identity_uid, pubkey, identity_timestamp):
     table.append(["User Identifier (UID)", identity_uid])
     table.append(["Public Key", pubkey])
 
-    table.append(["Block Identity", identity_timestamp])
+    table.append(["Block Identity", str(identity_timestamp)[:45] + "…"])
 
     block = await client(bma.blockchain.block, identity_timestamp.number)
     table.append(
@@ -149,12 +149,14 @@ async def display_confirmation_table(identity_uid, pubkey, identity_timestamp):
     membership_validity = (
         pendulum.now().add(seconds=params["msValidity"]).diff_for_humans()
     )
-    table.append(["This membership expiration", membership_validity])
+    table.append(["Expiration date of new membership", membership_validity])
 
     membership_mempool = (
         pendulum.now().add(seconds=params["msPeriod"]).diff_for_humans()
     )
-    table.append(["This membership expiration from the mempool", membership_mempool])
+    table.append(
+        ["Expiration date of new membership from the mempool", membership_mempool]
+    )
 
     click.echo(tabulate(table, tablefmt="fancy_grid"))
 
