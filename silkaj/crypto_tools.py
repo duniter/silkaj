@@ -19,32 +19,57 @@ import re
 from nacl import encoding, hash
 
 from silkaj.constants import PUBKEY_PATTERN
+from silkaj.tools import message_exit
 
 PUBKEY_DELIMITED_PATTERN = "^{0}$".format(PUBKEY_PATTERN)
 CHECKSUM_PATTERN = "[1-9A-HJ-NP-Za-km-z]{3}"
 PUBKEY_CHECKSUM_PATTERN = "^{0}:{1}$".format(PUBKEY_PATTERN, CHECKSUM_PATTERN)
 
 
-def check_public_key(pubkey, display_error):
+def is_pubkey_and_check(pubkey):
     """
-    Check public key format
-    Check pubkey checksum which could be append after the pubkey
-    If check pass: return pubkey
+    Checks if the given argument contains a pubkey.
+    If so, verifies the checksum if needed and returns the pubkey.
+    Exits if the checksum is wrong.
+    Else, return False
+    """
+    if re.search(re.compile(PUBKEY_PATTERN), pubkey):
+        if check_pubkey_format(pubkey, True):
+            return validate_checksum(pubkey)
+        return pubkey
+    return False
+
+
+def check_pubkey_format(pubkey, display_error=True):
+    """
+    Checks if a pubkey has a checksum.
+    Exits if the pubkey is invalid.
     """
     if re.search(re.compile(PUBKEY_DELIMITED_PATTERN), pubkey):
-        return pubkey
+        return False
     elif re.search(re.compile(PUBKEY_CHECKSUM_PATTERN), pubkey):
-        pubkey, checksum = pubkey.split(":")
-        checksum_calculed = gen_checksum(pubkey)
-        if checksum_calculed == checksum:
-            return pubkey
-        else:
-            print("Error: Wrong checksum for following public key:")
-            return False
-
+        return True
     elif display_error:
-        print("Error: bad format for following public key:", pubkey)
-    return False
+        message_exit("Error: bad format for following public key: " + pubkey)
+    return
+
+
+def validate_checksum(pubkey_checksum):
+    """
+    Check pubkey checksum after the pubkey, delimited by ":".
+    If check pass: return pubkey
+    Else: exit.
+    """
+    pubkey, checksum = pubkey_checksum.split(":")
+    if checksum == gen_checksum(pubkey):
+        return pubkey
+    message_exit(
+        "Error: public key '"
+        + pubkey
+        + "' does not match checksum '"
+        + checksum
+        + "'.\nPlease verify the public key."
+    )
 
 
 def gen_checksum(pubkey):

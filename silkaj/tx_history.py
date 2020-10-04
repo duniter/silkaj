@@ -24,7 +24,7 @@ from duniterpy.documents.transaction import Transaction
 from silkaj.network_tools import ClientInstance
 from silkaj.tools import coroutine
 from silkaj.tui import convert_time
-from silkaj.crypto_tools import check_public_key
+from silkaj.crypto_tools import validate_checksum, check_pubkey_format
 from silkaj.wot import identity_of, identities_from_pubkeys
 from silkaj.money import get_amount_from_pubkey, amount_in_current_base, UDValue
 from silkaj.tools import CurrencySymbol
@@ -35,8 +35,8 @@ from silkaj.tools import CurrencySymbol
 @option("--uids", "-u", is_flag=True, help="Display uids")
 @coroutine
 async def transaction_history(pubkey, uids):
-    if not check_public_key(pubkey, True):
-        return
+    if check_pubkey_format(pubkey):
+        pubkey = validate_checksum(pubkey)
 
     client = ClientInstance().client
     ud_value = await UDValue().ud_value

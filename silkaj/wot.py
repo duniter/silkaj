@@ -24,7 +24,7 @@ from duniterpy.api.bma import wot, blockchain
 from duniterpy.api.errors import DuniterError
 
 from silkaj.network_tools import ClientInstance
-from silkaj.crypto_tools import check_public_key
+from silkaj.crypto_tools import is_pubkey_and_check
 from silkaj.tools import message_exit, coroutine
 from silkaj.tui import convert_time
 from silkaj.blockchain_tools import BlockchainParams
@@ -159,7 +159,10 @@ def date_approximation(block_id, time_first_block, avgentime):
 @coroutine
 async def id_pubkey_correspondence(id_pubkey):
     client = ClientInstance().client
-    if check_public_key(id_pubkey, False):
+    # determine if id_pubkey is a pubkey
+    checked_pubkey = is_pubkey_and_check(id_pubkey)
+    if checked_pubkey:
+        id_pubkey = checked_pubkey
         try:
             idty = await identity_of(id_pubkey)
             print(
@@ -169,6 +172,7 @@ async def id_pubkey_correspondence(id_pubkey):
             )
         except:
             message_exit("No matching identity")
+    # if not ; then it is a uid
     else:
         pubkeys = await wot_lookup(id_pubkey)
         print("Public keys found matching '{}':\n".format(id_pubkey))

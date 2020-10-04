@@ -22,7 +22,10 @@ from silkaj.network_tools import ClientInstance
 from silkaj.blockchain_tools import HeadBlock
 from silkaj.tools import CurrencySymbol, message_exit, coroutine
 from silkaj.auth import auth_method
-from silkaj.wot import check_public_key
+
+# had to import wot to prevent loop dependency. No use here.
+from silkaj import wot
+from silkaj.crypto_tools import check_pubkey_format, validate_checksum
 from silkaj.tui import display_amount
 
 from duniterpy.api.bma import tx, blockchain
@@ -43,17 +46,19 @@ async def cmd_amount(ctx, pubkeys):
     ):
         if not pubkeys:
             message_exit("You should specify one or many pubkeys")
+        pubkey_list = list()
         for pubkey in pubkeys:
-            pubkey = check_public_key(pubkey, True)
-            if not pubkey:
-                return
+            if check_pubkey_format(pubkey):
+                pubkey_list.append(validate_checksum(pubkey))
+            else:
+                pubkey_list.append(pubkey)
         total = [0, 0]
-        for pubkey in pubkeys:
+        for pubkey in pubkey_list:
             inputs_balance = await get_amount_from_pubkey(pubkey)
             await show_amount_from_pubkey(pubkey, inputs_balance)
             total[0] += inputs_balance[0]
             total[1] += inputs_balance[1]
-        if len(pubkeys) > 1:
+        if len(pubkey_list) > 1:
             await show_amount_from_pubkey("Total", total)
     else:
         key = auth_method()

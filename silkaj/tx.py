@@ -24,7 +24,7 @@ from click import command, option, FloatRange
 from silkaj.cli_tools import MutuallyExclusiveOption
 from silkaj.network_tools import ClientInstance
 from silkaj.blockchain_tools import HeadBlock
-from silkaj.crypto_tools import check_public_key
+from silkaj.crypto_tools import validate_checksum, check_pubkey_format
 from silkaj.tools import message_exit, CurrencySymbol, coroutine
 from silkaj.auth import auth_method
 from silkaj import money
@@ -204,14 +204,11 @@ def check_transaction_values(
     """
     checkComment(comment)
     for i, outputAddress in enumerate(outputAddresses):
-        outputAddresses[i] = check_public_key(outputAddress, True)
-        if not outputAddresses[i]:
-            message_exit(outputAddress)
+        if check_pubkey_format(outputAddress):
+            outputAddresses[i] = validate_checksum(outputAddress)
     if outputBackChange:
-        pubkey = outputBackChange
-        outputBackChange = check_public_key(outputBackChange, True)
-        if not outputBackChange:
-            message_exit(pubkey)
+        if check_pubkey_format(outputBackChange):
+            outputBackChange = validate_checksum(outputBackChange)
     if enough_source:
         message_exit(
             issuer_pubkey + " pubkey doesn’t have enough money for this transaction."
