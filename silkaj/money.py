@@ -72,7 +72,7 @@ async def show_amount_from_pubkey(pubkey, inputs_balance):
     display = list()
     display.append(["Balance of pubkey", pubkey])
     if totalAmountInput - balance != 0:
-        display_amount(display, "Blockchain", amount, ud_value, currency_symbol)
+        display_amount(display, "Blockchain", balance, ud_value, currency_symbol)
         display_amount(
             display,
             "Pending transaction",
