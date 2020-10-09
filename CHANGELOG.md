@@ -1,3 +1,95 @@
+## v0.8.0 (18th October 2020)
+### Code
+#### Transaction
+- #111, !108: Support passing different amounts on multi-recipients tx
+  - **Breaking change**: Rename `--output` option to `--recipient`
+- Add extra small options to ease passing multiple amounts and recipients:
+  - `-a/--amount`
+  - `-d/--amountUD`
+  - `-r/--recipient`
+  - `-c/--comment`
+- Add possibility to pass multiple options:
+  - **Breaking change**: recipients public keys are no longer `:` separated: `-r A -r B`
+
+- #232, !131, !132: Identities not retrieved for tx with several issuers, and to display the tx history
+- #236, !107: Improve the confirmation display
+- !144: Rework confirmation fields titles
+- #235: Make sure only one option is passed to retrieve the amount of the transaction
+
+#### Membership, WoT
+- #88, !140: Add `membership` command
+- #88, !144: Rework table fields names
+- #140, !140: Ability to pass an `uid` or a `pubkey` to `wot`, and `cert`, `membership` commands
+  - Implement identity choice selector
+
+#### Checksum
+- #237, !132: **Breaking change**: Switch back the checksum delimiter from `!` to `:`
+- #323, !132: Handle pubkey's checksum in the tx code
+- #301, !143: Generalize pubkey checksum display and verifiction, Add `chekcsum` command
+- #320, !143: Incorrect use of `check_public_key()` in `id` command
+
+#### Others
+- #262, !123: Add new `verify` command to check blocks’ signatures
+- #264, !133: Disable the broken `net` command
+- !131: Display `powMin` in a row in the `blocks` explorer
+- #210, !115: Close client session in every cases
+- #223: Make Click context optional to be able to call functions from an external module
+- #255, !113: `balance`: display the content in tables
+- #269, !133: Move `convert_time()` to `tui.py`
+- #278, !128: Fix PubSec regex
+- #336, !141: `history`: Pubkeys display issue with multisig txs
+
+### Dev Env
+#### Poetry migration
+- #182: Migrate from Pipenv and `setup.py` to Poetry
+- #249: Install Poetry stable when v1 is released
+- #263, !127: Post migration tasks (black, poetry)
+- #276, !120: Pip installation do not install `silkaj` executalbe into `$HOME/.local/bin`
+
+#### CI/CD set-up
+- #245: Automated containers builds with Poetry installed for Python versions 3.5, 3.6, 3.7, and 3.8
+- #149: CI/CD set up
+- #105: Deploy on PyPI from GitLab CD
+- #146: Add a coverage badge
+- #284, !124: `build` and `tests` jobs are not retriggered in case of source code change
+- #286, !126: Use latest Black version from PyPI in the container
+- !131: Use `rules` instead of `only/except`
+
+#### Tests
+- #241: Can not run test with Click utility
+
+### Dependencies
+- #259: `attr` error while installing with `pip`
+- !121, !131, !142: Update DuniterPy from v0.55.1 to v0.58.0
+- #251, !140: Introduce `pendulum` date utility
+- Introduce `pytest-sugar`
+- Update PyNaCl to v1.4.0
+- Update Click to v7.1.2
+- #338, !140: Update black to v20
+
+### Python versions support
+We added the support for Python 3.8.
+#240: It is planned that v0.8.x versions are going to be the last releases with Python 3.5 support
+since [its support from the Python project has been dropped September 30th of 2020](https://pythoninsider.blogspot.com/2020/10/python-35-is-no-longer-supported.html).
+
+### Documentation
+- #202: Document contribution process in `CONTRIBUTING.md`
+- #182: Document Poetry installation and usage
+- !109: Add Poetry installation on Debian Buster 
+- !103: Add pip installation documentation for macOS
+- !131: Add packaging status badge from Repology
+- #244: Add `AUTHORS.md` listing the contributors
+- #207: Create Silkaj SVG logo
+
+### Project
+- #252, !118: Create a script to update and update the copyright date to 2020
+- #285, !132: Add copyright and license statements in tests source files
+
+### Thanks
+@moul, @matograine
+
+---
+
 ## v0.7.6 (24th January 2020)
 - Update DuniterPy to v0.55.1 in order to have the PubSec regex fixed
 
