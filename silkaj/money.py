@@ -21,7 +21,7 @@ from tabulate import tabulate
 from silkaj.network_tools import ClientInstance
 from silkaj.blockchain_tools import HeadBlock
 from silkaj.tools import CurrencySymbol, message_exit, coroutine
-from silkaj.auth import auth_method
+from silkaj.auth import auth_method, has_auth_method
 
 # had to import wot to prevent loop dependency. No use here.
 from silkaj import wot
@@ -38,12 +38,7 @@ from duniterpy.documents.transaction import InputSource
 @coroutine
 async def cmd_amount(ctx, pubkeys):
     client = ClientInstance().client
-    if not (
-        ctx.obj["AUTH_SCRYPT"]
-        or ctx.obj["AUTH_FILE"]
-        or ctx.obj["AUTH_SEED"]
-        or ctx.obj["AUTH_WIF"]
-    ):
+    if not has_auth_method():
         if not pubkeys:
             message_exit("You should specify one or many pubkeys")
         pubkey_list = list()

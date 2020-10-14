@@ -46,6 +46,16 @@ def auth_method(ctx):
         return auth_by_scrypt()
 
 
+@pass_context
+def has_auth_method(ctx):
+    return (
+        ctx.obj["AUTH_SCRYPT"]
+        or ctx.obj["AUTH_FILE"]
+        or ctx.obj["AUTH_SEED"]
+        or ctx.obj["AUTH_WIF"]
+    )
+
+
 @command("authfile", help="Generate authentication file")
 @option("--file", default="authfile", show_default=True, help="Path file")
 def generate_auth_file(file):
