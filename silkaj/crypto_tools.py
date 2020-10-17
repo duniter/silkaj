@@ -19,7 +19,6 @@ import re
 import hashlib
 
 import base58
-from nacl import encoding
 
 from silkaj.constants import PUBKEY_PATTERN
 from silkaj.tools import message_exit
