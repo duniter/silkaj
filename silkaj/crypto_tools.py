@@ -16,7 +16,8 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
 import re
-from nacl import encoding, hash
+import hashlib
+from nacl import encoding
 
 from silkaj.constants import PUBKEY_PATTERN
 from silkaj.tools import message_exit
@@ -77,9 +78,8 @@ def gen_checksum(pubkey):
     Returns the checksum of the input pubkey (encoded in b58)
     """
     pubkey_byte = b58_decode(pubkey)
-    return b58_encode(
-        hash.sha256(hash.sha256(pubkey_byte, encoding.RawEncoder), encoding.RawEncoder)
-    )[:3]
+    hash = hashlib.sha256(hashlib.sha256(pubkey_byte).digest()).digest()
+    return b58_encode(hash)[:3]
 
 
 b58_digits = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
