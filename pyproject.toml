@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "silkaj"
-version = "0.7.1"
+version = "0.8.0"
 description = "Powerfull, lightweight, and multi-platform command line client written with Python for Duniter’s currencies: Ğ1 and Ğ1-Test."
 authors = ["Moul <moul@moul.re>"]
 maintainers = ["Moul <moul@moul.re>"]
