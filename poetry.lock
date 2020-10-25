@@ -38,14 +38,6 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 pyyaml = "*"
 
 [[package]]
-name = "async-generator"
-version = "1.10"
-description = "Async generators and context managers for Python 3.5+"
-category = "dev"
-optional = false
-python-versions = ">=3.5"
-
-[[package]]
 name = "async-timeout"
 version = "3.0.1"
 description = "Timeout context manager for asyncio programs"
@@ -186,11 +178,11 @@ python-versions = "*"
 
 [[package]]
 name = "duniterpy"
-version = "0.58.0"
+version = "0.60.0"
 description = "Python library for developers of Duniter clients"
 category = "main"
 optional = false
-python-versions = ">=3.5.3,<4.0.0"
+python-versions = ">=3.6.8,<4.0.0"
 
 [package.dependencies]
 aiohttp = ">=3.6.1,<4.0.0"
@@ -199,7 +191,6 @@ base58 = ">=2.0.0,<3.0.0"
 jsonschema = ">=3.0.2,<4.0.0"
 libnacl = ">=1.6.1,<2.0.0"
 pyaes = ">=1.6.1,<2.0.0"
-pylibscrypt = ">=1.8.0,<2.0.0"
 pypeg2 = ">=2.15.2,<3.0.0"
 
 [[package]]
@@ -348,17 +339,6 @@ pyparsing = ">=2.0.2"
 six = "*"
 
 [[package]]
-name = "pathlib2"
-version = "2.3.5"
-description = "Object-oriented filesystem paths"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-six = "*"
-
-[[package]]
 name = "pathspec"
 version = "0.8.0"
 description = "Utility library for gitignore style pattern matching of file paths."
@@ -429,14 +409,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "pylibscrypt"
-version = "1.8.0"
-description = "Scrypt for Python"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "pyparsing"
 version = "2.4.7"
 description = "Python parsing module"
@@ -475,7 +447,6 @@ colorama = {version = "*", markers = "sys_platform == \"win32\""}
 importlib-metadata = {version = ">=0.12", markers = "python_version < \"3.8\""}
 iniconfig = "*"
 packaging = "*"
-pathlib2 = {version = ">=2.2.0", markers = "python_version < \"3.6\""}
 pluggy = ">=0.12,<1.0"
 py = ">=1.8.2"
 toml = "*"
@@ -493,7 +464,6 @@ optional = false
 python-versions = ">= 3.5"
 
 [package.dependencies]
-async-generator = {version = ">=1.3", markers = "python_version == \"3.5\""}
 pytest = ">=5.4.0"
 
 [package.extras]
@@ -668,8 +638,8 @@ testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.5.3"
-content-hash = "008ca3b883ea0ab8c3ebbf52be5329151bec0984ba9aff22848c2a20c38c4381"
+python-versions = "^3.6.8"
+content-hash = "dedbf81fd9026000449c6ef350833a2a37b3da8db4451743a7f13d558888fd5a"
 
 [metadata.files]
 aiohttp = [
@@ -694,10 +664,6 @@ appdirs = [
 "aspy.yaml" = [
     {file = "aspy.yaml-1.3.0-py2.py3-none-any.whl", hash = "sha256:463372c043f70160a9ec950c3f1e4c3a82db5fca01d334b6bc89c7164d744bdc"},
     {file = "aspy.yaml-1.3.0.tar.gz", hash = "sha256:e7c742382eff2caed61f87a39d13f99109088e5e93f04d76eb8d4b28aa143f45"},
-]
-async-generator = [
-    {file = "async_generator-1.10-py3-none-any.whl", hash = "sha256:01c7bf666359b4967d2cda0000cc2e4af16a0ae098cbffcb8472fb9e8ad6585b"},
-    {file = "async_generator-1.10.tar.gz", hash = "sha256:6ebb3d106c12920aaae42ccb6f787ef5eefdcdd166ea3d628fa8476abe712144"},
 ]
 async-timeout = [
     {file = "async-timeout-3.0.1.tar.gz", hash = "sha256:0c3c816a028d47f659d6ff5c745cb2acf1f966da1fe5c19c77a70282b25f4c5f"},
@@ -787,8 +753,8 @@ distlib = [
     {file = "distlib-0.3.1.zip", hash = "sha256:edf6116872c863e1aa9d5bb7cb5e05a022c519a4594dc703843343a9ddd9bff1"},
 ]
 duniterpy = [
-    {file = "duniterpy-0.58.0-py3-none-any.whl", hash = "sha256:7024c6c74fccbec0014c5fafe7c03b72aca81241176fb9f67b35ed0eb2b92cdc"},
-    {file = "duniterpy-0.58.0.tar.gz", hash = "sha256:a6f7629f1cc3504611912e04bec59ba637d30bd14ee61a52423261c9b4d7e718"},
+    {file = "duniterpy-0.60.0-py3-none-any.whl", hash = "sha256:87f5030e5c0b63c1a336225fffcf2edb51460da36079c90edd4134194704ca13"},
+    {file = "duniterpy-0.60.0.tar.gz", hash = "sha256:624059b1a659b7130d7b205f719f7f32a63ff3c9e89bb7baa0e82e5ca7375636"},
 ]
 filelock = [
     {file = "filelock-3.0.12-py3-none-any.whl", hash = "sha256:929b7d63ec5b7d6b71b0fa5ac14e030b3f70b75747cef1b10da9b879fef15836"},
@@ -859,10 +825,6 @@ packaging = [
     {file = "packaging-20.4-py2.py3-none-any.whl", hash = "sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181"},
     {file = "packaging-20.4.tar.gz", hash = "sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8"},
 ]
-pathlib2 = [
-    {file = "pathlib2-2.3.5-py2.py3-none-any.whl", hash = "sha256:0ec8205a157c80d7acc301c0b18fbd5d44fe655968f5d947b6ecef5290fc35db"},
-    {file = "pathlib2-2.3.5.tar.gz", hash = "sha256:6cd9a47b597b37cc57de1c05e56fb1a1c9cc9fab04fe78c29acd090418529868"},
-]
 pathspec = [
     {file = "pathspec-0.8.0-py2.py3-none-any.whl", hash = "sha256:7d91249d21749788d07a2d0f94147accd8f845507400749ea19c1ec9054a12b0"},
     {file = "pathspec-0.8.0.tar.gz", hash = "sha256:da45173eb3a6f2a5a487efba21f050af2b41948be6ab52b6a1e3ff22bb8b7061"},
@@ -904,9 +866,6 @@ py = [
 ]
 pyaes = [
     {file = "pyaes-1.6.1.tar.gz", hash = "sha256:02c1b1405c38d3c370b085fb952dd8bea3fadcee6411ad99f312cc129c536d8f"},
-]
-pylibscrypt = [
-    {file = "pylibscrypt-1.8.0.tar.gz", hash = "sha256:893c4519afae05878f7aa313b76f6193e4d4b69d157b7febf6a5ef69ae3bf6e9"},
 ]
 pyparsing = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
