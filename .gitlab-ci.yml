@@ -70,6 +70,12 @@ tests-3.8:
   variables:
     PYTHON_VERSION: "3.8"
 
+tests-3.9:
+  extends: .tests
+  tags: [poetry-56]
+  variables:
+    PYTHON_VERSION: "3.9"
+
 pypi_test:
   stage: publish
   rules:
