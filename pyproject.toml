@@ -12,7 +12,7 @@ documentation = "https://git.duniter.org/clients/python/silkaj/tree/dev/doc"
 keywords = ["g1", "duniter", "cryptocurrency", "librecurrency", "RTM"]
 
 [tool.poetry.dependencies]
-python = "^3.5.3"
+python = "^3.6.8"
 duniterpy = "0.58.0"
 click = "^7.1.2"
 ipaddress = "^1.0.23"
@@ -21,7 +21,7 @@ texttable = "^1.6.3"
 pendulum = "^2.1.2"
 
 [tool.poetry.dev-dependencies]
-black = {version = "^20.8b1", python = "^3.6"}
+black = "^20.8b1"
 pre-commit = "^1.18"
 pytest = "^6.0"
 pytest-cov = "^2.7"

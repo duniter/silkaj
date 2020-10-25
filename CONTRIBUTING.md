@@ -112,7 +112,7 @@ The `--extra-index-url` is used to retrieve dependencies packages from the offic
   - Build
 - Tests on supported Python versions:
   - Installation
-  - Pytest for v3.5, 3.6, 3.7, and 3.8
+  - Pytest for v3.6, 3.7, and 3.8
 - PyPI distribution
   - test
   - stable

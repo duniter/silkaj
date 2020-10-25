@@ -46,12 +46,6 @@ format:
     - poetry install
     - poetry run pytest
 
-tests-3.5:
-  extends: .tests
-  tags: [poetry-56]
-  variables:
-    PYTHON_VERSION: "3.5"
-
 tests-3.6:
   extends: .tests
   tags: [poetry-56]
