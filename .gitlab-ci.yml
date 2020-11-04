@@ -48,19 +48,19 @@ format:
 
 tests-3.5:
   extends: .tests
-  tags: [poetry-56]
+  tags: [redshift]
   variables:
     PYTHON_VERSION: "3.5"
 
 tests-3.6:
   extends: .tests
-  tags: [poetry-56]
+  tags: [mille]
   variables:
     PYTHON_VERSION: "3.6"
 
 tests-3.7-coverage:
   extends: .tests
-  tags: [poetry-78]
+  tags: [mille]
   script:
     - poetry install
     - poetry run pytest --cov silkaj --cov-report html:cov_html
@@ -72,7 +72,7 @@ tests-3.7-coverage:
 
 tests-3.8:
   extends: .tests
-  tags: [poetry-78]
+  tags: [redshift]
   variables:
     PYTHON_VERSION: "3.8"
 
