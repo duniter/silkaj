@@ -14,11 +14,15 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
-
 import pytest
 
 from silkaj import tx_history, wot
-from silkaj.constants import G1_DEFAULT_ENDPOINT, SHORT_PUBKEY_SIZE
+from silkaj.constants import (
+    G1_DEFAULT_ENDPOINT,
+    SHORT_PUBKEY_SIZE,
+    PUBKEY_MIN_LENGTH,
+    PUBKEY_MAX_LENGTH,
+)
 from silkaj.crypto_tools import CHECKSUM_SIZE
 
 from patched.tx_history import patched_get_transactions_history
@@ -29,9 +33,17 @@ SHORT_PUBKEY_LENGTH_WITH_CHECKSUM = (
     SHORT_PUBKEY_SIZE + CHECKSUM_SIZE + 2
 )  # 2 chars "…:" ==> 8 + 3 + 2 = 13
 
+MIN_FULL_PUBKEY_LENGTH_WITH_CHECKSUM = (
+    PUBKEY_MIN_LENGTH + CHECKSUM_SIZE + 1
+)  # char `:` ==> 43 + 3 + 1 = 47
+
+MAX_FULL_PUBKEY_LENGTH_WITH_CHECKSUM = (
+    PUBKEY_MAX_LENGTH + CHECKSUM_SIZE + 1
+)  # char `:` ==> 44 + 3 + 1 = 48
+
 
 @pytest.mark.asyncio
-async def test_tx_history_generate_table(monkeypatch):
+async def test_tx_history_generate_table_and_pubkey_uid_display(monkeypatch):
     def min_pubkey_length_with_uid(pubkey):
         # uid is at least one char : "<uid> - <pubkey>" adds min 4 chars to <pubkey>
         return pubkey + 4
@@ -46,6 +58,7 @@ async def test_tx_history_generate_table(monkeypatch):
     received_txs, sent_txs = list(), list()
     await patched_get_transactions_history(client, pubkey, received_txs, sent_txs)
 
+    # simple table
     txs_list = await tx_history.generate_table(
         received_txs,
         sent_txs,
@@ -53,6 +66,7 @@ async def test_tx_history_generate_table(monkeypatch):
         ud_value,
         currency,
         uids=False,
+        full_pubkey=False,
     )
     for tx_list in txs_list:
         assert len(tx_list) == table_columns
@@ -60,6 +74,7 @@ async def test_tx_history_generate_table(monkeypatch):
             assert "…:" in tx_list[1]
             assert len(tx_list[1]) == SHORT_PUBKEY_LENGTH_WITH_CHECKSUM
 
+    # with uids
     txs_list_uids = await tx_history.generate_table(
         received_txs,
         sent_txs,
@@ -67,6 +82,7 @@ async def test_tx_history_generate_table(monkeypatch):
         ud_value,
         currency,
         uids=True,
+        full_pubkey=False,
     )
     for tx_list in txs_list_uids:
         assert len(tx_list) == table_columns
@@ -81,6 +97,58 @@ async def test_tx_history_generate_table(monkeypatch):
         SHORT_PUBKEY_LENGTH_WITH_CHECKSUM
     )
     assert len(txs_list_uids[4][1]) == SHORT_PUBKEY_LENGTH_WITH_CHECKSUM
+
+    # with full pubkeys
+    txs_list_full = await tx_history.generate_table(
+        received_txs,
+        sent_txs,
+        pubkey,
+        ud_value,
+        currency,
+        uids=False,
+        full_pubkey=True,
+    )
+    for tx_list in txs_list_full:
+        assert len(tx_list) == table_columns
+        if tx_list != txs_list_full[0]:
+            assert not "…:" in tx_list[1]
+            assert ":" in tx_list[1]
+            # this length is not true for multisig txs, which are very unlikely for now.
+            assert (
+                len(tx_list[1]) == MIN_FULL_PUBKEY_LENGTH_WITH_CHECKSUM
+                or len(tx_list[1]) == MAX_FULL_PUBKEY_LENGTH_WITH_CHECKSUM
+            )
+
+    # with full pubkeys and uids
+    txs_list_uids_full = await tx_history.generate_table(
+        received_txs,
+        sent_txs,
+        pubkey,
+        ud_value,
+        currency,
+        uids=True,
+        full_pubkey=True,
+    )
+    for tx_list in txs_list_uids_full:
+        assert len(tx_list) == table_columns
+        if tx_list != txs_list_uids_full[0]:
+            assert not "…:" in tx_list[1]
+            assert ":" in tx_list[1]
+    # check all lines
+    assert len(txs_list_uids_full[1][1]) >= min_pubkey_length_with_uid(
+        MIN_FULL_PUBKEY_LENGTH_WITH_CHECKSUM
+    )
+    assert (
+        len(txs_list_uids_full[2][1]) == MIN_FULL_PUBKEY_LENGTH_WITH_CHECKSUM
+        or len(txs_list_uids_full[2][1]) == MAX_FULL_PUBKEY_LENGTH_WITH_CHECKSUM
+    )
+    assert len(txs_list_uids_full[3][1]) >= min_pubkey_length_with_uid(
+        MIN_FULL_PUBKEY_LENGTH_WITH_CHECKSUM
+    )
+    assert (
+        len(txs_list_uids_full[4][1]) == MIN_FULL_PUBKEY_LENGTH_WITH_CHECKSUM
+        or len(txs_list_uids_full[4][1]) == MAX_FULL_PUBKEY_LENGTH_WITH_CHECKSUM
+    )
 
 
 @pytest.mark.parametrize(

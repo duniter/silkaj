@@ -35,8 +35,9 @@ from silkaj.tools import CurrencySymbol
 @command("history", help="Display transaction history")
 @argument("pubkey")
 @option("--uids", "-u", is_flag=True, help="Display uids")
+@option("--full-pubkey", "-f", is_flag=True, help="Display full-length pubkeys")
 @coroutine
-async def transaction_history(pubkey, uids):
+async def transaction_history(pubkey, uids, full_pubkey):
     if check_pubkey_format(pubkey):
         pubkey = validate_checksum(pubkey)
 
@@ -49,7 +50,7 @@ async def transaction_history(pubkey, uids):
     await get_transactions_history(client, pubkey, received_txs, sent_txs)
     remove_duplicate_txs(received_txs, sent_txs)
     txs_list = await generate_table(
-        received_txs, sent_txs, pubkey, ud_value, currency_symbol, uids
+        received_txs, sent_txs, pubkey, ud_value, currency_symbol, uids, full_pubkey
     )
     table = Texttable(max_width=get_terminal_size()[0])
     table.add_rows(txs_list)
@@ -102,7 +103,7 @@ def remove_duplicate_txs(received_txs, sent_txs):
 
 
 async def generate_table(
-    received_txs, sent_txs, pubkey, ud_value, currency_symbol, uids
+    received_txs, sent_txs, pubkey, ud_value, currency_symbol, uids, full_pubkey
 ):
     """
     Generate information in a list of lists for texttabe
@@ -112,8 +113,10 @@ async def generate_table(
     """
 
     received_txs_table, sent_txs_table = list(), list()
-    await parse_received_tx(received_txs_table, received_txs, pubkey, ud_value, uids)
-    await parse_sent_tx(sent_txs_table, sent_txs, pubkey, ud_value, uids)
+    await parse_received_tx(
+        received_txs_table, received_txs, pubkey, ud_value, uids, full_pubkey
+    )
+    await parse_sent_tx(sent_txs_table, sent_txs, pubkey, ud_value, uids, full_pubkey)
     txs_table = received_txs_table + sent_txs_table
 
     table_titles = [
@@ -129,7 +132,9 @@ async def generate_table(
     return txs_table
 
 
-async def parse_received_tx(received_txs_table, received_txs, pubkey, ud_value, uids):
+async def parse_received_tx(
+    received_txs_table, received_txs, pubkey, ud_value, uids, full_pubkey
+):
     """
     Extract issuers’ pubkeys
     Get identities from pubkeys
@@ -149,7 +154,7 @@ async def parse_received_tx(received_txs_table, received_txs, pubkey, ud_value, 
         tx_list.append(str())
         for i, issuer in enumerate(received_tx.issuers):
             tx_list[1] += prefix(None, None, i) + assign_idty_from_pubkey(
-                issuer, identities
+                issuer, identities, full_pubkey
             )
         amounts = tx_amount(received_tx, pubkey, received_func)[0]
         tx_list.append(amounts / 100)
@@ -158,7 +163,7 @@ async def parse_received_tx(received_txs_table, received_txs, pubkey, ud_value, 
         received_txs_table.append(tx_list)
 
 
-async def parse_sent_tx(sent_txs_table, sent_txs, pubkey, ud_value, uids):
+async def parse_sent_tx(sent_txs_table, sent_txs, pubkey, ud_value, uids, full_pubkey):
     """
     Extract recipients’ pubkeys from outputs
     Get identities from pubkeys
@@ -198,7 +203,7 @@ async def parse_sent_tx(sent_txs_table, sent_txs, pubkey, ud_value, uids):
                     round(neg(amount_in_current_base(output)) / ud_value, 2)
                 )
                 tx_list[1] += prefix(tx_list[1], outputs, 0) + assign_idty_from_pubkey(
-                    output.condition.left.pubkey, identities
+                    output.condition.left.pubkey, identities, full_pubkey
                 )
         tx_list.append(amounts)
         tx_list.append(amounts_ud)
@@ -243,12 +248,13 @@ def output_available(condition, comparison, value):
         return False
 
 
-def assign_idty_from_pubkey(pubkey, identities):
-    idty = display_pubkey_and_checksum(pubkey, True)
+def assign_idty_from_pubkey(pubkey, identities, full_pubkey):
+    idty = display_pubkey_and_checksum(pubkey, short=not full_pubkey)
     for identity in identities:
         if pubkey == identity["pubkey"]:
             idty = "{0} - {1}".format(
-                identity["uid"], display_pubkey_and_checksum(pubkey, True)
+                identity["uid"],
+                display_pubkey_and_checksum(pubkey, short=not full_pubkey),
             )
     return idty
 
