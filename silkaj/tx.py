@@ -41,6 +41,8 @@ from duniterpy.api.bma.tx import process
 from duniterpy.documents import BlockUID, Transaction
 from duniterpy.documents.transaction import OutputSource, Unlock, SIGParameter
 
+MAX_COMMENT_LENGTH = 255
+
 
 @command("tx", help="Send transaction")
 @option(
@@ -469,13 +471,13 @@ def generate_output(listoutput, unitbase, rest, recipient_address):
         unitbase = unitbase - 1
 
 
-def checkComment(Comment):
-    if len(Comment) > 255:
+def checkComment(comment):
+    if len(comment) > MAX_COMMENT_LENGTH:
         tools.message_exit("Error: Comment is too long")
     regex = compile(
         "^[0-9a-zA-Z\\ \\-\\_\\:\\/\\;\\*\\[\\]\\(\\)\\?\\!\\^\\+\\=\\@\\&\\~\\#\\{\\}\\|\\\\<\\>\\%\\.]*$"
     )
-    if not search(regex, Comment):
+    if not search(regex, comment):
         tools.message_exit("Error: the format of the comment is invalid")
 
 
