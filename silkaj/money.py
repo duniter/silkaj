@@ -165,7 +165,8 @@ async def get_sources(pubkey):
                     index=i,
                 )
                 if inputgenerated not in listinput:
-                    listinput.append(inputgenerated)
+                    # add pendings before blockchain sources for change txs
+                    listinput.insert(0, inputgenerated)
 
         for input in pending["inputs"]:
             pending_sources.append(InputSource.from_inline(input))
