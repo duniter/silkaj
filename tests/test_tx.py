@@ -32,7 +32,6 @@ async def test_transaction_amount(monkeypatch):
     float ≠ 100 does not give the exact value"""
 
     monkeypatch.setattr(UDValue, "get_ud_value", patched_ud_value)
-    udvalue = mock_ud_value
     trials = (
         # tests for --amount (unit)
         ([141.89], None, ["A"], [14189]),
@@ -41,7 +40,7 @@ async def test_transaction_amount(monkeypatch):
         ([141.89], None, ["A", "B"], [14189, 14189]),
         ([141.89, 141.99], None, ["A", "B"], [14189, 14199]),
         # tests for --amount_UD
-        (None, [1.1], ["A"], [round(1.1 * udvalue)]),
+        (None, [1.1], ["A"], [round(1.1 * mock_ud_value)]),
         (
             None,
             [1.9],
@@ -49,11 +48,16 @@ async def test_transaction_amount(monkeypatch):
                 "A",
                 "B",
             ],
-            [round(1.9 * udvalue), round(1.9 * udvalue)],
+            [round(1.9 * mock_ud_value), round(1.9 * mock_ud_value)],
         ),
-        (None, [1.0001], ["A"], [round(1.0001 * udvalue)]),
-        (None, [9.9999], ["A"], [round(9.9999 * udvalue)]),
-        (None, [1.9, 2.3], ["A", "B"], [round(1.9 * udvalue), round(2.3 * udvalue)]),
+        (None, [1.0001], ["A"], [round(1.0001 * mock_ud_value)]),
+        (None, [9.9999], ["A"], [round(9.9999 * mock_ud_value)]),
+        (
+            None,
+            [1.9, 2.3],
+            ["A", "B"],
+            [round(1.9 * mock_ud_value), round(2.3 * mock_ud_value)],
+        ),
     )
 
     for trial in trials:

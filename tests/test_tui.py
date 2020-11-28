@@ -27,8 +27,7 @@ from patched.money import mock_ud_value
     "message, amount, currency_symbol", [("Total", 1000, G1_SYMBOL)]
 )
 def test_display_amount(message, amount, currency_symbol):
-    ud_value = mock_ud_value
-    amount_UD = round(amount / ud_value, 2)
+    amount_UD = round(amount / mock_ud_value, 2)
     expected = [
         [
             message + " (unit|relative)",
@@ -42,7 +41,7 @@ def test_display_amount(message, amount, currency_symbol):
         ]
     ]
     tx = list()
-    display_amount(tx, message, amount, ud_value, currency_symbol)
+    display_amount(tx, message, amount, mock_ud_value, currency_symbol)
     assert tx == expected
 
 

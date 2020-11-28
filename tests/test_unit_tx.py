@@ -126,7 +126,6 @@ async def test_transaction_confirmation(
     )
 
     # creating expected list
-    ud_value = mock_ud_value
     expected = list()
     total_tx_amount = sum(tx_amounts)
     # display account situation
@@ -134,28 +133,28 @@ async def test_transaction_confirmation(
         expected,
         "Initial balance",
         pubkey_balance,
-        ud_value,
+        mock_ud_value,
         currency_symbol,
     )
     display_amount(
         expected,
         "Total transaction amount",
         total_tx_amount,
-        ud_value,
+        mock_ud_value,
         currency_symbol,
     )
     display_amount(
         expected,
         "Balance after transaction",
         (pubkey_balance - total_tx_amount),
-        ud_value,
+        mock_ud_value,
         currency_symbol,
     )
     await display_pubkey(expected, "From", issuer_pubkey)
     # display recipients and amounts
     for outputAddress, tx_amount in zip(outputAddresses, tx_amounts):
         await display_pubkey(expected, "To", outputAddress)
-        display_amount(expected, "Amount", tx_amount, ud_value, currency_symbol)
+        display_amount(expected, "Amount", tx_amount, mock_ud_value, currency_symbol)
     # display backchange and comment
     if outputBackChange:
         await display_pubkey(expected, "Backchange", outputBackChange)
@@ -190,7 +189,6 @@ def test_compute_amounts_errors(capsys):
 
 
 def test_compute_amounts():
-    ud_value = 314
     assert compute_amounts((10.0, 2.0, 0.01, 0.011, 0.019), 100) == [
         1000,
         200,
@@ -198,12 +196,12 @@ def test_compute_amounts():
         1,
         2,
     ]
-    assert compute_amounts([0.0032], ud_value) == [1]
-    assert compute_amounts([1.00], ud_value) == [314]
-    assert compute_amounts([1.01], ud_value) == [317]
-    assert compute_amounts([1.99], ud_value) == [625]
-    assert compute_amounts([1.001], ud_value) == [314]
-    assert compute_amounts([1.009], ud_value) == [317]
+    assert compute_amounts([0.0032], mock_ud_value) == [1]
+    assert compute_amounts([1.00], mock_ud_value) == [314]
+    assert compute_amounts([1.01], mock_ud_value) == [317]
+    assert compute_amounts([1.99], mock_ud_value) == [625]
+    assert compute_amounts([1.001], mock_ud_value) == [314]
+    assert compute_amounts([1.009], mock_ud_value) == [317]
     # This case will not happen in real use, but this particular function will allow it.
 
     assert compute_amounts([0.0099], 100) == [1]
@@ -279,7 +277,6 @@ async def test_transaction_amount(
 ):
     # patched functions
     monkeypatch.setattr("silkaj.money.UDValue.get_ud_value", patched_ud_value)
-    udvalue = mock_ud_value
 
     def too_little_amount(amounts, multiplicator):
         for amount in amounts:
@@ -295,7 +292,7 @@ async def test_transaction_amount(
     # test errors
     if (
         (len(given_amounts) > 1 and len(outputAddresses) != len(given_amounts))
-        or (UDs_amounts and too_little_amount(given_amounts, udvalue))
+        or (UDs_amounts and too_little_amount(given_amounts, mock_ud_value))
         or (amounts and too_little_amount(given_amounts, CENT_MULT_TO_UNIT))
     ):
         # check program exit on error
