@@ -110,6 +110,11 @@ async def send_transaction(
 
     pubkey_amount = await money.get_amount_from_pubkey(issuer_pubkey)
     if allsources:
+        if pubkey_amount[0] <= 0:
+            message_exit(
+                f"Error: Issuer pubkey {display_pubkey_and_checksum(issuer_pubkey)} is empty. No transaction sent."
+            )
+
         tx_amounts = [pubkey_amount[0]]
 
     recipients = list(recipients)
