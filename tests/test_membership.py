@@ -32,6 +32,7 @@ from patched.blockchain_tools import (
     patched_params,
     patched_block,
     patched_head_block,
+    fake_block_uid,
 )
 from patched.wot import (
     patched_wot_requirements_one_pending,
@@ -62,9 +63,7 @@ identity_timestamp = block_uid(
     "0-E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
 )
 identity_uid = "toto"
-membership_timestamp = block_uid(
-    "48000-0000010D30B1284D34123E036B7BE0A449AE9F2B928A77D7D20E3BDEAC7EE14C"
-)
+membership_timestamp = fake_block_uid
 
 
 def patched_auth_method():

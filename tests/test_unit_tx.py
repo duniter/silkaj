@@ -31,13 +31,12 @@ from duniterpy.documents.transaction import (
     Unlock,
     SIGParameter,
 )
-from duniterpy.documents.block_uid import BlockUID
 
 from patched.wot import patched_is_member
 from patched.money import patched_get_sources, patched_ud_value
 from patched.test_constants import mock_ud_value
 from patched.tools import patched_currency_symbol
-from patched.blockchain_tools import patched_head_block
+from patched.blockchain_tools import patched_head_block, fake_block_uid
 
 
 # truncBase()
@@ -309,9 +308,7 @@ async def test_transaction_amount(
 result1 = Transaction(
     version=10,
     currency="g1",
-    blockstamp=BlockUID(
-        48000, "0000010D30B1284D34123E036B7BE0A449AE9F2B928A77D7D20E3BDEAC7EE14C"
-    ),
+    blockstamp=fake_block_uid,
     locktime=0,
     issuers=["BFb5yv8z1fowR6Z8mBXTALy5z7gHfMU976WtXhmRsUMh"],
     inputs=[
