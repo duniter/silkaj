@@ -1,6 +1,5 @@
 ## v0.8.1 (30th November 2020)
-
-- #358, #152: Update DuniterPy to v0.58.1, to support `libnacl` v1.7.2
+- #358, !152: Update DuniterPy to v0.58.1, to support `libnacl` v1.7.2
 
 Thanks @matograine
 
