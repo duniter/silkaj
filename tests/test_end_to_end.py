@@ -30,8 +30,8 @@ def test_info():
 def test_wot():
     """tests 'silkaj wot' returns a number of members"""
 
-    output = check_output(silkaj + ["wot", "moul"]).decode()
-    assert "moul (GfKERHnJ…:J1k) from block #0-E3B0C44298FC1…" in output
+    output = check_output(silkaj + ["wot", "Matograine"]).decode()
+    assert "Matograine (CmFKubyq…:CQ5) from block #106433-00000340…" in output
     assert "received_expire" in output
     assert "received" in output
     assert "sent" in output
