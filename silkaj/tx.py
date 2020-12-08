@@ -30,7 +30,8 @@ from silkaj.auth import auth_method
 from silkaj import money
 from silkaj.constants import (
     SOURCES_PER_TX,
-    MINIMAL_TX_AMOUNT,
+    MINIMAL_ABSOLUTE_TX_AMOUNT,
+    MINIMAL_RELATIVE_TX_AMOUNT,
     CENT_MULT_TO_UNIT,
     ASYNC_SLEEP,
 )
@@ -47,9 +48,9 @@ from duniterpy.documents.transaction import OutputSource, Unlock, SIGParameter
     "--amount",
     "-a",
     multiple=True,
-    type=FloatRange(MINIMAL_TX_AMOUNT),
+    type=FloatRange(MINIMAL_ABSOLUTE_TX_AMOUNT),
     help="Quantitative amount(s):\n-a <amount>\nMinimum amount is {0}".format(
-        MINIMAL_TX_AMOUNT
+        MINIMAL_ABSOLUTE_TX_AMOUNT
     ),
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["amountsud", "allsources"],
@@ -59,8 +60,8 @@ from duniterpy.documents.transaction import OutputSource, Unlock, SIGParameter
     "--amountUD",
     "-d",
     multiple=True,
-    type=float,
-    help="Relative amount(s):\n-d <amount_UD>",
+    type=FloatRange(MINIMAL_RELATIVE_TX_AMOUNT),
+    help=f"Relative amount(s):\n-d <amount_UD>\nMinimum amount is {MINIMAL_RELATIVE_TX_AMOUNT}",
     cls=MutuallyExclusiveOption,
     mutually_exclusive=["amounts", "allsources"],
 )
@@ -191,7 +192,7 @@ def compute_amounts(amounts, multiplicator):
         computed_amount = amount * multiplicator
         # check if relative amounts are high enough
         if (multiplicator != CENT_MULT_TO_UNIT) and (
-            computed_amount < (MINIMAL_TX_AMOUNT * CENT_MULT_TO_UNIT)
+            computed_amount < (MINIMAL_ABSOLUTE_TX_AMOUNT * CENT_MULT_TO_UNIT)
         ):
             message_exit("Error: amount {0} is too low.".format(amount))
         amounts_list.append(round(computed_amount))

@@ -29,7 +29,7 @@ from silkaj.money import UDValue
 from silkaj.constants import (
     G1_SYMBOL,
     CENT_MULT_TO_UNIT,
-    MINIMAL_TX_AMOUNT,
+    MINIMAL_ABSOLUTE_TX_AMOUNT,
 )
 from duniterpy.documents.transaction import (
     InputSource,
@@ -280,7 +280,7 @@ async def test_transaction_amount(
 
     def too_little_amount(amounts, multiplicator):
         for amount in amounts:
-            if amount * multiplicator < MINIMAL_TX_AMOUNT * CENT_MULT_TO_UNIT:
+            if amount * multiplicator < MINIMAL_ABSOLUTE_TX_AMOUNT * CENT_MULT_TO_UNIT:
                 return True
             return False
 

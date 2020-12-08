@@ -21,7 +21,7 @@ from click.testing import CliRunner
 from silkaj.tx import transaction_amount
 from silkaj.money import UDValue
 from silkaj.cli import cli
-from silkaj.constants import MINIMAL_TX_AMOUNT, FAILURE_EXIT_STATUS
+from silkaj.constants import MINIMAL_ABSOLUTE_TX_AMOUNT, FAILURE_EXIT_STATUS
 import patched
 
 
@@ -103,7 +103,9 @@ def test_tx_passed_amount_cli():
     )
     assert result.exit_code == FAILURE_EXIT_STATUS
 
-    result = CliRunner().invoke(cli, ["tx", "-r", "A", "-a", MINIMAL_TX_AMOUNT - 0.001])
+    result = CliRunner().invoke(
+        cli, ["tx", "-r", "A", "-a", MINIMAL_ABSOLUTE_TX_AMOUNT - 0.001]
+    )
     assert "Error: Invalid value for '--amount'" in result.output
     assert result.exit_code == 2
 
