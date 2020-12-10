@@ -23,6 +23,7 @@ from silkaj.money import UDValue
 from silkaj.cli import cli
 from silkaj.constants import (
     MINIMAL_ABSOLUTE_TX_AMOUNT,
+    MINIMAL_RELATIVE_TX_AMOUNT,
     FAILURE_EXIT_STATUS,
     CENT_MULT_TO_UNIT,
 )
@@ -167,6 +168,12 @@ def test_tx_passed_amount_cli():
         cli, ["tx", "-r", "A", "-a", MINIMAL_ABSOLUTE_TX_AMOUNT - 0.001]
     )
     assert "Error: Invalid value for '--amount'" in result.output
+    assert result.exit_code == 2
+
+    result = CliRunner().invoke(
+        cli, ["tx", "-r", "A", "-d", MINIMAL_RELATIVE_TX_AMOUNT - 0.0000001]
+    )
+    assert "Error: Invalid value for '--amountUD'" in result.output
     assert result.exit_code == 2
 
     result = CliRunner().invoke(cli, ["tx", "-r", "A", "-a", 1, "-a", 2])
