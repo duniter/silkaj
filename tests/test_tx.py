@@ -15,8 +15,10 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
+import sys
 import pytest
 from click.testing import CliRunner
+from click import pass_context
 
 from silkaj import tx
 from silkaj.money import UDValue
@@ -28,8 +30,27 @@ from silkaj.constants import (
     CENT_MULT_TO_UNIT,
 )
 
-from patched.money import patched_ud_value
+from patched.money import patched_ud_value, patched_get_sources
 from patched.test_constants import mock_ud_value
+from patched.auth import patched_auth_method
+from patched.tx import patched_transaction_confirmation
+
+# AsyncMock available from Python 3.8. asynctest is used for Py < 3.8
+if sys.version_info[1] > 7:
+    from unittest.mock import AsyncMock
+else:
+    from asynctest.mock import CoroutineMock as AsyncMock
+
+
+# create test auths
+@pass_context
+def patched_auth_method_truc(ctx):
+    return patched_auth_method("truc")
+
+
+@pass_context
+def patched_auth_method_riri(ctx):
+    return patched_auth_method("riri")
 
 
 @pytest.mark.asyncio
@@ -191,3 +212,37 @@ def test_tx_passed_amount_cli():
         in result.output
     )
     assert result.exit_code == FAILURE_EXIT_STATUS
+
+
+@pytest.mark.parametrize(
+    "arguments, auth_method, is_account_filled",
+    [
+        (["tx", "--allSources", "-r", "A" * 43], patched_auth_method_truc, False),
+        (["tx", "--allSources", "-r", "A" * 43], patched_auth_method_riri, True),
+    ],
+)
+def test_tx_passed_all_sources_empty(
+    arguments, auth_method, is_account_filled, monkeypatch
+):
+    """test that --allSources on an empty pubkey returns an error"""
+
+    # patch functions
+    monkeypatch.setattr("silkaj.auth.auth_method", auth_method)
+    monkeypatch.setattr("silkaj.money.get_sources", patched_get_sources)
+    patched_transaction_confirmation = AsyncMock()
+    monkeypatch.setattr(
+        "silkaj.tx.transaction_confirmation", patched_transaction_confirmation
+    )
+
+    result = CliRunner().invoke(cli, args=arguments)
+    # test error
+    if not is_account_filled:
+        assert (
+            "Error: Issuer pubkey FA4uAQ92rmxidQPgtMopaLfNNzhxu7wLgUsUkqKkSwPr:4E7 is empty. No transaction sent."
+            in result.output
+        )
+        assert result.exit_code == FAILURE_EXIT_STATUS
+
+    # test that error don't occur when issuer balance > 0
+    else:
+        tx.transaction_confirmation.assert_called_once()
