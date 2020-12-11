@@ -83,12 +83,19 @@ async def show_amount_from_pubkey(pubkey, inputs_balance):
     currency_symbol = await CurrencySymbol().symbol
     ud_value = await UDValue().ud_value
     average, monetary_mass = await get_average()
-    # if `pubkey` is a pubkey, get pubkey:checksum
+    member = False
+
+    # if `pubkey` is a pubkey, get pubkey:checksum and uid
     if pubkey != "Total":
+        member = await wot.is_member(pubkey)
         pubkey = display_pubkey_and_checksum(pubkey)
     # display balance table
     display = list()
     display.append(["Balance of pubkey", pubkey])
+
+    if member:
+        display.append(["User identifier", member["uid"]])
+
     if totalAmountInput - balance != 0:
         display_amount(display, "Blockchain", balance, ud_value, currency_symbol)
         display_amount(
