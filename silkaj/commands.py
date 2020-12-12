@@ -101,7 +101,7 @@ async def difficulties():
             current = await ws.receive_json()
             jsonschema.validate(current, bma.ws.WS_BLOCK_SCHEMA)
             diffi = await client(bma.blockchain.difficulties)
-            await display_diffi(current, diffi)
+            display_diffi(current, diffi)
         await client.close()
 
     except (aiohttp.WSServerHandshakeError, ValueError) as e:
@@ -112,7 +112,7 @@ async def difficulties():
         print("{:}:{:}".format(str(e.__class__.__name__), str(e)))
 
 
-async def display_diffi(current, diffi):
+def display_diffi(current, diffi):
     levels = [OrderedDict((i, d[i]) for i in ("uid", "level")) for d in diffi["levels"]]
     diffi["levels"] = levels
     issuers = 0
