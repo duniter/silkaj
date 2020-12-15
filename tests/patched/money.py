@@ -63,6 +63,7 @@ async def patched_get_sources(pubkey):
             )
             balance += amount_in_current_base(listinput[-1])
             a += 1
+        return balance
 
     def listinput_TX(listinput, balance, max_tx):
         a = 0
@@ -78,6 +79,7 @@ async def patched_get_sources(pubkey):
             )
             balance += amount_in_current_base(listinput[-1])
             a += 1
+        return balance
 
     listinput, n = list(), 0
     balance = 0
@@ -123,8 +125,8 @@ async def patched_get_sources(pubkey):
         max_ud = 0
         max_tx = 0
 
-    listinput_UD(listinput, balance, pubkey, max_ud)
-    listinput_TX(listinput, balance, max_tx)
+    balance = listinput_UD(listinput, balance, pubkey, max_ud)
+    balance = listinput_TX(listinput, balance, max_tx)
 
     patched_get_sources.counter += 1
     return listinput, balance
