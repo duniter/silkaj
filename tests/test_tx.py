@@ -18,7 +18,7 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 import pytest
 from click.testing import CliRunner
 
-from silkaj.tx import transaction_amount
+from silkaj import tx
 from silkaj.money import UDValue
 from silkaj.cli import cli
 from silkaj.constants import (
@@ -67,7 +67,7 @@ async def test_transaction_amount(monkeypatch):
     )
 
     for trial in trials:
-        assert trial[3] == await transaction_amount(trial[0], trial[1], trial[2])
+        assert trial[3] == await tx.transaction_amount(trial[0], trial[1], trial[2])
 
 
 # transaction_amount errors()
@@ -115,7 +115,7 @@ async def test_transaction_amount_errors(
     # check program exit on error
     with pytest.raises(SystemExit) as pytest_exit:
         # read output to check error.
-        await transaction_amount(amounts, UDs_amounts, outputAddresses)
+        await tx.transaction_amount(amounts, UDs_amounts, outputAddresses)
         assert expected == capsys.readouterr()
     assert pytest_exit.type == SystemExit
 
