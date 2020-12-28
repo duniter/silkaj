@@ -16,13 +16,14 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
 from __future__ import unicode_literals
-from ipaddress import ip_address
+import re
 import socket
 import logging
 from sys import exit, stderr
 from asyncio import sleep
 from duniterpy.api.client import Client
 from duniterpy.api.bma import network
+from duniterpy.constants import IPV4_REGEX, IPV6_REGEX
 
 from silkaj.constants import (
     G1_DEFAULT_ENDPOINT,
@@ -198,10 +199,11 @@ def endpoint_type(sep, ep):
 
 
 def check_ip(address):
-    try:
-        return ip_address(address).version
-    except:
-        return 0
+    if re.match(IPV4_REGEX, address) != None:
+        return 4
+    elif re.match(IPV6_REGEX, address) != None:
+        return 6
+    return 0
 
 
 def best_endpoint_address(ep, main):
