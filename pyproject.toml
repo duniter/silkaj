@@ -15,7 +15,6 @@ keywords = ["g1", "duniter", "cryptocurrency", "librecurrency", "RTM"]
 python = "^3.6.8"
 duniterpy = "0.61.0"
 click = "^7.1.2"
-ipaddress = "^1.0.23"
 tabulate = "^0.8.7"
 texttable = "^1.6.3"
 pendulum = "^2.1.2"
