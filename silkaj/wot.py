@@ -246,8 +246,6 @@ async def identity_of(pubkey_uid):
     client = ClientInstance().client
     try:
         return await client(wot.identity_of, pubkey_uid)
-    except DuniterError as e:
-        raise DuniterError(e)
     except ValueError as e:
         pass
 
