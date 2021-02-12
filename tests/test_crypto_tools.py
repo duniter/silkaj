@@ -38,7 +38,7 @@ def test_gen_checksum(pubkey, checksum):
         (
             "J4c8CARmP9vAFNGtHRuzx14zvxojyRWHW2darguVqjtX",
             "KA",
-            "Error: Wrong checksum for following public key: J4c8CARmP9vAFNGtHRuzx14zvxojyRWHW2darguVqjtX",
+            "Error: public key 'J4c8CARmP9vAFNGtHRuzx14zvxojyRWHW2darguVqjtX' does not match checksum 'KA'.\nPlease verify the public key.\n",
         ),
     ],
 )
@@ -49,7 +49,7 @@ def test_validate_checksum(pubkey, checksum, expected, capsys):
     else:
         with pytest.raises(SystemExit) as pytest_exit:
             test = crypto_tools.validate_checksum(pubkey_with_ck)
-        assert capsys.readouterr() == expected
+        assert capsys.readouterr().out == expected
         assert pytest_exit.type == SystemExit
 
 
@@ -60,14 +60,14 @@ def test_validate_checksum(pubkey, checksum, expected, capsys):
         ("J4c8CARmP9vAFNGtHRuzx14zvxojyRWHW2darguVqjtX:KAv", True, True),
         ("J4c8CARmP9vAFNGtHRuzx14zvxojyRWHW2darguVqjtX", True, False),
         ("Youpi", False, None),
-        ("Youpi", True, "Error: bad format for following public key: Youpi"),
+        ("Youpi", True, "Error: bad format for following public key: Youpi\n"),
     ],
 )
 def test_check_pubkey_format(pubkey, display_error, expected, capsys):
     if isinstance(expected, str):
         with pytest.raises(SystemExit) as pytest_exit:
             test = crypto_tools.check_pubkey_format(pubkey, display_error)
-        assert capsys.readouterr() == expected
+        assert capsys.readouterr().out == expected
         assert pytest_exit.type == SystemExit
     else:
         assert expected == crypto_tools.check_pubkey_format(pubkey, display_error)

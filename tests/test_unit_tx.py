@@ -193,7 +193,7 @@ def test_compute_amounts_errors(capsys):
                 trial[1],
             )
         assert pytest_exit.type == SystemExit
-        expected_error = "Error: amount {0} is too low.".format(trial[0][0])
+        expected_error = "Error: amount {0} is too low.\n".format(trial[0][0])
         assert capsys.readouterr().out == expected_error
 
 
@@ -1347,9 +1347,9 @@ def test_check_transaction_values_errors(
     assert pytest_exit.type == SystemExit
     display = capsys.readouterr()
     if comment.find("Wrong_Char_") != -1:
-        assert display == "Error: the format of the comment is invalid"
+        assert display.out == "Error: the format of the comment is invalid\n"
     elif len(comment) > tx.MAX_COMMENT_LENGTH:
-        assert display == "Error: the format of the comment is invalid"
+        assert display.out == "Error: Comment is too long\n"
     elif "Wrong_Pubkey" in outputAddresses:
         assert display.out.find("Error: bad format for following public key:") != -1
     elif outputBackChange:
@@ -1360,7 +1360,6 @@ def test_check_transaction_values_errors(
             display.out.find("pubkey doesn’t have enough money for this transaction.")
             != -1
         )
-    assert result == ""
 
 
 # test generate_unlocks()
