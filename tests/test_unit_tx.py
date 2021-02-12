@@ -192,9 +192,9 @@ def test_compute_amounts_errors(capsys):
                 trial[0],
                 trial[1],
             )
-            expected_error = "Error: amount {0} is too low.".format(trial[0][0])
-            assert capsys.readouterr() == expected_error
         assert pytest_exit.type == SystemExit
+        expected_error = "Error: amount {0} is too low.".format(trial[0][0])
+        assert capsys.readouterr().out == expected_error
 
 
 def test_compute_amounts():
@@ -1344,28 +1344,23 @@ def test_check_transaction_values_errors(
         result = tx.check_transaction_values(
             comment, outputAddresses, outputBackChange, enough_source, issuer_pubkey
         )
-        display = capsys.readouterr()
-        if comment.find("Wrong_Char_") != -1:
-            assert display == "Error: the format of the comment is invalid"
-        elif len(comment) > tx.MAX_COMMENT_LENGTH:
-            assert display == "Error: the format of the comment is invalid"
-        elif "Wrong_Pubkey" in outputAddresses:
-            assert display.out.find("Error: bad format for following public key:") != -1
-        elif outputBackChange:
-            if outputBackChange == "Wrong_Pubkey":
-                assert (
-                    display.out.find("Error: bad format for following public key:")
-                    != -1
-                )
-        elif enough_source is True:
-            assert (
-                display.out.find(
-                    "pubkey doesn’t have enough money for this transaction."
-                )
-                != -1
-            )
-        assert result == ""
     assert pytest_exit.type == SystemExit
+    display = capsys.readouterr()
+    if comment.find("Wrong_Char_") != -1:
+        assert display == "Error: the format of the comment is invalid"
+    elif len(comment) > tx.MAX_COMMENT_LENGTH:
+        assert display == "Error: the format of the comment is invalid"
+    elif "Wrong_Pubkey" in outputAddresses:
+        assert display.out.find("Error: bad format for following public key:") != -1
+    elif outputBackChange:
+        if outputBackChange == "Wrong_Pubkey":
+            assert display.out.find("Error: bad format for following public key:") != -1
+    elif enough_source is True:
+        assert (
+            display.out.find("pubkey doesn’t have enough money for this transaction.")
+            != -1
+        )
+    assert result == ""
 
 
 # test generate_unlocks()

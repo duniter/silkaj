@@ -49,7 +49,7 @@ def test_validate_checksum(pubkey, checksum, expected, capsys):
     else:
         with pytest.raises(SystemExit) as pytest_exit:
             test = crypto_tools.validate_checksum(pubkey_with_ck)
-            assert capsys.readouterr() == expected
+        assert capsys.readouterr() == expected
         assert pytest_exit.type == SystemExit
 
 
@@ -67,7 +67,7 @@ def test_check_pubkey_format(pubkey, display_error, expected, capsys):
     if isinstance(expected, str):
         with pytest.raises(SystemExit) as pytest_exit:
             test = crypto_tools.check_pubkey_format(pubkey, display_error)
-            assert capsys.readouterr() == expected
+        assert capsys.readouterr() == expected
         assert pytest_exit.type == SystemExit
     else:
         assert expected == crypto_tools.check_pubkey_format(pubkey, display_error)
