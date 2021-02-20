@@ -16,32 +16,71 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
 import pytest
-from duniterpy.api.client import Client
 
-from silkaj import tx_history
-from silkaj.constants import G1_DEFAULT_ENDPOINT
+from silkaj import tx_history, wot
+from silkaj.constants import G1_DEFAULT_ENDPOINT, SHORT_PUBKEY_SIZE
+from silkaj.crypto_tools import CHECKSUM_SIZE
+
+from patched.tx_history import patched_get_transactions_history
+from patched.wot import patched_identities_from_pubkeys
+from patched.blockchain_tools import currency
+
+SHORT_PUBKEY_LENGTH_WITH_CHECKSUM = (
+    SHORT_PUBKEY_SIZE + CHECKSUM_SIZE + 2
+)  # 2 chars "…:" ==> 8 + 3 + 2 = 13
 
 
 @pytest.mark.asyncio
-async def test_tx_history_generate_table():
-    client = Client("BMAS " + " ".join(G1_DEFAULT_ENDPOINT))
+async def test_tx_history_generate_table(monkeypatch):
+    def min_pubkey_length_with_uid(pubkey):
+        # uid is at least one char : "<uid> - <pubkey>" adds min 4 chars to <pubkey>
+        return pubkey + 4
+
+    monkeypatch.setattr(wot, "identities_from_pubkeys", patched_identities_from_pubkeys)
+
+    client = "whatever"
     ud_value = 10.07
-    currency = "gtest"
-    uids = False
     table_columns = 5
-    pubkey = "78ZwwgpgdH5uLZLbThUQH7LKwPgjMunYfLiCfUCySkM8"
+    pubkey = "d88fPFbDdJXJANHH7hedFMaRyGcnVZj9c5cDaE76LRN"
 
     received_txs, sent_txs = list(), list()
-    await tx_history.get_transactions_history(client, pubkey, received_txs, sent_txs)
+    await patched_get_transactions_history(client, pubkey, received_txs, sent_txs)
 
-    tx_history.remove_duplicate_txs(received_txs, sent_txs)
     txs_list = await tx_history.generate_table(
-        received_txs, sent_txs, pubkey, ud_value, currency, uids
+        received_txs,
+        sent_txs,
+        pubkey,
+        ud_value,
+        currency,
+        uids=False,
     )
-    await client.close()
-
     for tx_list in txs_list:
         assert len(tx_list) == table_columns
+        if tx_list != txs_list[0]:
+            assert "…:" in tx_list[1]
+            assert len(tx_list[1]) == SHORT_PUBKEY_LENGTH_WITH_CHECKSUM
+
+    txs_list_uids = await tx_history.generate_table(
+        received_txs,
+        sent_txs,
+        pubkey,
+        ud_value,
+        currency,
+        uids=True,
+    )
+    for tx_list in txs_list_uids:
+        assert len(tx_list) == table_columns
+        if tx_list != txs_list[0]:
+            assert "…:" in tx_list[1]
+    # check all lines
+    assert len(txs_list_uids[1][1]) >= min_pubkey_length_with_uid(
+        SHORT_PUBKEY_LENGTH_WITH_CHECKSUM
+    )
+    assert len(txs_list_uids[2][1]) == SHORT_PUBKEY_LENGTH_WITH_CHECKSUM
+    assert len(txs_list_uids[3][1]) >= min_pubkey_length_with_uid(
+        SHORT_PUBKEY_LENGTH_WITH_CHECKSUM
+    )
+    assert len(txs_list_uids[4][1]) == SHORT_PUBKEY_LENGTH_WITH_CHECKSUM
 
 
 @pytest.mark.parametrize(
