@@ -19,13 +19,15 @@ from click import command, argument, option, echo_via_pager, get_terminal_size
 from texttable import Texttable
 from operator import itemgetter, neg, eq, ne
 from time import time
+
 from duniterpy.api.bma.tx import history
 from duniterpy.documents.transaction import Transaction
+
 from silkaj.network_tools import ClientInstance
 from silkaj.tools import coroutine
 from silkaj.tui import convert_time, display_pubkey_and_checksum
 from silkaj.crypto_tools import validate_checksum, check_pubkey_format
-from silkaj.wot import identity_of, identities_from_pubkeys
+from silkaj import wot
 from silkaj.money import get_amount_from_pubkey, amount_in_current_base, UDValue
 from silkaj.tools import CurrencySymbol
 
@@ -57,7 +59,7 @@ async def transaction_history(pubkey, uids):
 
 async def generate_header(pubkey, currency_symbol, ud_value):
     try:
-        idty = await identity_of(pubkey)
+        idty = await wot.identity_of(pubkey)
     except:
         idty = dict([("uid", "")])
     balance = await get_amount_from_pubkey(pubkey)
@@ -140,7 +142,7 @@ async def parse_received_tx(received_txs_table, received_txs, pubkey, ud_value, 
     for received_tx in received_txs:
         for issuer in received_tx.issuers:
             issuers.append(issuer)
-    identities = await identities_from_pubkeys(issuers, uids)
+    identities = await wot.identities_from_pubkeys(issuers, uids)
     for received_tx in received_txs:
         tx_list = list()
         tx_list.append(convert_time(received_tx.time, "all"))
@@ -172,7 +174,7 @@ async def parse_sent_tx(sent_txs_table, sent_txs, pubkey, ud_value, uids):
             if output_available(output.condition, ne, pubkey):
                 pubkeys.append(output.condition.left.pubkey)
 
-    identities = await identities_from_pubkeys(pubkeys, uids)
+    identities = await wot.identities_from_pubkeys(pubkeys, uids)
     for sent_tx in sent_txs:
         tx_list = list()
         tx_list.append(convert_time(sent_tx.time, "all"))
