@@ -21,6 +21,10 @@ pubkey_list = [
     {"pubkey": "CtM5RZHopnSRAAoWNgTWrUhDEmspcCAxn6fuCEWDWudp", "uid": "riri"},
     {"pubkey": "HcRgKh4LwbQVYuAc3xAdCynYXpKoiPE6qdxCMa8JeHat", "uid": "fifi"},
     {"pubkey": "2sq4w8yYVDWNxVWZqGWWDriFf5z7dn7iLahDCvEEotuY", "uid": "loulou"},
+    {
+        "pubkey": "CvrMiUhAJpNyX5sdAyZqPE6yEFfSsf6j9EpMmeKvMCWW",
+        "uid": "mato",
+    },
 ]
 
 
@@ -68,3 +72,17 @@ async def patched_wot_requirements_no_pending(pubkey, identity_uid):
             }
         ]
     }
+
+
+# for history
+async def patched_identities_from_pubkeys(pubkeys, uids):
+    if not uids:
+        return list()
+    uniq_pubkeys = list(filter(None, set(pubkeys)))
+    identities = list()
+
+    for pubkey in uniq_pubkeys:
+        for id in pubkey_list:
+            if id.get("pubkey", False) == pubkey:
+                identities.append(id)
+    return identities
