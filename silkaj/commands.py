@@ -233,7 +233,8 @@ async def list_blocks(number, detailed):
 @coroutine
 async def argos_info():
     head_block = await HeadBlock().head_block
-    print(await CurrencySymbol().symbol, "|")
+    currency_symbol = await CurrencySymbol().symbol
+    print(currency_symbol, "|")
     print("---")
     ep = EndPoint().ep
     endpoint_address = ep[best_endpoint_address(ep, False)]
@@ -250,7 +251,7 @@ async def argos_info():
         "\nCurrent block number:",
         head_block["number"],
         "\nCurrency name:",
-        await CurrencySymbol().symbol,
+        currency_symbol,
         "\nNumber of members:",
         head_block["membersCount"],
         "\nMinimal Proof-of-Work:",
