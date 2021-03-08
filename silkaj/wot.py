@@ -100,7 +100,7 @@ async def received_sent_certifications(uid_pubkey):
                 tablefmt="orgtbl",
                 stralign="center",
             ),
-            "✔: Certifications written into the blockchain",
+            "✔: Certification available to be written or already written into the blockchain",
         )
     )
     await membership_status(certifications, pubkey, req)
