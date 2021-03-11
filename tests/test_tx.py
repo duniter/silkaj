@@ -28,6 +28,7 @@ from silkaj.constants import (
     MINIMAL_RELATIVE_TX_AMOUNT,
     FAILURE_EXIT_STATUS,
     CENT_MULT_TO_UNIT,
+    PUBKEY_MIN_LENGTH,
 )
 
 from patched.money import patched_ud_value, patched_get_sources
@@ -217,8 +218,16 @@ def test_tx_passed_amount_cli():
 @pytest.mark.parametrize(
     "arguments, auth_method, is_account_filled",
     [
-        (["tx", "--allSources", "-r", "A" * 43], patched_auth_method_truc, False),
-        (["tx", "--allSources", "-r", "A" * 43], patched_auth_method_riri, True),
+        (
+            ["tx", "--allSources", "-r", "A" * PUBKEY_MIN_LENGTH],
+            patched_auth_method_truc,
+            False,
+        ),
+        (
+            ["tx", "--allSources", "-r", "A" * PUBKEY_MIN_LENGTH],
+            patched_auth_method_riri,
+            True,
+        ),
     ],
 )
 def test_tx_passed_all_sources_empty(
