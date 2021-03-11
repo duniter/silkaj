@@ -24,7 +24,8 @@ from silkaj.constants import PUBKEY_PATTERN
 from silkaj.tools import message_exit
 
 PUBKEY_DELIMITED_PATTERN = "^{0}$".format(PUBKEY_PATTERN)
-CHECKSUM_PATTERN = "[1-9A-HJ-NP-Za-km-z]{3}"
+CHECKSUM_SIZE = 3
+CHECKSUM_PATTERN = f"[1-9A-HJ-NP-Za-km-z]{{{CHECKSUM_SIZE}}}"
 PUBKEY_CHECKSUM_PATTERN = "^{0}:{1}$".format(PUBKEY_PATTERN, CHECKSUM_PATTERN)
 
 
