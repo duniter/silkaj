@@ -50,8 +50,47 @@ async def send_certification(ctx, uid_pubkey_to_certify):
     # Authentication
     key = auth_method()
 
-    # Check whether current user is member
     issuer_pubkey = key.pubkey
+    issuer = await pre_checks(client, issuer_pubkey, pubkey_to_certify)
+
+    # Display license and ask for confirmation
+    head = await HeadBlock().head_block
+    currency = head["currency"]
+    license_approval(currency)
+
+    # Certification confirmation
+    await certification_confirmation(
+        ctx, issuer, issuer_pubkey, pubkey_to_certify, idty_to_certify
+    )
+
+    certification = docs_generation(
+        currency,
+        pubkey_to_certify,
+        idty_to_certify,
+        issuer_pubkey,
+        head,
+    )
+
+    if ctx.obj["DISPLAY_DOCUMENT"]:
+        click.echo(certification.signed_raw(), nl=False)
+        await tui.send_doc_confirmation("certification")
+
+    # Sign document
+    certification.sign([key])
+
+    # Send certification document
+    response = await client(bma.wot.certify, certification.signed_raw())
+
+    if response.status == 200:
+        print("Certification successfully sent.")
+    else:
+        print("Error while publishing certification: {0}".format(await response.text()))
+
+    await client.close()
+
+
+async def pre_checks(client, issuer_pubkey, pubkey_to_certify):
+    # Check whether current user is member
     issuer = await wot.is_member(issuer_pubkey)
     if not issuer:
         message_exit("Current identity is not member.")
@@ -76,51 +115,7 @@ async def send_certification(ctx, uid_pubkey_to_certify):
     for pending_cert in req["pendingCerts"]:
         if pending_cert["from"] == issuer_pubkey:
             message_exit("Certification is currently been processed")
-
-    # Display license and ask for confirmation
-    head = await HeadBlock().head_block
-    currency = head["currency"]
-    license_approval(currency)
-
-    # Certification confirmation
-    await certification_confirmation(
-        ctx, issuer, issuer_pubkey, pubkey_to_certify, idty_to_certify
-    )
-
-    identity = Identity(
-        version=10,
-        currency=currency,
-        pubkey=pubkey_to_certify,
-        uid=idty_to_certify["uid"],
-        ts=block_uid(idty_to_certify["meta"]["timestamp"]),
-        signature=idty_to_certify["self"],
-    )
-
-    certification = Certification(
-        version=10,
-        currency=currency,
-        pubkey_from=issuer_pubkey,
-        identity=identity,
-        timestamp=BlockUID(head["number"], head["hash"]),
-        signature="",
-    )
-
-    if ctx.obj["DISPLAY_DOCUMENT"]:
-        click.echo(certification.signed_raw(), nl=False)
-        await tui.send_doc_confirmation("certification")
-
-    # Sign document
-    certification.sign([key])
-
-    # Send certification document
-    response = await client(bma.wot.certify, certification.signed_raw())
-
-    if response.status == 200:
-        print("Certification successfully sent.")
-    else:
-        print("Error while publishing certification: {0}".format(await response.text()))
-
-    await client.close()
+    return issuer
 
 
 async def certification_confirmation(
@@ -151,3 +146,23 @@ async def certification_confirmation(
     click.echo(tabulate(cert, tablefmt="fancy_grid"))
     if not ctx.obj["DISPLAY_DOCUMENT"]:
         await tui.send_doc_confirmation("certification")
+
+
+def docs_generation(currency, pubkey_to_certify, idty_to_certify, issuer_pubkey, head):
+    identity = Identity(
+        version=10,
+        currency=currency,
+        pubkey=pubkey_to_certify,
+        uid=idty_to_certify["uid"],
+        ts=block_uid(idty_to_certify["meta"]["timestamp"]),
+        signature=idty_to_certify["self"],
+    )
+
+    return Certification(
+        version=10,
+        currency=currency,
+        pubkey_from=issuer_pubkey,
+        identity=identity,
+        timestamp=BlockUID(head["number"], head["hash"]),
+        signature="",
+    )
