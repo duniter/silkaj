@@ -34,7 +34,7 @@ from silkaj.constants import (
 from patched.money import patched_ud_value, patched_get_sources
 from patched.test_constants import mock_ud_value
 from patched.auth import patched_auth_method
-from patched.tx import patched_transaction_confirmation
+from patched.tx import patched_gen_confirmation_table
 
 # AsyncMock available from Python 3.8. asynctest is used for Py < 3.8
 if sys.version_info[1] > 7:
@@ -238,9 +238,9 @@ def test_tx_passed_all_sources_empty(
     # patch functions
     monkeypatch.setattr("silkaj.auth.auth_method", auth_method)
     monkeypatch.setattr("silkaj.money.get_sources", patched_get_sources)
-    patched_transaction_confirmation = AsyncMock()
+    patched_gen_confirmation_table = AsyncMock()
     monkeypatch.setattr(
-        "silkaj.tx.transaction_confirmation", patched_transaction_confirmation
+        "silkaj.tx.gen_confirmation_table", patched_gen_confirmation_table
     )
 
     result = CliRunner().invoke(cli, args=arguments)
@@ -254,4 +254,4 @@ def test_tx_passed_all_sources_empty(
 
     # test that error don't occur when issuer balance > 0
     else:
-        tx.transaction_confirmation.assert_called_once()
+        tx.gen_confirmation_table.assert_called_once()

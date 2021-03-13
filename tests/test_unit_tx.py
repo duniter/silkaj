@@ -45,7 +45,7 @@ from patched.tools import patched_currency_symbol
 from patched.blockchain_tools import patched_head_block, fake_block_uid
 from patched.auth import patched_auth_method
 from patched.tx import (
-    patched_transaction_confirmation,
+    patched_gen_confirmation_table,
     patched_handle_intermediaries_transactions,
 )
 
@@ -118,7 +118,7 @@ def test_truncBase(amount, base, expected):
     ],
 )
 @pytest.mark.asyncio
-async def test_transaction_confirmation(
+async def test_gen_confirmation_table(
     issuer_pubkey,
     pubkey_balance,
     tx_amounts,
@@ -170,7 +170,7 @@ async def test_transaction_confirmation(
     expected.append(["Comment", comment])
 
     # asserting
-    table_list = await tx.transaction_confirmation(
+    table_list = await tx.gen_confirmation_table(
         issuer_pubkey,
         pubkey_balance,
         tx_amounts,
@@ -1043,13 +1043,13 @@ def test_send_transaction(
         return args_list
 
     # mocking functions
-    patched_transaction_confirmation = AsyncMock(return_value=None)
+    patched_gen_confirmation_table = AsyncMock(return_value=None)
     patched_handle_intermediaries_transactions = AsyncMock(return_value=None)
 
     # patching functions
     monkeypatch.setattr("silkaj.auth.auth_method", patched_auth_method_tx)
     monkeypatch.setattr(
-        "silkaj.tx.transaction_confirmation", patched_transaction_confirmation
+        "silkaj.tx.gen_confirmation_table", patched_gen_confirmation_table
     )
     monkeypatch.setattr(
         "silkaj.tx.handle_intermediaries_transactions",
@@ -1085,7 +1085,7 @@ def test_send_transaction(
     print(result.output)
 
     if confirmation_answer:
-        patched_transaction_confirmation.assert_any_await(
+        patched_gen_confirmation_table.assert_any_await(
             key_fifi.pubkey,
             total_amount,
             tx_amounts,

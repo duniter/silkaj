@@ -151,7 +151,7 @@ async def send_transaction(
 
     if not yes:
         confirmation_table = tabulate(
-            await transaction_confirmation(
+            await gen_confirmation_table(
                 issuer_pubkey,
                 pubkey_amount[0],
                 tx_amounts,
@@ -248,7 +248,7 @@ def check_transaction_values(
     return outputBackChange
 
 
-async def transaction_confirmation(
+async def gen_confirmation_table(
     issuer_pubkey,
     pubkey_amount,
     tx_amounts,

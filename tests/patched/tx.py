@@ -19,7 +19,7 @@ from duniterpy.key import SigningKey
 from silkaj.tools import message_exit
 
 
-async def patched_transaction_confirmation(
+async def patched_gen_confirmation_table(
     issuer_pubkey,
     pubkey_amount,
     tx_amounts,
