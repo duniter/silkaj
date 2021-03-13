@@ -149,23 +149,21 @@ async def send_transaction(
         issuer_pubkey,
     )
 
-    if (
-        yes
-        or input(
-            tabulate(
-                await transaction_confirmation(
-                    issuer_pubkey,
-                    pubkey_amount[0],
-                    tx_amounts,
-                    recipients,
-                    outputbackchange,
-                    comment,
-                ),
-                tablefmt="fancy_grid",
-            )
-            + "\nDo you confirm sending this transaction? [yes/no]: "
+    if not yes:
+        confirmation_table = tabulate(
+            await transaction_confirmation(
+                issuer_pubkey,
+                pubkey_amount[0],
+                tx_amounts,
+                recipients,
+                outputbackchange,
+                comment,
+            ),
+            tablefmt="fancy_grid",
         )
-        == "yes"
+
+    if yes or click.confirm(
+        f"{confirmation_table}\nDo you confirm sending this transaction?"
     ):
         await handle_intermediaries_transactions(
             key,
