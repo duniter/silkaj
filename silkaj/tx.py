@@ -19,7 +19,7 @@ from re import compile, search
 import math
 from asyncio import sleep
 from tabulate import tabulate
-from click import command, option, FloatRange
+import click
 
 from silkaj import cli_tools
 from silkaj import network_tools as nt
@@ -56,37 +56,37 @@ MAX_OUTPUTS = 93
 NBR_ISSUERS = 1
 
 
-@command("tx", help="Send transaction")
-@option(
+@click.command("tx", help="Send transaction")
+@click.option(
     "amounts",
     "--amount",
     "-a",
     multiple=True,
-    type=FloatRange(MINIMAL_ABSOLUTE_TX_AMOUNT),
+    type=click.FloatRange(MINIMAL_ABSOLUTE_TX_AMOUNT),
     help="Quantitative amount(s):\n-a <amount>\nMinimum amount is {0}".format(
         MINIMAL_ABSOLUTE_TX_AMOUNT
     ),
     cls=cli_tools.MutuallyExclusiveOption,
     mutually_exclusive=["amountsud", "allsources"],
 )
-@option(
+@click.option(
     "amountsud",
     "--amountUD",
     "-d",
     multiple=True,
-    type=FloatRange(MINIMAL_RELATIVE_TX_AMOUNT),
+    type=click.FloatRange(MINIMAL_RELATIVE_TX_AMOUNT),
     help=f"Relative amount(s):\n-d <amount_UD>\nMinimum amount is {MINIMAL_RELATIVE_TX_AMOUNT}",
     cls=cli_tools.MutuallyExclusiveOption,
     mutually_exclusive=["amounts", "allsources"],
 )
-@option(
+@click.option(
     "--allSources",
     is_flag=True,
     help="Send all sources to one recipient",
     cls=cli_tools.MutuallyExclusiveOption,
     mutually_exclusive=["amounts", "amountsud"],
 )
-@option(
+@click.option(
     "recipients",
     "--recipient",
     "-r",
@@ -97,15 +97,23 @@ Sending to many recipients is possible:\n\
 * With one amount, all will receive the amount\n\
 * With many amounts (one per recipient)",
 )
-@option("--comment", "-c", default="", help="Comment")
-@option(
+@click.option("--comment", "-c", default="", help="Comment")
+@click.option(
     "--outputBackChange",
     help="Pubkey recipient to send the rest of the transaction: <pubkey[:checksum]>",
 )
-@option("--yes", "-y", is_flag=True, help="Assume yes. Do not prompt confirmation")
+@click.option(
+    "--yes", "-y", is_flag=True, help="Assume yes. Do not prompt confirmation"
+)
 @tools.coroutine
 async def send_transaction(
-    amounts, amountsud, allsources, recipients, comment, outputbackchange, yes
+    amounts,
+    amountsud,
+    allsources,
+    recipients,
+    comment,
+    outputbackchange,
+    yes,
 ):
     """
     Main function

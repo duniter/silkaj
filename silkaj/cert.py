@@ -16,7 +16,7 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
 import sys
-from click import command, argument, echo, confirm
+import click
 from time import time
 from tabulate import tabulate
 from duniterpy.api import bma
@@ -32,8 +32,8 @@ from silkaj.constants import SUCCESS_EXIT_STATUS
 from silkaj.crypto_tools import is_pubkey_and_check
 
 
-@command("cert", help="Send certification")
-@argument("uid_pubkey_to_certify")
+@click.command("cert", help="Send certification")
+@click.argument("uid_pubkey_to_certify")
 @coroutine
 async def send_certification(uid_pubkey_to_certify):
     client = ClientInstance().client
@@ -143,7 +143,7 @@ async def certification_confirmation(
     cert_begins = tui.convert_time(time(), "date")
     cert_ends = tui.convert_time(time() + params["sigValidity"], "date")
     cert.append(["Valid", cert_begins, "—>", cert_ends])
-    echo(tabulate(cert, tablefmt="fancy_grid"))
-    if not confirm("Do you confirm sending this certification?"):
+    click.echo(tabulate(cert, tablefmt="fancy_grid"))
+    if not click.confirm("Do you confirm sending this certification?"):
         await client.close()
         sys.exit(SUCCESS_EXIT_STATUS)
