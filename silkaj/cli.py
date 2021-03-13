@@ -17,6 +17,7 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 
 # -*- coding: utf-8 -*-
 
+import sys
 from click import group, help_option, version_option, option, pass_context
 
 from silkaj.tx import send_transaction
@@ -86,8 +87,36 @@ from silkaj.constants import (
 )
 @option("--auth-seed", "--seed", is_flag=True, help="Seed hexadecimal authentication")
 @option("--auth-wif", "--wif", is_flag=True, help="WIF and EWIF authentication methods")
+@option(
+    "--display",
+    "-d",
+    is_flag=True,
+    help="Display the generated document before sending it",
+)
+@option(
+    "--dry-run",
+    "-n",
+    is_flag=True,
+    help="By-pass licence, confirmation. \
+Do not send the document, but display it instead",
+)
 @pass_context
-def cli(ctx, peer, gtest, auth_scrypt, nrp, auth_file, file, auth_seed, auth_wif):
+def cli(
+    ctx,
+    peer,
+    gtest,
+    auth_scrypt,
+    nrp,
+    auth_file,
+    file,
+    auth_seed,
+    auth_wif,
+    display,
+    dry_run,
+):
+    if display and dry_run:
+        sys.exit("ERROR: display and dry-run options can not be used together")
+
     ctx.obj = dict()
     ctx.ensure_object(dict)
     ctx.obj["PEER"] = peer
@@ -98,6 +127,8 @@ def cli(ctx, peer, gtest, auth_scrypt, nrp, auth_file, file, auth_seed, auth_wif
     ctx.obj["AUTH_FILE_PATH"] = file
     ctx.obj["AUTH_SEED"] = auth_seed
     ctx.obj["AUTH_WIF"] = auth_wif
+    ctx.obj["DISPLAY_DOCUMENT"] = display
+    ctx.obj["DRY_RUN"] = dry_run
 
 
 cli.add_command(argos_info)
