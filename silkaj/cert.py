@@ -34,8 +34,9 @@ from silkaj.crypto_tools import is_pubkey_and_check
 
 @click.command("cert", help="Send certification")
 @click.argument("uid_pubkey_to_certify")
+@click.pass_context
 @coroutine
-async def send_certification(uid_pubkey_to_certify):
+async def send_certification(ctx, uid_pubkey_to_certify):
     client = ClientInstance().client
 
     checked_pubkey = is_pubkey_and_check(uid_pubkey_to_certify)
@@ -83,7 +84,7 @@ async def send_certification(uid_pubkey_to_certify):
 
     # Certification confirmation
     await certification_confirmation(
-        issuer, issuer_pubkey, pubkey_to_certify, idty_to_certify
+        ctx, issuer, issuer_pubkey, pubkey_to_certify, idty_to_certify
     )
 
     identity = Identity(
@@ -104,6 +105,10 @@ async def send_certification(uid_pubkey_to_certify):
         signature="",
     )
 
+    if ctx.obj["DISPLAY_DOCUMENT"]:
+        click.echo(certification.signed_raw(), nl=False)
+        await tui.send_doc_confirmation("certification")
+
     # Sign document
     certification.sign([key])
 
@@ -119,7 +124,7 @@ async def send_certification(uid_pubkey_to_certify):
 
 
 async def certification_confirmation(
-    issuer, issuer_pubkey, pubkey_to_certify, idty_to_certify
+    ctx, issuer, issuer_pubkey, pubkey_to_certify, idty_to_certify
 ):
     cert = list()
     cert.append(["Cert", "Issuer", "–>", "Recipient: Published: #block-hash date"])
@@ -144,4 +149,5 @@ async def certification_confirmation(
     cert_ends = tui.convert_time(time() + params["sigValidity"], "date")
     cert.append(["Valid", cert_begins, "—>", cert_ends])
     click.echo(tabulate(cert, tablefmt="fancy_grid"))
-    await tui.send_doc_confirmation("certification")
+    if not ctx.obj["DISPLAY_DOCUMENT"]:
+        await tui.send_doc_confirmation("certification")
