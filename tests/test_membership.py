@@ -79,14 +79,15 @@ async def patched_choose_identity(pubkey):
 
 
 @pytest.mark.parametrize(
-    "dry_run, confirmation, exit_code",
+    "dry_run, display, confirmation, exit_code",
     [
-        (True, True, SUCCESS_EXIT_STATUS),
-        (False, False, SUCCESS_EXIT_STATUS),
-        (False, True, FAILURE_EXIT_STATUS),
+        (True, False, False, SUCCESS_EXIT_STATUS),
+        (False, True, False, SUCCESS_EXIT_STATUS),
+        (False, True, True, FAILURE_EXIT_STATUS),
+        (False, False, True, FAILURE_EXIT_STATUS),
     ],
 )
-def test_membership_cmd(dry_run, confirmation, exit_code, monkeypatch):
+def test_membership_cmd(dry_run, display, confirmation, exit_code, monkeypatch):
     # Monkeypatch and Mock
     monkeypatch.setattr(auth, "auth_method", patched_auth_method)
     monkeypatch.setattr(HeadBlock, "get_head", patched_head_block)
@@ -98,7 +99,7 @@ def test_membership_cmd(dry_run, confirmation, exit_code, monkeypatch):
         "display_confirmation_table",
         patched_display_confirmation_table,
     )
-    if not dry_run:
+    if not dry_run and not display:
         patched_generate_membership_document = Mock()
         monkeypatch.setattr(
             membership,
@@ -107,10 +108,14 @@ def test_membership_cmd(dry_run, confirmation, exit_code, monkeypatch):
         )
 
     # Run membership command
-    command = ["membership"]
+    command = []
     if dry_run:
         command += ["--dry-run"]
-    confirmations = "No\nYes\nYes" if confirmation else "No\nYes\nNo"
+    if display:
+        command += ["--display"]
+    command += ["membership"]
+    pass_license = "No\nYes\n"
+    confirmations = pass_license + ("Yes" if confirmation else "No")
     result = CliRunner().invoke(cli, args=command, input=confirmations)
 
     # Assert functions are called
@@ -119,7 +124,9 @@ def test_membership_cmd(dry_run, confirmation, exit_code, monkeypatch):
         pubkey,
         identity_timestamp,
     )
-    if not dry_run and confirmation:
+    if dry_run or display:
+        assert "Type: Membership" in result.output
+    else:
         patched_generate_membership_document.assert_called_with(
             currency,
             pubkey,
@@ -127,8 +134,6 @@ def test_membership_cmd(dry_run, confirmation, exit_code, monkeypatch):
             identity_uid,
             identity_timestamp,
         )
-    if dry_run:
-        assert "Type: Membership" in result.output
 
     assert result.exit_code == exit_code
 

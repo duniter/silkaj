@@ -38,14 +38,10 @@ from silkaj.constants import SUCCESS_EXIT_STATUS
     help="Send and sign membership document: \n\
 for first emission and for renewal",
 )
-@click.option(
-    "--dry-run",
-    is_flag=True,
-    help="By-pass licence, confirmation. \
-Do not send the document, but display it instead",
-)
+@click.pass_context
 @coroutine
-async def send_membership(dry_run):
+async def send_membership(ctx):
+    dry_run = ctx.obj["DRY_RUN"]
 
     # Authentication
     key = auth.auth_method()
@@ -65,7 +61,7 @@ async def send_membership(dry_run):
     # Confirmation
     client = ClientInstance().client
     await display_confirmation_table(identity_uid, key.pubkey, identity_timestamp)
-    if not dry_run:
+    if not dry_run and not ctx.obj["DISPLAY_DOCUMENT"]:
         await tui.send_doc_confirmation("membership document for this identity")
 
     membership = generate_membership_document(
@@ -82,9 +78,13 @@ async def send_membership(dry_run):
     logging.debug(membership.signed_raw())
 
     if dry_run:
-        await client.close()
         click.echo(membership.signed_raw())
+        await client.close()
         sys.exit(SUCCESS_EXIT_STATUS)
+
+    if ctx.obj["DISPLAY_DOCUMENT"]:
+        click.echo(membership.signed_raw())
+        await tui.send_doc_confirmation("membership document for this identity")
 
     # Send the membership signed raw document to the node
     response = await client(bma.blockchain.membership, membership.signed_raw())
