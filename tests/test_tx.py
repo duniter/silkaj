@@ -20,8 +20,7 @@ import pytest
 from click.testing import CliRunner
 from click import pass_context
 
-from silkaj import tx
-from silkaj.money import UDValue
+from silkaj import tx, auth, money
 from silkaj.cli import cli
 from silkaj.constants import (
     MINIMAL_ABSOLUTE_TX_AMOUNT,
@@ -59,7 +58,7 @@ async def test_transaction_amount(monkeypatch):
     """test passed amounts passed tx command
     float ≠ 100 does not give the exact value"""
 
-    monkeypatch.setattr(UDValue, "get_ud_value", patched_ud_value)
+    monkeypatch.setattr(money.UDValue, "get_ud_value", patched_ud_value)
     trials = (
         # tests for --amount (unit)
         ([141.89], None, ["A"], [14189]),
@@ -121,7 +120,7 @@ async def test_transaction_amount_errors(
     amounts, UDs_amounts, outputAddresses, expected, capsys, monkeypatch
 ):
     # patched functions
-    monkeypatch.setattr("silkaj.money.UDValue.get_ud_value", patched_ud_value)
+    monkeypatch.setattr(money.UDValue, "get_ud_value", patched_ud_value)
 
     def too_little_amount(amounts, multiplicator):
         for amount in amounts:
@@ -236,12 +235,10 @@ def test_tx_passed_all_sources_empty(
     """test that --allSources on an empty pubkey returns an error"""
 
     # patch functions
-    monkeypatch.setattr("silkaj.auth.auth_method", auth_method)
-    monkeypatch.setattr("silkaj.money.get_sources", patched_get_sources)
+    monkeypatch.setattr(auth, "auth_method", auth_method)
+    monkeypatch.setattr(money, "get_sources", patched_get_sources)
     patched_gen_confirmation_table = AsyncMock()
-    monkeypatch.setattr(
-        "silkaj.tx.gen_confirmation_table", patched_gen_confirmation_table
-    )
+    monkeypatch.setattr(tx, "gen_confirmation_table", patched_gen_confirmation_table)
 
     result = CliRunner().invoke(cli, args=arguments)
     # test error

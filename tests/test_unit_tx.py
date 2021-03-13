@@ -18,7 +18,7 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 import sys
 import pytest
 
-from silkaj import tx
+from silkaj import tx, wot, money, tools, blockchain_tools, auth, network_tools
 from silkaj.tui import display_pubkey, display_amount
 from silkaj.constants import (
     G1_SYMBOL,
@@ -128,11 +128,9 @@ async def test_gen_confirmation_table(
     monkeypatch,
 ):
     # patched functions
-    monkeypatch.setattr("silkaj.wot.is_member", patched_is_member)
-    monkeypatch.setattr("silkaj.money.UDValue.get_ud_value", patched_ud_value)
-    monkeypatch.setattr(
-        "silkaj.tools.CurrencySymbol.get_symbol", patched_currency_symbol
-    )
+    monkeypatch.setattr(wot, "is_member", patched_is_member)
+    monkeypatch.setattr(money.UDValue, "get_ud_value", patched_ud_value)
+    monkeypatch.setattr(tools.CurrencySymbol, "get_symbol", patched_currency_symbol)
 
     # creating expected list
     expected = list()
@@ -322,9 +320,7 @@ async def test_generate_transaction_document(
     monkeypatch,
 ):
     # patch Head_block
-    monkeypatch.setattr(
-        "silkaj.blockchain_tools.HeadBlock.get_head", patched_head_block
-    )
+    monkeypatch.setattr(blockchain_tools.HeadBlock, "get_head", patched_head_block)
 
     assert result == await tx.generate_transaction_document(
         issuers,
@@ -451,7 +447,7 @@ async def test_get_list_input_for_transaction(
     """
 
     # patched functions
-    monkeypatch.setattr("silkaj.money.get_sources", patched_get_sources)
+    monkeypatch.setattr(money, "get_sources", patched_get_sources)
     # reset patched_get_sources counter
     patched_get_sources.counter = 0
     # testing error exit
@@ -858,9 +854,9 @@ async def test_handle_intermediaries_transactions(
 ):
     # patched functions
     patched_generate_and_send_transaction = AsyncMock(return_value=None)
-    monkeypatch.setattr("silkaj.money.get_sources", patched_get_sources)
+    monkeypatch.setattr(money, "get_sources", patched_get_sources)
     monkeypatch.setattr(
-        "silkaj.tx.generate_and_send_transaction", patched_generate_and_send_transaction
+        tx, "generate_and_send_transaction", patched_generate_and_send_transaction
     )
 
     patched_get_sources.counter = 0
@@ -1047,16 +1043,15 @@ def test_send_transaction(
     patched_handle_intermediaries_transactions = AsyncMock(return_value=None)
 
     # patching functions
-    monkeypatch.setattr("silkaj.auth.auth_method", patched_auth_method_tx)
+    monkeypatch.setattr(auth, "auth_method", patched_auth_method_tx)
+    monkeypatch.setattr(tx, "gen_confirmation_table", patched_gen_confirmation_table)
     monkeypatch.setattr(
-        "silkaj.tx.gen_confirmation_table", patched_gen_confirmation_table
-    )
-    monkeypatch.setattr(
-        "silkaj.tx.handle_intermediaries_transactions",
+        tx,
+        "handle_intermediaries_transactions",
         patched_handle_intermediaries_transactions,
     )
-    monkeypatch.setattr("silkaj.money.get_sources", patched_get_sources)
-    monkeypatch.setattr("silkaj.money.UDValue.get_ud_value", patched_ud_value)
+    monkeypatch.setattr(money, "get_sources", patched_get_sources)
+    monkeypatch.setattr(money.UDValue, "get_ud_value", patched_ud_value)
 
     # reset patched_get_sources
     patched_get_sources.counter = 0
@@ -1270,10 +1265,8 @@ async def test_generate_and_send_transaction(
     tx.generate_transaction_document = AsyncMock()
 
     # patched functions
-    monkeypatch.setattr(
-        "silkaj.blockchain_tools.HeadBlock.get_head", patched_head_block
-    )
-    monkeypatch.setattr("silkaj.network_tools.ClientInstance", patched_ClientInstance)
+    monkeypatch.setattr(blockchain_tools.HeadBlock, "get_head", patched_head_block)
+    monkeypatch.setattr(network_tools, "ClientInstance", patched_ClientInstance)
 
     # write the test function
     async def function_testing():
