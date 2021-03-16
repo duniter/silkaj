@@ -77,7 +77,11 @@ async def cmd_amount(ctx, pubkeys):
     await client.close()
 
 
-async def show_amount_from_pubkey(pubkey, inputs_balance):
+async def show_amount_from_pubkey(label, inputs_balance):
+    """
+    Shows the balance of a pubkey.
+    `label` can be either a pubkey or "Total".
+    """
     totalAmountInput = inputs_balance[0]
     balance = inputs_balance[1]
     currency_symbol = await CurrencySymbol().symbol
@@ -86,12 +90,12 @@ async def show_amount_from_pubkey(pubkey, inputs_balance):
     member = False
 
     # if `pubkey` is a pubkey, get pubkey:checksum and uid
-    if pubkey != "Total":
-        member = await wot.is_member(pubkey)
-        pubkey = display_pubkey_and_checksum(pubkey)
+    if label != "Total":
+        member = await wot.is_member(label)
+        pubkey_and_ck = display_pubkey_and_checksum(label)
     # display balance table
     display = list()
-    display.append(["Balance of pubkey", pubkey])
+    display.append(["Balance of pubkey", pubkey_and_ck])
 
     if member:
         display.append(["User identifier", member["uid"]])
