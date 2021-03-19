@@ -167,7 +167,7 @@ python-versions = "*"
 
 [[package]]
 name = "duniterpy"
-version = "0.61.0"
+version = "0.62.0"
 description = "Python library for developers of Duniter clients"
 category = "main"
 optional = false
@@ -627,7 +627,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.8"
-content-hash = "c0fa404433091b059c81df7b8551b587eb474eff4e02c7d3e83267ebd135212c"
+content-hash = "7c299b0c64637726934acf19f0bdf24a25e04e2d56ff5bc6ff4f043144bf61fd"
 
 [metadata.files]
 aiohttp = [
@@ -776,8 +776,8 @@ distlib = [
     {file = "distlib-0.3.1.zip", hash = "sha256:edf6116872c863e1aa9d5bb7cb5e05a022c519a4594dc703843343a9ddd9bff1"},
 ]
 duniterpy = [
-    {file = "duniterpy-0.61.0-py3-none-any.whl", hash = "sha256:27afcb5a58043ead51d5e6dfac5d83e96f56529f6d3872aef8a2b25e04657b68"},
-    {file = "duniterpy-0.61.0.tar.gz", hash = "sha256:57863c68334134ff85cbe4ea117976e2ce58a93156f01fae19fa86084fff25b7"},
+    {file = "duniterpy-0.62.0-py3-none-any.whl", hash = "sha256:c4c827f0c1b0c4fc2ca549f32266335fd277e84f47855dd13d67eb9ac0f7f323"},
+    {file = "duniterpy-0.62.0.tar.gz", hash = "sha256:818b70cc9b04a2c391d3f1d6163a885ff0863ed96f1ab0d38a4ca42764e1b1d1"},
 ]
 filelock = [
     {file = "filelock-3.0.12-py3-none-any.whl", hash = "sha256:929b7d63ec5b7d6b71b0fa5ac14e030b3f70b75747cef1b10da9b879fef15836"},
