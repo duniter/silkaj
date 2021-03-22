@@ -66,11 +66,7 @@ async def send_membership(dry_run):
     client = ClientInstance().client
     await display_confirmation_table(identity_uid, key.pubkey, identity_timestamp)
     if not dry_run:
-        if not click.confirm(
-            "Do you confirm sending a membership document for this identity?"
-        ):
-            await client.close()
-            sys.exit(SUCCESS_EXIT_STATUS)
+        await tui.send_doc_confirmation("membership document for this identity")
 
     membership = generate_membership_document(
         currency,

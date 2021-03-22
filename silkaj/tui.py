@@ -15,9 +15,11 @@ You should have received a copy of the GNU Affero General Public License
 along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 """
 
+import sys
+import click
 from datetime import datetime
 
-from silkaj import wot, constants
+from silkaj import wot, network_tools, constants
 from silkaj import crypto_tools as ct
 
 
@@ -58,6 +60,13 @@ def display_pubkey_and_checksum(
     """
     short_pubkey = pubkey[:length] + "…" if short else pubkey
     return short_pubkey + ":" + ct.gen_checksum(pubkey)
+
+
+async def send_doc_confirmation(document_name):
+    if not click.confirm(f"Do you confirm sending this {document_name}?"):
+        client = network_tools.ClientInstance().client
+        await client.close()
+        sys.exit(constants.SUCCESS_EXIT_STATUS)
 
 
 def convert_time(timestamp, kind):

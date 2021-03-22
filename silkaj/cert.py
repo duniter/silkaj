@@ -144,6 +144,4 @@ async def certification_confirmation(
     cert_ends = tui.convert_time(time() + params["sigValidity"], "date")
     cert.append(["Valid", cert_begins, "—>", cert_ends])
     click.echo(tabulate(cert, tablefmt="fancy_grid"))
-    if not click.confirm("Do you confirm sending this certification?"):
-        await client.close()
-        sys.exit(SUCCESS_EXIT_STATUS)
+    await tui.send_doc_confirmation("certification")
