@@ -24,11 +24,10 @@ from duniterpy.documents import BlockUID, block_uid, Identity, Certification
 
 from silkaj.auth import auth_method
 from silkaj.tools import message_exit, coroutine
-from silkaj.tui import convert_time, display_pubkey_and_checksum
 from silkaj.network_tools import ClientInstance
 from silkaj.blockchain_tools import BlockchainParams, HeadBlock
 from silkaj.license import license_approval
-from silkaj import wot
+from silkaj import wot, tui
 from silkaj.constants import SUCCESS_EXIT_STATUS
 from silkaj.crypto_tools import is_pubkey_and_check
 
@@ -69,7 +68,7 @@ async def send_certification(uid_pubkey_to_certify):
             # ĞT: 0<–>4.8m - 4.8m + 12.5d
             renewable = cert["expiresIn"] - params["sigValidity"] + params["sigReplay"]
             if renewable > 0:
-                renewable_date = convert_time(time() + renewable, "date")
+                renewable_date = tui.convert_time(time() + renewable, "date")
                 message_exit("Certification renewable the " + renewable_date)
 
     # Check if the certification is already in the pending certifications
@@ -129,20 +128,20 @@ async def certification_confirmation(
     block_uid_idty = block_uid(idty_timestamp)
     block = await client(bma.blockchain.block, block_uid_idty.number)
     block_uid_date = (
-        ": #" + idty_timestamp[:15] + "… " + convert_time(block["time"], "all")
+        ": #" + idty_timestamp[:15] + "… " + tui.convert_time(block["time"], "all")
     )
     cert.append(["ID", issuer["uid"], "–>", idty_to_certify["uid"] + block_uid_date])
     cert.append(
         [
             "Pubkey",
-            display_pubkey_and_checksum(issuer_pubkey),
+            tui.display_pubkey_and_checksum(issuer_pubkey),
             "–>",
-            display_pubkey_and_checksum(pubkey_to_certify),
+            tui.display_pubkey_and_checksum(pubkey_to_certify),
         ]
     )
     params = await BlockchainParams().params
-    cert_begins = convert_time(time(), "date")
-    cert_ends = convert_time(time() + params["sigValidity"], "date")
+    cert_begins = tui.convert_time(time(), "date")
+    cert_ends = tui.convert_time(time() + params["sigValidity"], "date")
     cert.append(["Valid", cert_begins, "—>", cert_ends])
     echo(tabulate(cert, tablefmt="fancy_grid"))
     if not confirm("Do you confirm sending this certification?"):

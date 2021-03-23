@@ -17,9 +17,8 @@ along with Silkaj. If not, see <https://www.gnu.org/licenses/>.
 
 from datetime import datetime
 
-from silkaj import wot
+from silkaj import wot, constants
 from silkaj import crypto_tools as ct
-from silkaj.constants import SHORT_PUBKEY_SIZE
 
 
 def display_amount(tx, message, amount, ud_value, currency_symbol):
@@ -49,7 +48,9 @@ async def display_pubkey(tx, message, pubkey):
         tx.append([message + " (id)", id["uid"]])
 
 
-def display_pubkey_and_checksum(pubkey, short=False, length=SHORT_PUBKEY_SIZE):
+def display_pubkey_and_checksum(
+    pubkey, short=False, length=constants.SHORT_PUBKEY_SIZE
+):
     """
     Returns "<pubkey>:<checksum>" in full form.
     returns `length` first chars of pubkey and checksum in short form.
