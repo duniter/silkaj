@@ -1,3 +1,49 @@
+## v0.9.0rc (24th March 2021)
+
+### Code
+#### `tx`
+- #281, !129: Handle transaction size limit properly
+- #257, #312, #356: Handle chained transactions/Change txs lost while sending big amount
+- #296, #362, !154, !157: Prevent sending transaction with 0 as amounts
+- #172, !165: Refactor tx confirmation, by using `click.confirm()`
+
+#### `balance`
+- #300, !164: `balance`: Display corresponding member identity uid
+- #366, !159: Fix wrong `DuniterError` exception handling in `wot.identity_of`
+- #377, !166: `balance`: Document `money.show_amount_from_pubkey()`
+- #342, !151: Don’t allow to pass multiple times the same pubkey to the `balance` command
+
+#### Others
+- #218, !160: `history`: Add option to display the complete pubkeys
+- #314, !165: Display option for `cert`, `membership` commands
+- !165: Make `--dry-run` option a generic one
+- #378, !165: Create and use generic `send_doc_confirmation()` in `cert` and `membership` commands
+- #176, !149: Get rid of `PyNaCl` and use `base58` module
+- #309, !163: `wot`: Fix legend about received certifications
+- #208: `argos`: Remove duplicate call to `CurrencySymbol`
+
+#### Tests
+- #213, !130: Write unit tests for the `tx` command
+- #282, !130: Split `patched.py` into files
+- #335, !130: Merge the two functions testing `transaction_amount()`
+- #363, !129: Returns balance from `patched_get_source()`
+- #368, !161: Assertions are not tested when testing system exit
+- #362, !156: Change "moul" id in tests
+
+### Meta
+- #240, !150: Drop Python 3.5 support
+- #294, !150, docker/python3/poetry!1: Add support and set-up Python 3.9 test job
+- #270: Silkaj v0.8.1 package for Debian Bullseye (v11)
+- #226, !158: Get rid of `ipaddress` dependency
+- #290, !162: Update `pre-commit` dev dependency
+- #267: Update the copyright date to 2021 in the headers of every source files
+- !150, !155, !167, Update DuniterPy from v0.58.1 to v0.62.0
+- #313, !148: Be compatible with and handle new features from Poetry v1.1
+- #299, !147: Introduce dev version suffix
+
+---
+Thanks @matograine, @moul, @atrax
+
 ## v0.8.1 (30th November 2020)
 - #358, !152: Update DuniterPy to v0.58.1, to support `libnacl` v1.7.2
 
