@@ -157,38 +157,24 @@ def date_approximation(block_id, time_first_block, avgentime):
     return time_first_block + block_id * avgentime
 
 
-@click.command(
-    "id", help="Find corresponding identity or pubkey from pubkey or identity"
-)
-@click.argument("id_pubkey")
+@click.command("lookup", help="User identifier and public key lookup")
+@click.argument("uid_pubkey")
 @coroutine
-async def id_pubkey_correspondence(id_pubkey):
-    client = ClientInstance().client
-    # determine if id_pubkey is a pubkey
-    checked_pubkey = is_pubkey_and_check(id_pubkey)
+async def id_pubkey_correspondence(uid_pubkey):
+    checked_pubkey = is_pubkey_and_check(uid_pubkey)
     if checked_pubkey:
-        id_pubkey = checked_pubkey
-        try:
-            idty = await identity_of(id_pubkey)
-            print(
-                "{} public key corresponds to identity: {}".format(
-                    display_pubkey_and_checksum(id_pubkey), idty["uid"]
-                )
-            )
-        except:
-            message_exit("No matching identity")
-    # if not ; then it is a uid
-    else:
-        pubkeys = await wot_lookup(id_pubkey)
-        print("Public keys found matching '{}':\n".format(id_pubkey))
-        for pubkey in pubkeys:
-            print("→", display_pubkey_and_checksum(pubkey["pubkey"]), end=" ")
-            try:
-                corresponding_id = await client(wot.identity_of, pubkey["pubkey"])
-                print("↔ " + corresponding_id["uid"])
-            except:
-                print("")
+        uid_pubkey = checked_pubkey
+
+    client = ClientInstance().client
+    lookups = await wot_lookup(uid_pubkey)
     await client.close()
+
+    content = f"Public keys or user id found matching '{uid_pubkey}':\n"
+    for lookup in lookups:
+        for identity in lookup["uids"]:
+            pubkey_checksum = display_pubkey_and_checksum(lookup["pubkey"])
+            content += f'\n→ {pubkey_checksum} ↔ {identity["uid"]}'
+    click.echo(content)
 
 
 async def choose_identity(pubkey_uid):

@@ -39,9 +39,9 @@ def test_wot():
 
 
 def test_id():
-    """tests 'silkaj id' certification on gtest"""
+    """tests 'silkaj lookup' certification on gtest"""
 
-    output = check_output(silkaj + ["--gtest", "id", "elois"]).decode()
+    output = check_output(silkaj + ["--gtest", "lookup", "elois"]).decode()
     assert "D7CYHJXjaH4j7zRdWngUbsURPnSnjsCYtvo6f8dvW3C" in output
 
 
