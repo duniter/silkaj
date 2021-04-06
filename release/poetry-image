@@ -1,0 +1,43 @@
+# ------------------------------------------------------------------------------
+# Build Stage
+# ------------------------------------------------------------------------------
+ARG PYTHON_VERS
+FROM registry.duniter.org/docker/python3/poetry/${PYTHON_VERS}:latest AS build
+
+WORKDIR /silkaj
+
+# Copy source tree
+COPY ./ ./
+
+# Install Silkaj
+RUN poetry install --no-dev
+
+# ------------------------------------------------------------------------------
+# Final Stage
+# ------------------------------------------------------------------------------
+FROM registry.duniter.org/docker/python3/poetry/${PYTHON_VERS}:latest
+ARG PYTHON_VERS
+
+# Create silkaj group and user
+RUN groupadd -g 1111 silkaj && \
+    useradd -d /silkaj -g silkaj -u 1111 silkaj
+
+# Install git
+RUN apt update && \
+    apt install --yes git && \
+    rm -rf /var/lib/apt/lists
+
+# Set up alias to directly get silkaj command
+# https://stackoverflow.com/a/3638886
+RUN printf '#!/bin/bash\npoetry run silkaj "$@"' > /usr/bin/silkaj && \
+    chmod +x /usr/bin/silkaj
+
+# Copy the build artifact from the build stage
+COPY --from=build --chown=silkaj:silkaj /silkaj /silkaj
+COPY --from=build --chown=silkaj:silkaj /root/.cache/pypoetry/virtualenvs /silkaj/.cache/pypoetry/virtualenvs
+
+# Use silkaj user
+USER silkaj
+WORKDIR /silkaj
+
+CMD ["/usr/bin/silkaj"]

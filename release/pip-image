@@ -1,0 +1,38 @@
+# ------------------------------------------------------------------------------
+# Build Stage
+# ------------------------------------------------------------------------------
+ARG PYTHON_VERS
+FROM python:${PYTHON_VERS}-slim-buster AS build
+
+WORKDIR /silkaj
+
+# Copy source tree
+COPY ./ ./
+
+# Install Silkaj
+RUN pip install .
+
+# ------------------------------------------------------------------------------
+# Final Stage
+# ------------------------------------------------------------------------------
+FROM python:${PYTHON_VERS}-slim-buster
+ARG PYTHON_VERS
+
+# Create silkaj group and user
+RUN groupadd -g 1111 silkaj && \
+    useradd -d /silkaj -g silkaj -u 1111 silkaj
+
+# Install libsodium
+RUN apt update && \
+    apt install --yes libsodium23 && \
+    rm -rf /var/lib/apt/lists
+
+# Copy the build artifact from the build stage
+COPY --from=build /usr/local/bin/silkaj /usr/local/bin/silkaj
+COPY --from=build /usr/local/lib/python${PYTHON_VERS}/site-packages/ /usr/local/lib/python${PYTHON_VERS}/site-packages/
+
+# Use silkaj user
+USER silkaj
+WORKDIR /usr/local/lib/python${PYTHON_VERS}/site-packages/silkaj
+
+CMD ["/usr/local/bin/silkaj"]

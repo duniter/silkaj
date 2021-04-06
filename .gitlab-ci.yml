@@ -1,7 +1,7 @@
 stages:
   - checks
   - tests
-  - publish
+  - package
   - coverage
 
 variables:
@@ -76,8 +76,39 @@ tests-3.9:
   variables:
     PYTHON_VERSION: "3.9"
 
+.image:
+  stage: package
+  tags: [docker]
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    PYTHON_VERSION: "3.9"
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker build -t "$CI_REGISTRY_IMAGE/$KIND:$CI_COMMIT_SHORT_SHA" -f release/$KIND-image --build-arg PYTHON_VERS=$PYTHON_VERSION .
+    - docker push "$CI_REGISTRY_IMAGE/$KIND:$CI_COMMIT_SHORT_SHA"
+    - docker tag "$CI_REGISTRY_IMAGE/$KIND:$CI_COMMIT_SHORT_SHA" "$CI_REGISTRY_IMAGE/$KIND:$CI_COMMIT_BRANCH"
+    - docker push "$CI_REGISTRY_IMAGE/$KIND:$CI_COMMIT_BRANCH"
+    - docker tag "$CI_REGISTRY_IMAGE/$KIND:$CI_COMMIT_BRANCH" "$CI_REGISTRY_IMAGE/$KIND:latest"
+    - docker push "$CI_REGISTRY_IMAGE/$KIND:latest"
+
+image:poetry:
+  extends: .image
+  variables:
+    KIND: "poetry"
+  rules:
+    - when: manual
+
+image:pip:
+  extends: .image
+  variables:
+    KIND: "pip"
+  rules:
+    - when: manual
+
 pypi_test:
-  stage: publish
+  stage: package
   rules:
     - if: $CI_COMMIT_TAG
       when: manual
@@ -86,7 +117,7 @@ pypi_test:
     - poetry publish --build --username $PYPI_TEST_LOGIN --password $PYPI_TEST_PASSWORD --repository pypi_test
 
 pypi:
-  stage: publish
+  stage: package
   rules:
     - if: $CI_COMMIT_TAG
       when: manual
