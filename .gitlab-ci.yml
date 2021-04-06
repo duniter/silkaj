@@ -1,7 +1,7 @@
 stages:
   - checks
-  - tests
   - package
+  - tests
   - coverage
 
 variables:
@@ -97,15 +97,15 @@ image:poetry:
   extends: .image
   variables:
     KIND: "poetry"
-  rules:
-    - when: manual
+#  rules:
+#    - when: manual
 
 image:pip:
   extends: .image
   variables:
     KIND: "pip"
-  rules:
-    - when: manual
+#  rules:
+#    - when: manual
 
 pypi_test:
   stage: package
