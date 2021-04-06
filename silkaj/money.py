@@ -92,10 +92,10 @@ async def show_amount_from_pubkey(label, inputs_balance):
     # if `pubkey` is a pubkey, get pubkey:checksum and uid
     if label != "Total":
         member = await wot.is_member(label)
-        pubkey_and_ck = display_pubkey_and_checksum(label)
+        label = display_pubkey_and_checksum(label)
     # display balance table
     display = list()
-    display.append(["Balance of pubkey", pubkey_and_ck])
+    display.append(["Balance of pubkey", label])
 
     if member:
         display.append(["User identifier", member["uid"]])
