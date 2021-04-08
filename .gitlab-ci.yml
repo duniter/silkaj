@@ -86,26 +86,50 @@ tests-3.9:
     PYTHON_VERSION: "3.9"
   script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - docker build -t "$CI_REGISTRY_IMAGE/$KIND:$CI_COMMIT_SHORT_SHA" -f release/$KIND-image --build-arg PYTHON_VERS=$PYTHON_VERSION .
-    - docker push "$CI_REGISTRY_IMAGE/$KIND:$CI_COMMIT_SHORT_SHA"
-    - docker tag "$CI_REGISTRY_IMAGE/$KIND:$CI_COMMIT_SHORT_SHA" "$CI_REGISTRY_IMAGE/$KIND:$CI_COMMIT_BRANCH"
-    - docker push "$CI_REGISTRY_IMAGE/$KIND:$CI_COMMIT_BRANCH"
-    - docker tag "$CI_REGISTRY_IMAGE/$KIND:$CI_COMMIT_BRANCH" "$CI_REGISTRY_IMAGE/$KIND:latest"
-    - docker push "$CI_REGISTRY_IMAGE/$KIND:latest"
+    - docker build -t "$CI_REGISTRY_IMAGE/$CHANNEL/$ENV:$CI_COMMIT_SHORT_SHA" -f image/$ENV --build-arg PYTHON_VERS=$PYTHON_VERSION .
+    - docker push "$CI_REGISTRY_IMAGE/$CHANNEL/$ENV:$CI_COMMIT_SHORT_SHA"
+    - docker tag "$CI_REGISTRY_IMAGE/$CHANNEL/$ENV:$CI_COMMIT_SHORT_SHA" "$CI_REGISTRY_IMAGE/$CHANNEL/$ENV:latest"
+    - docker push "$CI_REGISTRY_IMAGE/$CHANNEL/$ENV:latest"
 
-image:poetry:
+.image:release:
   extends: .image
   variables:
-    KIND: "poetry"
-#  rules:
-#    - when: manual
+    CHANNEL: "release"
+  after_script:
+    - docker tag "$CI_REGISTRY_IMAGE/$CHANNEL/$ENV:$CI_COMMIT_SHORT_SHA" "$CI_REGISTRY_IMAGE/$CHANNEL/$ENV:$CI_COMMIT_TAG"
+    - docker push "$CI_REGISTRY_IMAGE/$CHANNEL/$ENV:$CI_COMMIT_TAG"
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: manual
 
-image:pip:
+image:release:poetry:
+  extends: .image:release
+  variables:
+    ENV: "poetry"
+
+image:release:pip:
+  extends: .image:release
+  variables:
+    ENV: "pip"
+
+.image:branch:
   extends: .image
   variables:
-    KIND: "pip"
-#  rules:
-#    - when: manual
+    CHANNEL: $CI_COMMIT_BRANCH
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - when: manual
+
+image:branch:poetry:
+  extends: .image:branch
+  variables:
+    ENV: "poetry"
+
+image:branch:pip:
+  extends: .image:branch
+  variables:
+    ENV: "pip"
 
 pypi_test:
   stage: package
