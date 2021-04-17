@@ -1,5 +1,17 @@
-## v0.9.0rc (24th March 2021)
+## v0.9.0 (17th April 2021)
 
+### [Milestone v0.9.0](https://git.duniter.org/clients/python/silkaj/milestones/13)
+
+- #345, #385, !171: Refactor `id`/`lookup` command exclusively using `/wot/lookup`
+  - Display non-member uids when passing a pubkey
+  - Use same algorithm as `choose_identity()` uses
+  - Rename `id` to `lookup` command
+- #377, !172: `balance`: Fix undefined variable in case of 'Total' label
+
+Plus what can be found bellow in v0.9.0rc
+
+
+## v0.9.0rc (24th March 2021)
 ### Code
 #### `tx`
 - #281, !129: Handle transaction size limit properly
@@ -50,6 +62,9 @@ Thanks @matograine, @moul, @atrax
 Thanks @matograine
 
 ## v0.8.0 (18th October 2020)
+
+### [Milestone v0.8.0](https://git.duniter.org/clients/python/silkaj/milestones/8)
+
 ### Code
 #### Transaction
 - #111, !108: Support passing different amounts on multi-recipients tx
